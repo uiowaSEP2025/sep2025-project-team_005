@@ -27,12 +27,12 @@ Savvy Note is a professional networking platform for musicians, similar to Linke
 ```
 /musician-connect
 ├── frontend/         # Next.js frontend
+|   ├── app             # Page components and layouts
+|   ├── components      # Reusable UI components
+|   ├── config          # Configuration files (e.g., environment variables, constants)
+|   ├── services        # API services (e.g., fetchers, database interactions)
 ├── backend/          # Django backend
-├── db/               # Database migrations & setup
-├── infra/            # Kubernetes deployment configurations
-├── scripts/          # Utility scripts for setup & deployment
-├── README.md         # Project documentation
-└── docker-compose.yml # Local development setup
+└── README.md         # Project documentation
 ```
 
 ## 🛠️ Installation & Setup
@@ -57,6 +57,7 @@ python manage.py runserver
 ```sh
 cd frontend
 npm install
+npm install next@15.1.6
 npm run dev
 ```
 
