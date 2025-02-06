@@ -46,7 +46,6 @@ Savvy Note is a professional networking platform for musicians, similar to Linke
 ### Backend Setup
 ```sh
 cd backend
-python -m venv venv
 source venv/bin/activate  # On Windows use `venv\Scripts\activate`
 pip install -r requirements.txt
 python manage.py migrate
