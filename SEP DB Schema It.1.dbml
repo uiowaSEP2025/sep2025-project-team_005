@@ -1,0 +1,85 @@
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+
+TABLE users {
+    id SERIAL [PRIMARY KEY]
+    username varchar [note: "UNIQUE; NOT NULL"]
+    email VARCHAR(255) [note: "UNIQUE NOT NULL"]
+    password_hash TEXT [note: "NOT NULL"]
+    role VARCHAR(50) [note: "CHECK (role IN ('musician', 'business'))"]
+    rating DECIMAL(3,2) [note: "DEFAULT 0, -- Rating (1-5 scale)"]
+    created_at TIMESTAMP [note: "DEFAULT CURRENT_TIMESTAMP"]
+}
+TABLE musicians {
+    id SERIAL [PRIMARY KEY]
+    user_id INT [note: "REFERENCES users(id) ON DELETE CASCADE"]
+    stage_name VARCHAR(255)
+    instruments TEXT[]
+    years_played JSONB [note: "{'guitar': 5, 'piano': 8}"]
+    home_studio BOOLEAN [note: "DEFAULT FALSE"]
+    preferred_genres TEXT[]
+    encrypted_contracts BYTEA 
+}
+TABLE business {
+    id SERIAL [PRIMARY KEY]
+    user_id INT [note: "REFERENCES users(id) ON DELETE CASCADE"]
+    business_name VARCHAR(255) [note: "UNIQUE NOT NULL"]
+}
+TABLE portfolio [note: "Entire Feed"] {
+    id SERIAL [PRIMARY KEY]
+    user_id INT [note: "REFERENCES users(id) ON DELETE CASCADE"]
+}
+TABLE post [note: "Individual posts"] {
+  id SERIAL [PRIMARY KEY]
+  portfolio_id INT [note: "REFERENCES portfolio(id) ON DELETE CASCADE"]
+  title VARCHAR(255) [note: "NOT NULL"]
+  description TEXT
+  audio_url TEXT
+  video_url TEXT
+  tags TEXT[]
+  instruments_played TEXT[]
+  songs_played TEXT[]
+  created_at TIMESTAMP [note: "DEFAULT CURRENT_TIMESTAMP"]
+  likes INT [note: "DEFAULT 0"]
+  shares INT [note: "DEFAULT 0"]
+}
+TABLE comments {
+    id SERIAL [PRIMARY KEY]
+    post_id INT [note: "REFERENCES post(id) ON DELETE CASCADE"]
+    user_id INT [note: "REFERENCES users(id) ON DELETE CASCADE"]
+    comment TEXT [note: "NOT NULL"]
+    created_at TIMESTAMP [note: "DEFAULT CURRENT_TIMESTAMP"]
+}
+TABLE job_listings {
+    id SERIAL [PRIMARY KEY]
+    business_id INT [note: "REFERENCES business(id) ON DELETE CASCADE"]
+    title VARCHAR(255) [note: "NOT NULL"]
+    description TEXT
+    budget DECIMAL(10,2) [note: "Hidden from public"]
+    pay_range VARCHAR(255) [note: "Publicly visible"]
+    job_type VARCHAR(50) [note: "CHECK (job_type IN ('Live', 'Home Recording'))"]
+    skill_level_needed VARCHAR(50) [note: "CHECK (skill_level_needed IN ('beginner', 'experienced', 'virtuoso'))"]
+    instruments_needed TEXT[]
+    closing_date DATE [note: "NOT NULL"]
+    status VARCHAR(50) [note: "DEFAULT 'open' CHECK (status IN ('open', 'closed'))"]
+    created_at TIMESTAMP [note: "DEFAULT CURRENT_TIMESTAMP"]
+}
+TABLE job_applications {
+    id SERIAL [PRIMARY KEY]
+    job_id INT [note: "REFERENCES job_listings(id) ON DELETE CASCADE"]
+    musician_id INT [note: "REFERENCES musician(id) ON DELETE CASCADE"]
+    cover_letter TEXT
+    requested_pay DECIMAL(10,2)
+    matched_qualifications JSONB [note: "Example: {'self_rating': 'virtuoso', 'verified_rating': 'experienced', 'budget_fit': 'Applicant request is roughly 80% of job budget'}"]
+    submitted_at TIMESTAMP [note: "DEFAULT CURRENT_TIMESTAMP"]
+}
+
+Ref: musicians.user_id - users.id 
+Ref: business.user_id - users.id 
+Ref: portfolio.user_id - users.id
+Ref: post.portfolio_id > portfolio.id
+Ref: comments.post_id > post.id
+Ref: comments.user_id > users.id
+Ref: job_listings.business_id > business.id
+Ref: job_applications.job_id > job_listings.id
+Ref: job_applications.musician_id > musicians.id
