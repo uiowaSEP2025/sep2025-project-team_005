@@ -67,8 +67,12 @@ docker-compose up --build
 kubectl apply -f infra/
 ```
 
-## 🔑 Environment Variables
-Create a `.env` file in both `frontend` and `backend` directories and add the following:
+## Virtual Environment
+source venv/bin/activate    # macOS/Linux
+venv\Scripts\activate       # Windows
+
+pip freeze > requirements.txt       # Update project dependency list
+pip install -r requirements.txt     # Run to install dependencies
 
 ```
 # Backend
