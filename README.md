@@ -67,7 +67,8 @@ docker-compose up --build
 kubectl apply -f infra/
 ```
 
-## Virtual Environment
+### Virtual Environment
+```sh
 source venv/bin/activate    # macOS/Linux
 venv\Scripts\activate       # Windows
 
