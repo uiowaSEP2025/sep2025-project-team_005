@@ -86,6 +86,7 @@ kubectl apply -f infra/
 
 ### PostgreSQL Setup and Migration
 ```sh
+brew services start postgresql@15       # On Windows 'net start postgresql-x64-15'
 source venv/bin/activate
 pip install psycopg2	    ** If not already installed
 python manage.py makemigrations pages
