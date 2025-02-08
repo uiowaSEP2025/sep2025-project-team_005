@@ -1,3 +1,18 @@
+# Bytecode and compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
 # Virtual environment
 venv/
-.env/
+
+# Django database (if using SQLite)
+db.sqlite3
+
+# Next.js and frontend dependencies
+.next/
+
+# Environment variables
+.env
+backend/.env
