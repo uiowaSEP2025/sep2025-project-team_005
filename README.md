@@ -43,25 +43,36 @@ Savvy Note is a professional networking platform for musicians, similar to Linke
 - [Docker](https://www.docker.com/)
 - [Kubernetes (kubectl & minikube)](https://kubernetes.io/)
 
+### WSL
+```sh
+# In terminal
+wsl
+su -l {user_name}
+# From VS Code search bar
+> WSL: Open Folder in WSL
+# Replace "root" with "home" and select user
+# Navigate to project directory
+```
+
 ### Backend Setup
 ```sh
 cd backend
-python -m venv venv
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
-source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
-$env:PYTHONPATH = "path\to\sep2025-project-team_005\backend" # May be optional
 python manage.py migrate
 python manage.py runserver
 ```
 
-### Launch Backend
+### Postgres Setup
 ```sh
-cd backend
-source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py runserver
+sudo -u postgres psql
+ALTER USER postgres WITH PASSWORD '{password}'
+CREATE DATABASE "savvy-note-sp";
+GRANT ALL PRIVILEGES ON DATABASE "savvy-note-sp" TO {username};
+# Update .env file with
+DB_USER={username}
+DB_PASSWORD={password}
 ```
 
 ### Frontend Setup
@@ -69,12 +80,6 @@ python manage.py runserver
 cd frontend
 npm install
 npm install next@15.1.6
-npm run dev
-```
-
-### Launch Frontend
-```sh
-cd frontend
 npm run dev
 ```
 
@@ -87,15 +92,14 @@ kubectl apply -f infra/
 ### Virtual Environment
 ```sh
 source venv/bin/activate    # macOS/Linux
-venv\Scripts\activate       # Windows
 
 pip freeze > requirements.txt       # Update project dependency list
 pip install -r requirements.txt     # Run to install dependencies
-
 ```
+
 # Backend
 DJANGO_SECRET_KEY=your_secret_key
-DATABASE_URL=postgres://user:password@db:5432/musician_connect
+DATABASE_URL=postgres://<user>:<password>@localhost:5432/savvy-note-sp
 AWS_ACCESS_KEY_ID=your_aws_key
 AWS_SECRET_ACCESS_KEY=your_aws_secret
 ```
