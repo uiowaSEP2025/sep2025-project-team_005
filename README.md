@@ -93,12 +93,14 @@ kubectl apply -f infra/
 ```sh
 sudo systemctl start postgresql
 source venv/bin/activate
-pip install psycopg2	    ** If not already installed
-python manage.py makemigrations pages
-python manage.py makemigrations admin
 python manage.py migrate 
 python manage.py showmigrations
+```
 
+### Creating New Migration
+```sh
+python manage.py makemigrations pages
+python manage.py makemigrations admin
 ```
 
 # Backend
