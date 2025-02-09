@@ -67,7 +67,7 @@ python manage.py runserver
 ### Postgres Setup
 ```sh
 sudo -u postgres psql
-ALTER USER postgres WITH PASSWORD '{password}'
+ALTER USER postgres WITH PASSWORD '{password}';
 CREATE DATABASE "savvy-note-sp";
 GRANT ALL PRIVILEGES ON DATABASE "savvy-note-sp" TO {username};
 # Update .env file with
@@ -91,7 +91,7 @@ kubectl apply -f infra/
 
 ### PostgreSQL Setup and Migration
 ```sh
-brew services start postgresql@15       # On Windows 'net start postgresql-x64-15'
+sudo systemctl start postgresql
 source venv/bin/activate
 pip install psycopg2	    ** If not already installed
 python manage.py makemigrations pages
