@@ -103,6 +103,21 @@ python manage.py makemigrations pages
 python manage.py makemigrations admin
 ```
 
+### Testing
+#### All Tests
+```sh
+cd backend
+pytest
+```
+#### Single File Tests
+```sh
+pytest test/path/to/test.py -v
+```
+#### Single File Tests
+```sh
+pytest test/path/to/test.py -v
+```
+
 # Backend
 DJANGO_SECRET_KEY=your_secret_key
 DATABASE_URL=postgres://<user>:<password>@localhost:5432/savvy-note-sp
