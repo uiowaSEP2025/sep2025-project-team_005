@@ -95,6 +95,13 @@ python manage.py migrate
 python manage.py showmigrations
 
 ```
+
+### Behave Setup
+```sh
+cd backend
+pip install behave django-behave
+```
+
 # Backend
 DJANGO_SECRET_KEY=your_secret_key
 DATABASE_URL=postgres://user:password@db:5432/musician_connect
