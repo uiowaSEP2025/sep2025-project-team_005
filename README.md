@@ -100,6 +100,7 @@ python manage.py showmigrations
 ```sh
 cd backend
 pip install behave django-behave
+pip install django-environ
 ```
 
 # Backend
