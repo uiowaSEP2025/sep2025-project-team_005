@@ -6,6 +6,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 # Path to the user data directory
 user_data_dir = "/home/mmiller152/chrome_user_data"
@@ -35,8 +37,10 @@ driver = webdriver.Chrome(service=service, options=options)
 # Open the landing page of the application
 driver.get("http://localhost:3000")
 
-# Allow small delay for page to load
-time.sleep(2)
+# Wait for the elements to load (wait up to 10 seconds for elements to be visible)
+WebDriverWait(driver, 10).until(
+    EC.visibility_of_element_located((By.TAG_NAME, "h1"))
+)
 
 # Verify that we see our welcome message
 expected_message = 'Connect, Collaborate, and Get Paid'
@@ -44,9 +48,21 @@ actual_message = driver.find_element(By.TAG_NAME, "h1").text
 assert expected_message in actual_message, f"Expected '{expected_message}', got '{actual_message}'"
 
 # If the above test passes, then the code will get to this line and print the following
-print(f"Test passed: found expected welcome message '{actual_message}'")
+print(f"Test 1 passed: found expected welcome message '{actual_message}'")
 
 # Verify that the 5 elements you can click on are present
-#assert driver.find_element(By.CLASS_NAME, "primaryButton")
+# First check login button, waiting up to 10 seconds
+login_button = WebDriverWait(driver, 10).until(
+    EC.visibility_of_element_located((By.XPATH, "//a[contains(@class, 'primaryButton')]"))
+)
+assert login_button.text == "Login", "Login button text is incorrect or not found!"
+print("Test 2 passed: found login button")
+
+# Next check for the sign up button ("Get Started"), waiting up to 10 seconds
+signup_button = WebDriverWait(driver, 10).until(
+    EC.visibility_of_element_located((By.XPATH, "//a[contains(@class, 'secondaryButton')]"))
+)
+assert signup_button.text == "Get Started", "Get Started button text is incorrect or not found!"
+print("Test 2 passed: found signup button")
 
 driver.quit()
