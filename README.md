@@ -103,6 +103,34 @@ pip install behave django-behave
 pip install django-environ
 ```
 
+### Running Behave Features
+```sh
+# In project's root directory, run the following in the terminal:
+PYTHONPATH=backend behave backend/features  # PYTHONPATH=backend is optional if you have set that path in your environment already
+```
+
+### Selenium Setup
+```sh
+pip install selenium
+```
+
+Selenium requires you to have a WebDriver since it controls browsers, so download one of the following based on what browser you want to test with:
+- [Chrome](https://developer.chrome.com/docs/chromedriver/downloads)
+- [Firefox](https://github.com/mozilla/geckodriver/releases)
+- [MicrosoftEdge](https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/?form=MA13LH)
+
+IMPORTANT NOTE: Make sure the version you download matches that of your browser version Once downloaded and extracted from the zip file, copy and paste the driver's .exe file to a folder in your system PATH (for windows, this could be C:\Windows\System32, C:\Windows\, C:\Program Files\, or another, for mac move to /usr/local/bin/), or if you do not want to copy and paste this you can specify the full path to the driver in your Selenium script
+
+```sh
+# Verify the web driver is accessible
+# Chrome:
+chromedriver --version
+# Firefox:
+geckodriver --version
+# Microsoft Edge:
+msedgedriver --version
+```
+
 # Backend
 DJANGO_SECRET_KEY=your_secret_key
 DATABASE_URL=postgres://user:password@db:5432/musician_connect
