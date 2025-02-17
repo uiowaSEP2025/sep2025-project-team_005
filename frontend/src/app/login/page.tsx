@@ -9,7 +9,7 @@ import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
@@ -18,16 +18,16 @@ export default function Login() {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/auth/login/",
-        { email, password },
+        "http://localhost:8000/api/auth/login/",      // Replace with an env variable for both local and Kubernetes deployment
+        { username, password },
         { withCredentials: true } // Sends cookies to backend
       );
 
       Cookies.set("access_token", response.data.access, { secure: true, sameSite: "Lax" });
-      router.push("/"); // Redirect after login
+      router.push("/"); // Redirect to loading page for now
     } 
     catch (err) {
-      setError("Invalid email or password");
+      setError("Invalid username or password");
     }
   };
 
@@ -40,8 +40,8 @@ export default function Login() {
       </header>
 
       <form className={styles.loginForm} onSubmit={handleLogin}>
-        <input type="email" placeholder="Email" className={styles.inputField} value={email} 
-          onChange={(e)=> setEmail(e.target.value)} required />
+        <input type="username" placeholder="Username" className={styles.inputField} value={username} 
+          onChange={(e)=> setUsername(e.target.value)} required />
         <input type="password" placeholder="Password" className={styles.inputField} value={password} 
           onChange={(e) => setPassword(e.target.value)} required />
         <button type="submit" className={styles.primaryButton}>Login</button>
