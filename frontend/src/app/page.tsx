@@ -13,10 +13,10 @@ export default function Home() {
       </header>
 
       <div className={styles.buttonGroup}>
-        <a className={styles.primaryButton} href="/login">
+        <a id="loginButton" className={styles.primaryButton} href="/login">
           Login
         </a>
-        <a className={styles.secondaryButton} href="/signup">
+        <a id="signupButton" className={styles.secondaryButton} href="/signup">
           Get Started
         </a>
       </div>
