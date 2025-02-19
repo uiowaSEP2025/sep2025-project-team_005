@@ -127,8 +127,11 @@ pip install django-environ
 
 ### Running Behave Features
 ```sh
-# In project's root directory, run the following in the terminal:
-PYTHONPATH=backend behave backend/features  # PYTHONPATH=backend is optional if you have set that path in your environment already
+cd frontend
+npm run dev
+
+cd backend
+behave features/XXXX.feature
 ```
 
 ### Selenium Setup
