@@ -7,3 +7,8 @@ variable "prefix" {
   description = "Prefix assigned to resources"
   default     = "savvy-note"
 }
+
+variable "db_password" {
+  description = "Password for RDS database instance"
+  default     = "@@savvy-note-db-password1@@"
+}
