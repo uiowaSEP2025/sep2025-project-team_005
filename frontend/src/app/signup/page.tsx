@@ -55,7 +55,7 @@ export default function Signup() {
             </div>
 
             <form className={styles.form} onSubmit={handleSubmit}>
-                <label htmlFor="email">Email:</label>
+                <label htmlFor="email" className={styles.label}>Email:</label>
                 <input
                     type="email"
                     id="email"
@@ -66,7 +66,7 @@ export default function Signup() {
                     onChange={(e) => setEmail(e.target.value)}
                 />
 
-                <label htmlFor="username">Username:</label>
+                <label htmlFor="username" className={styles.label}>Username:</label>
                 <input
                     type="text"
                     id="username"
@@ -77,7 +77,7 @@ export default function Signup() {
                     onChange={(e) => setUsername(e.target.value)}
                 />
 
-                <label htmlFor="password">Password:</label>
+                <label htmlFor="password" className={styles.label}>Password:</label>
                 <input
                     type="password"
                     id="password"
@@ -93,7 +93,7 @@ export default function Signup() {
                 />
                 {passwordError && <p className={styles.error}>{passwordError}</p>}
 
-                <label htmlFor="role">Select Role:</label>
+                <label htmlFor="role" className={styles.label}>Select Role:</label>
                 <select
                     id="role"
                     name="role"
