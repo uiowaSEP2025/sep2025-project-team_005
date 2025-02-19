@@ -36,7 +36,7 @@
     gap: 0.5rem;
 }
 
-.label {  /* 🔹 Added a class for label styling */
+.label {  
     font-weight: bold;
     color: #374151; /* gray-700 */
 }
@@ -61,4 +61,24 @@
 
 .submitButton:hover {
     background-color: #2563eb; /* indigo-700 */
+}
+
+.select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    background-color: white;
+    cursor: pointer;
+}
+
+.select:focus {
+    border-color: #3b82f6; /* Highlighting the dropdown when focused */
+    outline: none;
+}
+
+.error {
+    color: red;
+    font-size: 0.875rem;
+    margin-top: 5px;
 }
