@@ -4,8 +4,13 @@ __pycache__/
 *.pyo
 *.pyd
 
+backend/__pycache__/
+backend/*.pyc
+backend/*.pyo
+backend/*.pyd
+
 # Virtual environment
-backend/venv
+venv/
 
 # Django database (if using SQLite)
 db.sqlite3
@@ -16,6 +21,3 @@ db.sqlite3
 # Environment variables
 .env
 backend/.env
-
-# Environment variables
-.env
