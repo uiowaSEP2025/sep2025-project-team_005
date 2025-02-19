@@ -10,5 +10,5 @@ variable "prefix" {
 
 variable "db_password" {
   description = "Password for RDS database instance"
-  default     = "@@savvy-note-db-password1@@"
+  default     = "@@savvy-note-db-password1@@" // Should probably move to GitHub Actions Secrets when we get a chance
 }
