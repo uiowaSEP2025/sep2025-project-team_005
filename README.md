@@ -1,6 +1,6 @@
 # Savvy Note
 
-Savvy Note is a professional networking platform for musicians, similar to LinkedIn, where artists can post upcoming gigs, browse gig inquiries, collaborate in real time via live streaming, and securely manage payments through an escrow system.
+Savvy Note is a professional networking platform for musicians where artists can post upcoming gigs, browse gig inquiries, collaborate in real time via live streaming, and securely manage payments through an escrow system.
 
 ## 🚀 Features
 
@@ -79,7 +79,6 @@ DB_PASSWORD={password}
 ```sh
 cd frontend
 npm install
-npm install next@15.1.6
 npm run dev
 ```
 
@@ -103,64 +102,24 @@ python manage.py makemigrations pages
 python manage.py makemigrations admin
 ```
 
-### Testing
-#### All Tests
-```sh
-cd backend
-pytest
-```
-#### Single File Tests
-```sh
-pytest test/path/to/test.py -v
-```
-#### Single File Tests
-```sh
-pytest test/path/to/test.py -v
-```
-
-### Behave Setup
-```sh
-cd backend
-pip install behave django-behave
-pip install django-environ
-```
-
-### Running Behave Features
-```sh
-cd frontend
-npm run dev
-
-cd backend
-behave features/XXXX.feature
-```
-
+## Testing
 ### Selenium Setup
 ```sh
-pip install selenium
-
-# The following commands are for installing chrome:
-# Install the browser you will want to test on for WSL:
-sudo apt update
-sudo apt install -y wget
-wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-sudo apt install -y ./google-chrome-stable_current_amd64.deb
-
-# Install the browser you will want to test on for Mac:
-pip install selenium
+pip install -r requirements.txt
+# Install the browsers you want to test on:
+# TODO brew installation instructions - otherwise, use command in past commit
 brew install --cask google-chrome
-
-
-# Selenium requires you to have a WebDriver as well since it controls browsers, one way to acheive this is to install a
-# driver manager to automatically handle compatible versions for you:
-pip install webdriver-manager
+# Update .env file with
+SELENIUM_USER_DIR={/path/of/choice}
 ```
+This empty directory acts as temporary session storage for user data while the Selenium tests are running, and will be cleared out via the `clear_user_data_dir`
 
-If this does not work for your environment, you can download one manually and set the path for your tests to be able to find when needed. Download of the following based on what browser you want to test with:
+If this does not work for your environment, you can download one manually and set the path for your tests to be able to find when needed. Download one of the following based on what browser you want to test with:
 - [Chrome](https://developer.chrome.com/docs/chromedriver/downloads)
 - [Firefox](https://github.com/mozilla/geckodriver/releases)
 - [MicrosoftEdge](https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/?form=MA13LH)
 
-IMPORTANT NOTE: Make sure the version you download matches that of your browser version Once downloaded and extracted from the zip file, copy and paste the driver's .exe file to a folder in your system PATH (for windows, this could be C:\Windows\System32, C:\Windows\, C:\Program Files\, or another, for mac move to /usr/local/bin/), or if you do not want to copy and paste this you can specify the full path to the driver in your Selenium script
+IMPORTANT NOTE: Make sure the version you download matches that of your browser version/ Once downloaded and extracted from the zip file, copy and paste the driver's .exe file to a folder in your system PATH (for windows, this could be C:\Windows\System32, C:\Windows\, C:\Program Files\, or another, for mac move to /usr/local/bin/), or if you do not want to copy and paste this you can specify the full path to the driver in your Selenium script
 
 ```sh
 # If doing this alternative, verify the web driver is accessible
@@ -172,18 +131,65 @@ geckodriver --version
 msedgedriver --version
 ```
 
-### Testing Selenium Setup:
-Before being able to successfully run your Selenium tests, there may be some modifications that need to be made to the test files themselves depending on your setup. Using the file `test_landing_page.py` as an example, you would need to change line 11's `user_data_dir` string to your specific directory you will be using for this. Just make an empty directory wherever you would like (if using WSL it must be in there), and replace the path that is in there to yours. This empty directory acts as temporary session storage for user data while the Selenium tests are running, and will be cleared out via the `clear_user_data_dir` function (this is the only way I could get it to work without running into session errors). Additionally, the options specified may not be necessary for everyone's environment, it was just the only way I got it to work. The web driver used can be changed by importing another other than Chrome, but I had many problems with the others so I would not recommend. Now you can attempt to run this test_landing_page.py Selenium test by doing the following:
-
+### Unit Tests
+#### All Backend Tests
 ```sh
-# Start up the application but DO NOT open it in browser
+cd backend
+pytest
+```
+#### Single File Backend Tests
+```sh
+cd backend
+pytest test/path/to/test.py -v
+```
+#### All Frontend Tests
+TODO
+#### Single File Frontend Tests
+TODO
+
+### Functional Tests
+#### All Backend Tests
+TODO
+#### Single File Backend Tests
+TODO
+#### All Frontend Tests
+```sh
+cd frontend
 npm run dev
 
-# In another terminal, run this command:
-python frontend/tests/selenium/test_landing_page.py
+pytest
+```
+#### Single File Frontend Tests
+```sh
+cd frontend
+npm run dev
+
+python test/path/to/test.py -v
 ```
 
-If the setup is successful, the following print statement should be seen in the terminal: "Test passed: found expected welcome message 'Connect, Collaborate, and Contract'"
+### Integration Tests
+#### All Tests
+TODO
+#### Single File Tests
+TODO
+
+### Acceptance Tests
+#### All Tests
+```sh
+cd frontend
+npm run dev
+
+cd backend
+behave test/features/
+```
+#### Single File Tests
+```sh
+cd frontend
+npm run dev
+
+cd backend
+behave test/features/XXXX.feature
+```
 
 # Backend
 DJANGO_SECRET_KEY=your_secret_key
