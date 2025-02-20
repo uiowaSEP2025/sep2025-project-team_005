@@ -47,6 +47,12 @@ export default function Signup() {
         alert("Form submitted successfully!"); // Replace with actual submission logic
     };
 
+
+
+    // className={styles.inputField}
+
+
+
     return (
         <div className={styles.container}>
             <div className={styles.header}>
@@ -62,6 +68,7 @@ export default function Signup() {
                     name="email"
                     required
                     placeholder="Enter your email"
+                    className={styles.inputField}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                 />
@@ -73,6 +80,7 @@ export default function Signup() {
                     name="username"
                     required
                     placeholder="Choose a username"
+                    className={styles.inputField}
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                 />
@@ -84,6 +92,7 @@ export default function Signup() {
                     name="password"
                     required
                     placeholder="Create a strong password"
+                    className={styles.inputField}
                     value={password}
                     onChange={(e) => {
                         const newPassword = e.target.value;
@@ -98,6 +107,7 @@ export default function Signup() {
                     id="role"
                     name="role"
                     required
+                    className={styles.selectField}
                     value={role}
                     onChange={(e) => setRole(e.target.value)}
                 >
