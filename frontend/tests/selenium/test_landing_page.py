@@ -1,4 +1,5 @@
 import os
+import environ
 import shutil
 import time
 from selenium import webdriver
@@ -9,8 +10,12 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+
+env = environ.Env()
+env.read_env(os.path.join(os.path.dirname(__file__), "../../.env"))
+
 # Path to the user data directory
-user_data_dir = "/home/mmiller152/chrome_user_data"
+user_data_dir = env("SELENIUM_USER_DIR")
 
 # Function to clear out the user data directory
 def clear_user_data_dir():
@@ -43,7 +48,7 @@ WebDriverWait(driver, 10).until(
 )
 
 # Verify that we see our welcome message
-expected_message = 'Connect, Collaborate, and Get Paid'
+expected_message = 'Connect, Collaborate, and Contract'
 actual_message = driver.find_element(By.TAG_NAME, "h1").text
 assert expected_message in actual_message, f"Expected '{expected_message}', got '{actual_message}'"
 

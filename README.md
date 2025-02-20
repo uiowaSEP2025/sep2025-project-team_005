@@ -113,6 +113,10 @@ pytest
 ```sh
 pytest test/path/to/test.py -v
 ```
+#### Single File Tests
+```sh
+pytest test/path/to/test.py -v
+```
 
 ### Behave Setup
 ```sh
@@ -123,20 +127,28 @@ pip install django-environ
 
 ### Running Behave Features
 ```sh
-# In project's root directory, run the following in the terminal:
-PYTHONPATH=backend behave backend/features  # PYTHONPATH=backend is optional if you have set that path in your environment already
+cd frontend
+npm run dev
+
+cd backend
+behave features/XXXX.feature
 ```
 
 ### Selenium Setup
 ```sh
 pip install selenium
 
-# Install the browser you will want to test on (for sure have to do this if using WSL, unsure if you have to for a mac)
 # The following commands are for installing chrome:
+# Install the browser you will want to test on for WSL:
 sudo apt update
 sudo apt install -y wget
 wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 sudo apt install -y ./google-chrome-stable_current_amd64.deb
+
+# Install the browser you will want to test on for Mac:
+pip install selenium
+brew install --cask google-chrome
+
 
 # Selenium requires you to have a WebDriver as well since it controls browsers, one way to acheive this is to install a
 # driver manager to automatically handle compatible versions for you:
@@ -171,7 +183,7 @@ npm run dev
 python frontend/tests/selenium/test_landing_page.py
 ```
 
-If the setup is successful, the following print statement should be seen in the terminal: "Test passed: found expected welcome message 'Connect, Collaborate, and Get Paid'"
+If the setup is successful, the following print statement should be seen in the terminal: "Test passed: found expected welcome message 'Connect, Collaborate, and Contract'"
 
 # Backend
 DJANGO_SECRET_KEY=your_secret_key
