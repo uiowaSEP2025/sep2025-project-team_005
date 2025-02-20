@@ -106,20 +106,24 @@ python manage.py makemigrations admin
 ### Selenium Setup
 ```sh
 pip install -r requirements.txt
-# Install the browsers you want to test on:
-# TODO brew installation instructions - otherwise, use command in past commit
-brew install --cask google-chrome
 # Update .env file with
 SELENIUM_USER_DIR={/path/of/choice}
-```
-This empty directory acts as temporary session storage for user data while the Selenium tests are running, and will be cleared out via the `clear_user_data_dir`
 
+# Linux
+sudo apt update
+sudo apt install -y wget
+wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+sudo apt install -y ./google-chrome-stable_current_amd64.deb
+
+# Mac (if Brew is installed)
+brew install --cask google-chrome
+```
 If this does not work for your environment, you can download one manually and set the path for your tests to be able to find when needed. Download one of the following based on what browser you want to test with:
 - [Chrome](https://developer.chrome.com/docs/chromedriver/downloads)
 - [Firefox](https://github.com/mozilla/geckodriver/releases)
 - [MicrosoftEdge](https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/?form=MA13LH)
 
-IMPORTANT NOTE: Make sure the version you download matches that of your browser version/ Once downloaded and extracted from the zip file, copy and paste the driver's .exe file to a folder in your system PATH (for windows, this could be C:\Windows\System32, C:\Windows\, C:\Program Files\, or another, for mac move to /usr/local/bin/), or if you do not want to copy and paste this you can specify the full path to the driver in your Selenium script
+IMPORTANT NOTE: Make sure the version you download matches that of your browser version. Once downloaded and extracted from the zip file, copy and paste the driver's .exe file to a folder in your system PATH (Linux-based systems are /usr/local/bin/), or if you do not want to copy and paste this you can specify the full path to the driver in your Selenium script
 
 ```sh
 # If doing this alternative, verify the web driver is accessible
