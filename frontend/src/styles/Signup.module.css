@@ -83,3 +83,39 @@
     font-size: 0.875rem;
     margin-top: 5px;
 }
+
+.inputField {
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+}
+
+.selectField {
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    background-color: white;
+    appearance: none; /* Removes default browser styles */
+    cursor: pointer;
+}
+
+/* Add a small arrow icon for better UI (optional) */
+.selectField::after {
+    content: "▼";
+    font-size: 0.8rem;
+    color: #6b7280;
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+/* Improve focus styles */
+.selectField:focus {
+    border-color: #4f46e5; /* Change to a blueish color when focused */
+    outline: none;
+    box-shadow: 0 0 4px rgba(79, 70, 229, 0.5);
+}
