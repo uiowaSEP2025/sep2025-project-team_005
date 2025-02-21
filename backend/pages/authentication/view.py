@@ -130,5 +130,3 @@ def signup(request):
         return Response({"message": "User created successfully", "id": user.id}, status=status.HTTP_201_CREATED)
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-            return Response({"error": f"Error during logout: {str(e)}"}, status=400)

@@ -24,3 +24,6 @@ backend/.env
 
 # Testing
 .pytest_cache/
+
+# Selenium temporary user data storage
+selenium_user_data/
