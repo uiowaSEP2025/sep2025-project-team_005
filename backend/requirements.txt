@@ -7,7 +7,7 @@ djangorestframework_simplejwt
 iniconfig
 packaging
 pluggy
-psycopg2
+psycopg2-binary
 PyJWT
 pytest
 python-dotenv
