@@ -21,3 +21,6 @@ db.sqlite3
 # Environment variables
 .env
 backend/.env
+
+# Testing
+.pytest_cache/
