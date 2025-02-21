@@ -3,6 +3,7 @@
 import styles from "@/styles/Signup.module.css";
 import Image from "next/image";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Signup() {
     const [role, setRole] = useState("");
@@ -11,6 +12,7 @@ export default function Signup() {
     const [password, setPassword] = useState("");
     const [passwordError, setPasswordError] = useState("");
     const [formError, setFormError] = useState("");
+    const router = useRouter(); // Initialize the router
 
     // Function to validate password strength
     const validatePassword = (password: string): boolean => {
@@ -27,7 +29,7 @@ export default function Signup() {
     };
 
     // Function to handle form submission
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault(); // Prevent form submission if invalid
 
         // Check if all fields are filled
@@ -42,15 +44,30 @@ export default function Signup() {
             return;
         }
 
-        // Clear form errors and proceed with submission
+        // Clear form errors and then attempt API call
         setFormError("");
-        alert("Form submitted successfully!"); // Replace with actual submission logic
+
+        try {
+            const response = await fetch("http://localhost:8000/signup/", {       // Replace with an env variable for both local and Kubernetes deployment
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, username, password, role }),
+            });
+    
+            const data = await response.json();
+    
+            if (response.ok) {
+                alert("Signup successful! Redirecting to login...");
+                router.push("/login"); // Redirect to login page if successful
+            } else {
+                setFormError(data.email || data.username || "Signup failed. Please try again.");
+            }
+        } catch (error) {
+            console.error("Signup error:", error);
+            setFormError("An error occurred. Please try again.");
+        }
+
     };
-
-
-
-    // className={styles.inputField}
-
 
 
     return (
