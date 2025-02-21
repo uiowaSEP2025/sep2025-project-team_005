@@ -89,6 +89,7 @@
     border: 1px solid #d1d5db;
     border-radius: 0.5rem;
     font-size: 1rem;
+    color: black;
 }
 
 .selectField {
@@ -99,6 +100,7 @@
     background-color: white;
     appearance: none; /* Removes default browser styles */
     cursor: pointer;
+    color: black;
 }
 
 /* Add a small arrow icon for better UI (optional) */
