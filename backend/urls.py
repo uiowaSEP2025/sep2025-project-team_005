@@ -16,7 +16,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from pages.authentication.view import signup, LogoutView, CustomTokenObtainPairView
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path("signup/", signup, name="signup"), # *** MIGHT NOT NEED THIS *** #
+    path("login/", CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
+    #path("refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("logout/", LogoutView.as_view(), name="logout"),
 ]
