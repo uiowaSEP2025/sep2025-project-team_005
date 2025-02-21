@@ -57,3 +57,6 @@ class LogoutView(APIView):
             return Response({"message": "Logged out successfully"}, status=200)
         except Exception as e:
             return Response({"error": "Failed to log out"}, status=400)
+        
+
+# Controller function for user signup
