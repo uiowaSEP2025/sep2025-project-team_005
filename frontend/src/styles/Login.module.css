@@ -68,6 +68,12 @@
     color: #4b5563;
 }
 
+.forgotPasswordContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
 .link {
     color: #2563eb;
     text-decoration: none;
