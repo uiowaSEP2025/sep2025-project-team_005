@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import status
@@ -11,9 +12,27 @@ from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 from rest_framework.decorators import api_view
 from pages.models.User import User
+import logging
+
+logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
+class ProfileView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        return Response({
+            "id": user.id,
+            "username": user.username,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "role": user.role,
+        })
+        
+        
 class CustomTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
         username = request.data.get("username")
@@ -31,7 +50,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         refresh = RefreshToken.for_user(user)
         access_token = str(refresh.access_token)
 
-        return Response({
+        response = Response({
             "access": access_token,
             "refresh": str(refresh),
             "user": {
@@ -42,22 +61,42 @@ class CustomTokenObtainPairView(TokenObtainPairView):
                 "role": user.role,
             }
         })
+        response.set_cookie(
+            "access_token", access_token, secure=True, samesite="Lax"
+        )
+        response.set_cookie(
+            "refresh_token", str(refresh), secure=True, samesite="Lax"
+)
+        return response
         
         
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
-    
+
     def post(self, request):
         try:
-            # Get the refresh token from cookies or headers
+            # Ensure JWT authentication is being used
+            authentication_classes = [JWTAuthentication]
+            user = request.user
+            if not user.is_authenticated:
+                return Response({"error": "Unauthorized"}, status=401)
+
+            # Get the refresh token from cookies
             refresh_token = request.COOKIES.get("refresh_token")
             if refresh_token:
                 try:
+                    # Blacklist the refresh token to prevent further use
                     token = RefreshToken(refresh_token)
-                    token.blacklist()  # Blacklist the refresh token to prevent further use
+                    token.blacklist()
                 except Exception as e:
-                    return Response({"error": str(e)}, status=400)
-            return Response({"message": "Logged out successfully"}, status=200)
+                    return Response({"error": f"Error blacklisting token: {str(e)}"}, status=400)
+
+            # Remove cookies
+            response = Response({"message": "Logged out successfully"}, status=200)
+            response.delete_cookie("access_token")
+            response.delete_cookie("refresh_token")
+
+            return response
         except Exception as e:
             return Response({"error": "Failed to log out"}, status=400)
         
@@ -91,3 +130,5 @@ def signup(request):
         return Response({"message": "User created successfully", "id": user.id}, status=status.HTTP_201_CREATED)
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            return Response({"error": f"Error during logout: {str(e)}"}, status=400)
