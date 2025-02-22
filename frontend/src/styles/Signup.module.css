@@ -1,0 +1,123 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 50px;
+}
+
+.header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 30px;
+}
+
+.title {
+    font-size: 2.25rem;
+    font-weight: bold;
+    color: #3b82f6;
+    white-space: nowrap;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 400px;
+    gap: 1rem;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.label {  
+    font-weight: bold;
+    font-size: 1.125rem;
+    color: #4b5563; /* gray-600 */
+}
+
+.input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.submitButton {
+    background-color: #3b82f6; /* indigo-600 */
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.submitButton:hover {
+    background-color: #2563eb; /* indigo-700 */
+}
+
+.select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    background-color: white;
+    cursor: pointer;
+}
+
+.select:focus {
+    border-color: #3b82f6; /* Highlighting the dropdown when focused */
+    outline: none;
+}
+
+.error {
+    color: red;
+    font-size: 0.875rem;
+    margin-top: 5px;
+}
+
+.inputField {
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    color: black;
+}
+
+.selectField {
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    background-color: white;
+    appearance: none; /* Removes default browser styles */
+    cursor: pointer;
+    color: black;
+}
+
+/* Add a small arrow icon for better UI (optional) */
+.selectField::after {
+    content: "▼";
+    font-size: 0.8rem;
+    color: #6b7280;
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+/* Improve focus styles */
+.selectField:focus {
+    border-color: #4f46e5; /* Change to a blueish color when focused */
+    outline: none;
+    box-shadow: 0 0 4px rgba(79, 70, 229, 0.5);
+}
