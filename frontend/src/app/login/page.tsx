@@ -22,9 +22,7 @@ export default function Login() {
         { username, password },
         { withCredentials: true } // Sends cookies to backend
       );
-
-      Cookies.set("access_token", response.data.access, { secure: true, sameSite: "Lax" });
-      router.push("/"); // Redirect to loading page for now
+      router.push("/profile"); // Redirect to loading page for now
     } 
     catch (err) {
       setError("Invalid username or password");
@@ -44,6 +42,9 @@ export default function Login() {
           onChange={(e)=> setUsername(e.target.value)} required />
         <input type="password" placeholder="Password" className={styles.inputField} value={password} 
           onChange={(e) => setPassword(e.target.value)} required />
+        <div className={styles.forgotPasswordContainer}>
+          <Link href="/login" className={styles.link}>Forgot Password?</Link>
+        </div>
         <button type="submit" className={styles.primaryButton}>Login</button>
         {error && <p className={styles.error}>{error}</p>}
         <p className={styles.altOption}>

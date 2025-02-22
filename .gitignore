@@ -21,3 +21,9 @@ db.sqlite3
 # Environment variables
 .env
 backend/.env
+
+# Testing
+.pytest_cache/
+
+# Selenium temporary user data storage
+selenium_user_data/
