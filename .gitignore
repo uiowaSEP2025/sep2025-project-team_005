@@ -1,0 +1,29 @@
+# Bytecode and compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+backend/__pycache__/
+backend/*.pyc
+backend/*.pyo
+backend/*.pyd
+
+# Virtual environment
+venv/
+
+# Django database (if using SQLite)
+db.sqlite3
+
+# Next.js and frontend dependencies
+.next/
+
+# Environment variables
+.env
+backend/.env
+
+# Testing
+.pytest_cache/
+
+# Selenium temporary user data storage
+selenium_user_data/
