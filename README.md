@@ -22,19 +22,6 @@ Savvy Note is a professional networking platform for musicians where artists can
 | **Orchestration** | Kubernetes |
 | **Load Balancer** | Nginx |
 
-## 📂 Project Structure
-
-```
-/musician-connect
-├── frontend/         # Next.js frontend
-|   ├── app             # Page components and layouts
-|   ├── components      # Reusable UI components
-|   ├── config          # Configuration files (e.g., environment variables, constants)
-|   ├── services        # API services (e.g., fetchers, database interactions)
-├── backend/          # Django backend
-└── README.md         # Project documentation
-```
-
 ## 🛠️ Installation & Setup
 
 ### Prerequisites
