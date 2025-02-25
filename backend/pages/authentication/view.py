@@ -71,34 +71,11 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         
         
 class LogoutView(APIView):
-    permission_classes = [IsAuthenticated]
-
     def post(self, request):
-        try:
-            # Ensure JWT authentication is being used
-            authentication_classes = [JWTAuthentication]
-            user = request.user
-            if not user.is_authenticated:
-                return Response({"error": "Unauthorized"}, status=401)
-
-            # Get the refresh token from cookies
-            refresh_token = request.COOKIES.get("refresh_token")
-            if refresh_token:
-                try:
-                    # Blacklist the refresh token to prevent further use
-                    token = RefreshToken(refresh_token)
-                    token.blacklist()
-                except Exception as e:
-                    return Response({"error": f"Error blacklisting token: {str(e)}"}, status=400)
-
-            # Remove cookies
-            response = Response({"message": "Logged out successfully"}, status=200)
-            response.delete_cookie("access_token")
-            response.delete_cookie("refresh_token")
-
-            return response
-        except Exception as e:
-            return Response({"error": "Failed to log out"}, status=400)
+        response = Response({"message": "Logged out successfully"}, status=status.HTTP_200_OK)
+        response.delete_cookie("access_token")
+        response.delete_cookie("refresh_token")
+        return response
         
 
 # Class for serialization of data stored in the database
