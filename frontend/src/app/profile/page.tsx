@@ -20,21 +20,16 @@ export default function Profile() {
 
     const handleLogout = async () => {
         try {
-            // Get the access token from cookies (only works if HTTPOnly is False)
-            const token = localStorage.getItem("access_token"); // Only works if stored in localStorage
-    
-            const response = await fetch("http://127.0.0.1:8000/api/auth/logout/", {
+            await fetch("http://localhost:8000/api/auth/logout/", {
                 method: "POST",
-                credentials: "include",  // Ensures cookies are sent
+                credentials: "include",
             });
     
-            if (response.ok) {
-                router.push("/login");  // Redirect to login page after logout
-            } else {
-                console.error("Logout failed in frontend");
-            }
+            // Clear frontend state
+            localStorage.removeItem("user"); 
+            window.location.href = "/login"; // Redirect to login page
         } catch (error) {
-            console.error("Error logging out:", error);
+            console.error("Logout failed", error);
         }
     };
 

@@ -2,6 +2,8 @@ import pytest
 from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework import status
+
 
 User = get_user_model()
 LOGIN_URL = "/api/auth/login/"
@@ -46,24 +48,53 @@ def test_login_failure(api_client):
     
     
 ## Logout Function
-@pytest.fixture
-def authenticated_client(api_client, create_user):
-    """Fixture to create an authenticated API client."""
-    refresh = RefreshToken.for_user(create_user)
-    api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {str(refresh.access_token)}")
-    return api_client
+@pytest.mark.django_db
+def test_logout_success():
+    client = APIClient()
 
-def test_logout_success(authenticated_client):
-    """Test successful logout where refresh token is blacklisted."""
-    url = LOGOUT_URL
-    response = authenticated_client.post(url, {}, format="json")
-    
-    assert response.status_code == 200
+    # Simulate a logged-in user by setting cookies
+    client.cookies["access_token"] = "test_access_token"
+    client.cookies["refresh_token"] = "test_refresh_token"
+
+    response = client.post(LOGOUT_URL)  # Call the logout endpoint
+
+    # Assertions
+    assert response.status_code == 200  # Check if logout is successful
     assert response.data["message"] == "Logged out successfully"
 
-def test_logout_unauthenticated(api_client):
-    """Test logout attempt without authentication."""
-    url = LOGOUT_URL
-    response = api_client.post(url, {}, format="json")
+    # Ensure cookies have expired
+    assert response.cookies["access_token"].value == ""
+    assert response.cookies["refresh_token"].value == ""
     
-    assert response.status_code == 401  # Expect unauthorized
+@pytest.mark.django_db
+def test_logout_without_cookies():
+    client = APIClient()
+    
+    response = client.post(LOGOUT_URL)  # Call the logout endpoint
+
+    # Assertions
+    assert response.status_code == 200  # Should still return success
+    assert response.data["message"] == "Logged out successfully"
+
+    # Ensure cookies have expired
+    assert response.cookies["access_token"].value == ""
+    assert response.cookies["refresh_token"].value == ""
+
+@pytest.mark.django_db
+def test_logout_exception(monkeypatch):
+    client = APIClient()
+    
+    # Patch response.delete_cookie to raise an exception
+    def mock_delete_cookie(*args, **kwargs):
+        raise Exception("Mocked exception")
+
+    monkeypatch.setattr("pages.authentication.view.Response.delete_cookie", mock_delete_cookie)
+
+    response = client.post(LOGOUT_URL)
+
+    # Assertions
+    assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
+    assert "error" in response.data
+    assert response.data["error"] == "An error occurred while logging out"
+    assert "details" in response.data
+    assert response.data["details"] == "Mocked exception"
