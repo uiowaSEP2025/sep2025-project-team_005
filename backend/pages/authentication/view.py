@@ -72,12 +72,15 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         
 class LogoutView(APIView):
     def post(self, request):
-        response = Response({"message": "Logged out successfully"}, status=status.HTTP_200_OK)
-        response.delete_cookie("access_token")
-        response.delete_cookie("refresh_token")
-        return response
+        try:
+            response = Response({"message": "Logged out successfully"}, status=status.HTTP_200_OK)
+            response.delete_cookie("access_token")
+            response.delete_cookie("refresh_token")
+            return response
+        except Exception as e:
+            return Response({"error": "An error occurred while logging out", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
         
-
 # Class for serialization of data stored in the database
 class UserSignupSerializer(serializers.ModelSerializer):
     class Meta:
