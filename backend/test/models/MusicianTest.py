@@ -50,8 +50,8 @@ class MusicianTest:
 
         genre1 = Genre.objects.create(genre="Jazz")
         genre2 = Genre.objects.create(genre="Rock")
-        instrument1 = Instrument.objects.create(instrument="Guitar", class_name="string")
-        instrument2 = Instrument.objects.create(instrument="Piano", class_name="chordophones")
+        instrument1 = Instrument.objects.create(instrument="Guitar", class_name="Strings")
+        instrument2 = Instrument.objects.create(instrument="Piano", class_name="Chordophones")
 
         musician.genres.add(genre1, genre2)
         musician.instruments.add(instrument1, instrument2)
@@ -78,3 +78,11 @@ class MusicianTest:
         musician.stage_name = "1" * 256
         with pytest.raises(ValidationError):
             musician.full_clean()
+
+    @pytest.mark.django_db
+    def test_cascade_delete(self, create_user, create_musician):
+        user = create_user
+        musician = create_musician
+
+        user.delete()
+        assert Musician.objects.filter(id=musician.id).count() == 0 
