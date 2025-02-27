@@ -9,7 +9,7 @@ class Musician(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    stage_name = models.CharField(max_length=255, default="", blank=True)
+    stage_name = models.CharField(max_length=255, blank=True)
     years_played = models.IntegerField(null=True, blank=True)
     home_studio = models.BooleanField(default=False)
     
