@@ -5,7 +5,7 @@ from pages.models import Musician, User, Genre, Instrument
 @pytest.mark.django_db
 class MusicianTest:
     
-    ## Test Musican object creation
+    ## Test musician object creation
     def test_musician_creation(self):
         user = User.objects.create_user(username="testuser", email="test@test.com", password="password123")
 
@@ -29,7 +29,7 @@ class MusicianTest:
 
         assert str(musician) == "Big Savvy"
 
-    ## Test that musican can have many genre and many instruments
+    ## Test that musician can have many genre and many instruments
     def test_musician_many_to_many_relationships(self):
         user = User.objects.create_user(username="testuser", email="test@test.com", password="password123")
         musician = Musician.objects.create(user_id=user, stage_name="Big Savvy")
@@ -49,7 +49,7 @@ class MusicianTest:
         assert instrument1 in musician.instruments.all()
         assert instrument2 in musician.instruments.all()
 
-    ## Tests that musican is added and accessible in the databse
+    ## Tests that musician is added and accessible in the database
     def test_musician_persistence(self):
         user = User.objects.create_user(username="testuser", email="test@test.com", password="password123")
         musician = Musician.objects.create(
