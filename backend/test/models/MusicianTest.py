@@ -10,7 +10,7 @@ class MusicianTest:
         user = User.objects.create_user(username="testuser", email="test@test.com", password="password123")
 
         musician = Musician.objects.create(
-            user_id=user,
+            user=user,
             stage_name="Big Savvy",
             years_played=5,
             home_studio=True,
@@ -20,19 +20,19 @@ class MusicianTest:
         assert musician.stage_name == "Big Savvy"
         assert musician.years_played == 5
         assert musician.home_studio is True
-        assert musician.user_id == user
+        assert musician.user == user
 
     ## Test that stage name is saved as string
     def test_string_representation(self):
         user = User.objects.create_user(username="testuser", email="test@test.com", password="password123")
-        musician = Musician.objects.create(user_id=user, stage_name="Big Savvy")
+        musician = Musician.objects.create(user=user, stage_name="Big Savvy")
 
         assert str(musician) == "Big Savvy"
 
     ## Test that musican can have many genre and many instruments
     def test_many_to_many_relationships(self):
         user = User.objects.create_user(username="testuser", email="test@test.com", password="password123")
-        musician = Musician.objects.create(user_id=user, stage_name="Big Savvy")
+        musician = Musician.objects.create(user=user, stage_name="Big Savvy")
 
         genre1 = Genre.objects.create(genre="Jazz")
         genre2 = Genre.objects.create(genre="Rock")
@@ -53,7 +53,7 @@ class MusicianTest:
     def test_persistence(self):
         user = User.objects.create_user(username="testuser", email="test@test.com", password="password123")
         musician = Musician.objects.create(
-            user_id=user,
+            user=user,
             stage_name="Big Savvy",
             years_played=5,
             home_studio=True,
