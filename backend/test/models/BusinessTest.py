@@ -56,6 +56,13 @@ class BusinessTest:
         assert "industry" in error_messages
 
     @pytest.mark.django_db
+    def test_field_min_length(self, create_business):
+        business = create_business
+        business.business_name = ""
+        with pytest.raises(ValidationError):
+            business.full_clean()
+
+    @pytest.mark.django_db
     def test_field_invalid_inputs(self, create_business):
         business = create_business
 

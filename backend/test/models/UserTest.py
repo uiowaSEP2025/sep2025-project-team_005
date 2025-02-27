@@ -1,4 +1,5 @@
 from django.db import IntegrityError
+from django.core.exceptions import ValidationError
 import pytest
 from pages.models import User
 from datetime import datetime
@@ -65,3 +66,17 @@ class UserTest:
         user = create_user
         assert user.created_at is not None
         assert isinstance(user.created_at, datetime)
+
+    @pytest.mark.django_db
+    def test_field_max_length(self, create_user):
+        user = create_user
+        user.rating = 1000
+        with pytest.raises(ValidationError):
+            user.full_clean()
+
+    @pytest.mark.django_db
+    def test_field_min_length(self, create_user):
+        user = create_user
+        user.username = ""
+        with pytest.raises(ValidationError):
+            user.full_clean()

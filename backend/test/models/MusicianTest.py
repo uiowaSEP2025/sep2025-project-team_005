@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 import pytest
 from pages.models import Musician, User, Genre, Instrument
 
@@ -70,3 +71,10 @@ class MusicianTest:
         assert musician_from_db.stage_name == "Big Savvy"
         assert musician_from_db.years_played == 5
         assert musician_from_db.home_studio is True
+
+    @pytest.mark.django_db
+    def test_field_max_length(self, create_musician):
+        musician = create_musician
+        musician.stage_name = "1" * 256
+        with pytest.raises(ValidationError):
+            musician.full_clean()
