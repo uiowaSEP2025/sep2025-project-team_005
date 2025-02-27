@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 import pytest
 from pages.models import User
 from datetime import datetime
@@ -23,7 +24,7 @@ class UserTest:
     
     ## Check that stored password value doesn't match entered valued -- indicate password is hashed
     @pytest.mark.django_db
-    def test_set_password(self):
+    def test_password_encrypted(self):
         user = User.objects.create_user(username="testuser", email="test@test.com", password="password123")
         assert user.password != "password123"
         assert user.check_password("password123")
@@ -32,7 +33,7 @@ class UserTest:
     @pytest.mark.django_db
     def test_email_uniqueness(self):
         User.objects.create_user(username="testuser1", email="test@test.com", password="password123")
-        with pytest.raises(Exception):
+        with pytest.raises(IntegrityError):
             User.objects.create_user(username="testuser2", email="test@test.com", password="password123")
     
     ## Test default assignment of rating parameter
@@ -52,7 +53,7 @@ class UserTest:
 
     ## Test username is saved as a string object
     @pytest.mark.django_db
-    def test_user_str(self):
+    def test_string_representation(self):
         user = User.objects.create_user(username="testuser", email="test@test.com", password="password123")
         assert str(user) == "testuser"
 

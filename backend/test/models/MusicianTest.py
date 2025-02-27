@@ -23,14 +23,14 @@ class MusicianTest:
         assert musician.user_id == user
 
     ## Test that stage name is saved as string
-    def test_musician_string_representation(self):
+    def test_string_representation(self):
         user = User.objects.create_user(username="testuser", email="test@test.com", password="password123")
         musician = Musician.objects.create(user_id=user, stage_name="Big Savvy")
 
         assert str(musician) == "Big Savvy"
 
     ## Test that musican can have many genre and many instruments
-    def test_musician_many_to_many_relationships(self):
+    def test_many_to_many_relationships(self):
         user = User.objects.create_user(username="testuser", email="test@test.com", password="password123")
         musician = Musician.objects.create(user_id=user, stage_name="Big Savvy")
 
@@ -50,7 +50,7 @@ class MusicianTest:
         assert instrument2 in musician.instruments.all()
 
     ## Tests that musican is added and accessible in the databse
-    def test_musician_persistence(self):
+    def test_persistence(self):
         user = User.objects.create_user(username="testuser", email="test@test.com", password="password123")
         musician = Musician.objects.create(
             user_id=user,
