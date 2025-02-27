@@ -21,8 +21,7 @@ class GenreTest:
 
     @pytest.mark.django_db
     def test_string_representation(self, create_genre):
-        genre = create_genre
-        assert str(genre) == "Savvy Punk"
+        assert str(create_genre) == "Savvy Punk"
     
     @pytest.mark.django_db
     def test_genre_max_length(self, create_genre):
@@ -35,9 +34,15 @@ class GenreTest:
         with pytest.raises(ValidationError):
             genre.full_clean()
 
+    @pytest.mark.django_db
+    def test_field_min_length(self, create_genre):
+        genre = create_genre
+        genre.genre = ""
+        with pytest.raises(ValidationError):
+            genre.full_clean()
 
     @pytest.mark.django_db
-    def test_genre_invalid_inputs(self, create_genre):
+    def test_invalid_inputs(self, create_genre):
         genre = create_genre
 
         genre.genre = None
