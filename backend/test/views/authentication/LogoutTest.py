@@ -6,48 +6,8 @@ from rest_framework import status
 
 
 User = get_user_model()
-LOGIN_URL = "/api/auth/login/"
 LOGOUT_URL = "/api/auth/logout/"
 
-## Test User Model correctly retrieves the user
-def test_get_user_model():
-    user_model = get_user_model()
-    assert user_model == User 
-
-## Login Function
-@pytest.fixture
-def create_user(db):
-    """Fixture to create a user for authentication tests."""
-    return User.objects.create_user(username="testuser", password="testpassword", first_name="John", last_name="Doe", role="musician")
-
-@pytest.fixture
-def api_client():
-    """Fixture to provide API test client."""
-    return APIClient()
-
-@pytest.mark.django_db
-def test_login_success(api_client, create_user):
-    """Test successful login with valid credentials."""
-    url = LOGIN_URL
-    response = api_client.post(url, {"username": "testuser", "password": "testpassword"}, format="json")
-    
-    # Assert successful login (200 OK)
-    assert response.status_code == 200
-    assert "access" in response.data
-    assert "refresh" in response.data
-    assert response.data["user"]["username"] == "testuser"
-
-@pytest.mark.django_db
-def test_login_failure(api_client):
-    """Test failed login with invalid credentials."""
-    url = LOGIN_URL
-    response = api_client.post(url, {"username": "wronguser", "password": "wrongpassword"}, format="json")
-    
-    assert response.status_code == 401
-    assert "error" in response.data
-    
-    
-## Logout Function
 @pytest.mark.django_db
 def test_logout_success():
     client = APIClient()
