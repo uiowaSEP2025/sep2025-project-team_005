@@ -1,10 +1,11 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import MinLengthValidator
 from django.db import models
 import uuid
 
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    username = models.CharField(max_length=30, unique=True)
+    username = models.CharField(max_length=30, unique=True, validators=[MinLengthValidator(1)])
     email = models.EmailField(unique=True)
     role = models.CharField(
         max_length=20,
