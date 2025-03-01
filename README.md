@@ -71,8 +71,9 @@ npm run dev
 
 ### Docker & Kubernetes Deployment
 ```sh
+# Install DockerDesktop and enable Kubernetes (Settings -> Kubernetes -> Enable Kubernetes ... Restart Docker Desktop)
 docker-compose up --build
-kubectl apply -f infra/
+docker ps # This will show you if the services are running if you aren't using Docker Desktop
 ```
 
 ### PostgreSQL Setup and Migration
