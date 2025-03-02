@@ -62,10 +62,10 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             }
         })
         response.set_cookie(
-            "access_token", access_token, secure=True, samesite="Lax"
+            "access_token", access_token, secure=False, samesite="Lax"
         )
         response.set_cookie(
-            "refresh_token", str(refresh), secure=True, samesite="Lax"
+            "refresh_token", str(refresh), secure=False, samesite="Lax"
 )
         return response
         
