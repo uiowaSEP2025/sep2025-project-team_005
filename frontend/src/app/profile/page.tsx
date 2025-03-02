@@ -23,7 +23,7 @@ export default function Profile() {
             // Get the access token from cookies (only works if HTTPOnly is False)
             const token = localStorage.getItem("access_token"); // Only works if stored in localStorage
     
-            const response = await fetch("http://127.0.0.1:8000/api/auth/logout/", {
+            const response = await fetch("http://3.141.3.95:8000/api/auth/logout/", {
                 method: "POST",
                 credentials: "include",  // Ensures cookies are sent
             });
