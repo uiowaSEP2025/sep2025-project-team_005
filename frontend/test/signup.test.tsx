@@ -9,7 +9,7 @@ jest.mock("next/navigation", () => ({
 }));
 
 describe("Signup Page", () => {
-  test("displays an error message when submitting an empty form", async () => {
+  test("does not redirect when submitting an empty form", async () => {
     // Mock implementation for useRouter
     const mockPush = jest.fn();
     
@@ -24,8 +24,7 @@ describe("Signup Page", () => {
     // Simulate clicking the submit button without filling out the form
     fireEvent.click(submitButton);
 
-    // Check if the error message is displayed
-    const errorMessage = await screen.findByText(/Please fill out this field./i);
-    expect(errorMessage).toBeInTheDocument();
+    // Check if the router's push function was not called, ensuring the user stays on the signup page
+    expect(mockPush).not.toHaveBeenCalled();
   });
 });

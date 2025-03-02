@@ -1,15 +1,20 @@
-import type { Config } from '@jest/types';
-
-const config: Config.InitialOptions = {
-  transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest',  // Transform TypeScript files using ts-jest
-  },
-  moduleNameMapper: {
-    '\\.(css|less|scss)$': 'identity-obj-proxy',  // Mock CSS modules using identity-obj-proxy
-    '^@/(.*)$': '<rootDir>/src/$1',  // Resolve '@' alias to the 'src' directory
-  },
-  moduleDirectories: ['node_modules', 'src'],  // Ensure Jest can find files in the 'src' folder
+module.exports = {
+  preset: 'ts-jest',
   testEnvironment: 'jsdom',
+  setupFilesAfterEnv: ['@testing-library/jest-dom'],
+  moduleDirectories: ['node_modules', '<rootDir>/'],
+  transform: {
+    '^.+\\.(ts|tsx)$': 'ts-jest', // Handle TypeScript
+    '^.+\\.css$': 'jest-transform-css', // CSS handling
+  },
+  testPathIgnorePatterns: ['/node_modules/', '/.next/'],
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1',
+    '\\.module\\.css$': 'identity-obj-proxy', // Mock CSS modules with identity-obj-proxy
+  },
+  globals: {
+    'ts-jest': {
+      tsconfig: './tsconfig.jest.json', // Ensures use of correct JSX setting for Jest, as defined in tsconfig.jest.json
+    },
+  },
 };
-
-export default config;
