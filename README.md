@@ -183,8 +183,36 @@ behave test/features/XXXX.feature
 ```
 
 # Backend
+```sh
 DJANGO_SECRET_KEY=your_secret_key
 DATABASE_URL=postgres://<user>:<password>@localhost:5432/savvy-note-sp
 AWS_ACCESS_KEY_ID=your_aws_key
 AWS_SECRET_ACCESS_KEY=your_aws_secret
 ```
+
+# Fixing commit history on branches from rebase
+### Steps:
+1. Checkout main, ensure you have the latest verion
+```sh
+git checkout main
+git pull origin main
+```
+2. Create new branch off main
+```sh
+git checkout -b <clean-branch-name>
+```
+3. Identify commit hashes you want on this branch
+```sh
+# This command will show full commit history of your old branch
+# Use this to find the commit hashes of the ones you want to move to new clean branch
+git log --oneline origin/<old-branch-name>
+```
+4. Cherry pick the commits you want on your clean branch
+```sh
+git cherry-pick <commit-hash>
+
+# There is a chance merge conflicts arise here
+# If so, resolve them and add the resolved files to stage the changes, then run:
+git cherry-pick --continue
+```
+5. Once you have cherry-picked all commits you want on your clean branch, push to repo. After this if you check the commit history on your branch you should only see the commits you cherry-picked, not the whole commit history anymore!
