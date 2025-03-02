@@ -181,6 +181,21 @@ npm run dev
 cd backend
 behave test/features/XXXX.feature
 ```
+#### Run Code Coverage
+```sh
+pip install pytest pytest-cov
+pip install coverage behave
+
+python manage.py runserver
+npm run dev
+
+cd backend
+coverage erase
+coverage run --source=pages -m pytest
+coverage run --source=pages -m behave test/features
+coverage report -m
+
+```
 
 # Backend
 DJANGO_SECRET_KEY=your_secret_key
