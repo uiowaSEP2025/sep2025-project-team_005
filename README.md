@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Savvy Note
 
 Savvy Note is a professional networking platform for musicians where artists can post upcoming gigs, browse gig inquiries, collaborate in real time via live streaming, and securely manage payments through an escrow system.
@@ -188,7 +187,6 @@ DJANGO_SECRET_KEY=your_secret_key
 DATABASE_URL=postgres://<user>:<password>@localhost:5432/savvy-note-sp
 AWS_ACCESS_KEY_ID=your_aws_key
 AWS_SECRET_ACCESS_KEY=your_aws_secret
-```
-=======
+
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/4tPelvOm)
->>>>>>> b668759... add deadline
+
