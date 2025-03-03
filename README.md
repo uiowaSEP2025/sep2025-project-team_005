@@ -150,12 +150,11 @@ npm run dev
 
 pytest
 ```
-#### Single File Frontend Tests
+#### Single File Frontend Jest Tests
 ```sh
 cd frontend
-npm run dev
+npm run test
 
-python test/path/to/test.py -v
 ```
 
 ### Integration Tests
