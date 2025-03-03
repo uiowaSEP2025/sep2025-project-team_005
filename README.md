@@ -186,6 +186,3 @@ DJANGO_SECRET_KEY=your_secret_key
 DATABASE_URL=postgres://<user>:<password>@localhost:5432/savvy-note-sp
 AWS_ACCESS_KEY_ID=your_aws_key
 AWS_SECRET_ACCESS_KEY=your_aws_secret
-
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/4tPelvOm)
-
