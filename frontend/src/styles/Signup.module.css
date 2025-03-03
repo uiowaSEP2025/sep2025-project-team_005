@@ -242,15 +242,3 @@
     color: #4B5563;
     opacity: 1;
 }
-
-.radioButtons {
-    display: flex;
-    gap: 20px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    margin-right: 10px;
-}
-
-.radioButtonLabel {
-    margin-left: 100px;
-}
