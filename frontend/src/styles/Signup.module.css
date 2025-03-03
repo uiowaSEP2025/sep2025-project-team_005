@@ -103,7 +103,7 @@
     color: black;
 }
 
-/* Add a small arrow icon for better UI (optional) */
+/* Add a small arrow icon for better UI */
 .selectField::after {
     content: "▼";
     font-size: 0.8rem;
@@ -121,3 +121,65 @@
     outline: none;
     box-shadow: 0 0 4px rgba(79, 70, 229, 0.5);
 }
+
+/* Features Section (same as styling in Home.module.css) */
+.features {
+    width: 100%;
+    max-width: 64rem;
+    margin-top: 4rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    text-align: center;
+  }
+  
+  @media (min-width: 640px) {
+    .features {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  .featureCard {
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #4f46e5, #9333ea); /* indigo and purple gradient */
+    color: white;
+    border: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .featureCard:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+  
+  .dark .featureCard {
+    background: linear-gradient(135deg, #374151, #6b21a8); /* dark indigo to purple gradient */
+  }
+  
+  .featureTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+  
+  .featureText {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #d1d5db; /* gray-300 */
+  }
+  
+  .dark .featureText {
+    color: #e5e7eb; /* gray-200 */
+  }
+  
+  /* Footer */
+  .footer {
+    margin-top: 4rem;
+    color: #6b7280; /* gray-500 */
+  }
+  
+  .dark .footer {
+    color: #9ca3af; /* gray-400 */
+  }  

@@ -1,3 +1,5 @@
+// Initial sign up page in which user selects what role they would like to sign up with
+
 "use client"; 
 
 import styles from "@/styles/Signup.module.css";
