@@ -150,12 +150,11 @@ npm run dev
 
 pytest
 ```
-#### Single File Frontend Tests
+#### Single File Frontend Jest Tests
 ```sh
 cd frontend
-npm run dev
+npm run test
 
-python test/path/to/test.py -v
 ```
 
 ### Integration Tests
@@ -199,4 +198,3 @@ DJANGO_SECRET_KEY=your_secret_key
 DATABASE_URL=postgres://<user>:<password>@localhost:5432/savvy-note-sp
 AWS_ACCESS_KEY_ID=your_aws_key
 AWS_SECRET_ACCESS_KEY=your_aws_secret
-```
