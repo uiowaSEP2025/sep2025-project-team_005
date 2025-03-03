@@ -3,5 +3,6 @@ from .Musician import Musician
 from .Business import Business
 from .Instrument import Instrument
 from .Genre import Genre
+from .Post import Post
 
-__all__ = ["User", "Musician", "Business", "Instrument", "Genre"]
+__all__ = ["User", "Musician", "Business", "Instrument", "Genre", "Post"]
