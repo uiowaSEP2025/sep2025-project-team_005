@@ -12,6 +12,12 @@ from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 from rest_framework.decorators import api_view
 from pages.models.User import User
+from django.urls import reverse_lazy
+from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView
+from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.auth.password_validation import validate_password
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 import logging
 
 logger = logging.getLogger(__name__)
@@ -83,6 +89,8 @@ class LogoutView(APIView):
         
 # Class for serialization of data stored in the database
 class UserSignupSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, min_length=8)
+
     class Meta:
         model = User
         fields = ['username', 'email', 'password', 'role']
@@ -93,13 +101,40 @@ class UserSignupSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"username": "This username is already taken."})
         if User.objects.filter(email=data['email']).exists():
             raise serializers.ValidationError({"email": "An account with this email already exists."})
+        # TODO SN5-81: add regex validation in backend for email. Password should be good
+        validate_password(data['password'])
         return data
 
     def create(self, validated_data):
         # Hash the password before saving the user
         validated_data['password'] = make_password(validated_data['password'])
         return User.objects.create(**validated_data)
+
+class ResetPasswordView(SuccessMessageMixin, PasswordResetView):
+    # template_name = 'reset_password/reset_password.html'
+    email_template_name = 'reset_password/reset_password_email.html'
+    subject_template_name = 'reset_password/password_reset_subject'
+    success_message = "We've emailed you instructions for setting your password, " \
+                      "if an account exists with the email you entered. You should receive them shortly." \
+                      " If you don't receive an email, " \
+                      "please make sure you've entered the address you registered with, and check your spam folder."
+    success_url = reverse_lazy('profile')
+
+    def form_valid(slef, form):
+        super().form_valid(form)
+        return Response({ "message": "Password reset email sent" })
     
+    def form_invalid(self, form):
+        return Response({ "error": form.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+class ResetPasswordConfirmView(PasswordResetConfirmView):
+    def form_valid(self, form):
+        form.save()
+        return Response({"message": "Password reset successful!"})
+
+    def form_invalid(self, form):
+        return Response({"error": form.errors}, status=status.HTTP_400_BAD_REQUEST)
+
 # API endpoint for signup requests
 @api_view(['POST'])
 def signup(request):

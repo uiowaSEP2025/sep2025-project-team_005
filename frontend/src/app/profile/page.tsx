@@ -13,11 +13,6 @@ export default function Profile() {
     const router = useRouter();
     const { profile, isLoading } = useAuth();
 
-
-
-
-
-
     const handleLogout = async () => {
         try {
             await fetch("http://localhost:8000/api/auth/logout/", {
