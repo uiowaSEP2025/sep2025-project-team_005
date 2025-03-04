@@ -20,7 +20,7 @@ class CreatePostView(APIView):
 
                 # Create the Post instance and save it
                 post = form.save(commit=False)
-                post.user = request.user
+                post.owner = request.user
                 post.s3_url = s3_url
                 post.file_key = file_key
                 post.file_type = file.content_type
