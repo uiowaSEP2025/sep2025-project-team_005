@@ -20,8 +20,3 @@ class Post(models.Model):
     
     def like_count(self):
         return Like.objects.filter(post=self).count()
-
-
-    # For debugging
-    def __str__(self):
-        return f"{self.user.username} - {self.file_key}"

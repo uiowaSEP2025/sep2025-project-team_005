@@ -25,6 +25,7 @@ class CreatePostView(APIView):
                 post.file_key = file_key
                 post.file_type = file.content_type
                 post.save()
+                form.save_m2m()
 
                 return Response({"message": "Post created successfully!", "post_id": post.id}, status=status.HTTP_201_CREATED)
             
