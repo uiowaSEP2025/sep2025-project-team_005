@@ -89,6 +89,13 @@ python manage.py makemigrations pages
 python manage.py makemigrations admin
 ```
 
+### Setup S3 Bucket configuration
+```sh
+cd backend
+aws configure
+```
+To properly configure S3 buckets, you will have to ensure your AWS user has correctly been added to the bucket permissions. Once added, you will need your AWS user access key, secret key, and bucket region. All information will have to be provided by S3 account manager.
+
 ## Testing
 ### Selenium Setup
 ```sh
