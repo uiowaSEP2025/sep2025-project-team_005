@@ -22,7 +22,7 @@ export default function Discover() {
     const fetchUsers = async (query = "", pageNum = 1) => {
         setLoading(true);
         try {
-            const response = await axios.get(`http://localhost:8000/create/`, {
+            const response = await axios.get("http://localhost:8000/discover/", {
                 params: { search: query, page: pageNum }
             });
 
@@ -62,7 +62,7 @@ export default function Discover() {
 
     // Navigate to selected user profile
     const handleUserClick = (username: string) => {
-        router.push(`/discoverprofile/${username}`);
+        router.push(`/profile/discoverprofile/${username}`);
     };
 
     return (
