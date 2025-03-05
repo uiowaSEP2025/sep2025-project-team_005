@@ -12,10 +12,21 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import environ
+import os
 
 # Set up .env communication
 env = environ.Env()
 environ.Env.read_env()
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+django_env = os.getenv('DJANGO_ENV', 'development')  # Default to 'development' if not set
+
+# Load the correct .env file depending on the environment
+django_env = os.getenv('DJANGO_ENV', 'development')  # Default to 'development' if not set
+if django_env == 'production':
+    env.read_env(str(BASE_DIR / '.env.prod'))  # Load production environment variables
+else:
+    env.read_env(str(BASE_DIR / '.env'))  # Load development environment variables
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -26,12 +37,36 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-v@uu-r6&4c0zefohg2l2%zv(ve+-%7lzx(wk6fzl2)r@1@v_g3'
+SECRET_KEY = env("SECRET_KEY")
+
+
+# S3 environment variables for development
+AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")            ## Will have to change for production
+AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
+AWS_REGION = env("AWS_REGION")
+AWS_IMAGE_BUCKET_NAME="savvy-note-images"
+AWS_VIDEO_BUCKET_NAME="savvy-note-videos"
+AWS_METADATA_BUCKET_NAME="savvy-note-metadata"
+
+# Use different prefixes for dev vs prod
+if env("DJANGO_ENV") == "production":
+    AWS_S3_OBJECT_PARAMETERS = {"Prefix": "prod/"}
+else:
+    AWS_S3_OBJECT_PARAMETERS = {"Prefix": "dev/"}
+
+DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+AWS_QUERYSTRING_AUTH = False # Public URL access
+AWS_S3_FILE_OVERWRITE = False
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+if django_env == 'production':
+    DEBUG = False
+else:
+    DEBUG = True  # Enable Debug in development
 
-ALLOWED_HOSTS = ['*']
+
+ALLOWED_HOSTS = ['*']       # Will need to be updated for production
 
 
 # Application definition
@@ -47,6 +82,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
+    'storages'
 ]
 
 MIDDLEWARE = [
@@ -116,10 +152,14 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # CORS settings for Next.js frontend
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # Local Next.js frontend
-    #"https://your-production-domain.com",  # Change this for production
-]
+if django_env == 'production':
+    CORS_ALLOWED_ORIGINS = [
+        "https://your-production-domain.com",  # Add your production domain
+    ]
+else:
+    CORS_ALLOWED_ORIGINS = [
+        "http://localhost:3000",  # Local Next.js frontend for development
+    ]
 
 # REST Framework settings
 REST_FRAMEWORK = {
