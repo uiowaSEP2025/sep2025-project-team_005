@@ -12,14 +12,26 @@ const instrumentOptions = [
     "Piano", "Guitar", "Violin", "Drums", "Flute", "Saxophone", "Trumpet", "Bass Guitar", "Cello", "Clarinet"
 ];
 
+const genreOptions = [
+    "Rock", "Pop", "Classical", "Jazz", "Blues", "Hip-Hop", "R&B", "Country", "Reggae", "Electronic", 
+    "Folk", "Soul", "Punk", "Alternative", "Metal", "Funk", "Disco", "Latin", "Indie", "Gospel", 
+    "Ska", "Techno", "House", "Trance", "Bluegrass", "Opera", "Ambient", "World Music", "New Age", 
+    "Experimental"
+];
+
 export default function MusicianSignup() {
     const [error, setError] = useState("");
+    const router = useRouter();
     const [email, setEmail] = useState("");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [passwordError, setPasswordError] = useState("");
+    const [stageName, setStageName] = useState("");
+    const [homeStudio, setHomeStudio] = useState("");
     const [instruments, setInstruments] = useState([{ name: "", years: "" }]);
-    const [autocompleteResults, setAutocompleteResults] = useState<{ [key: number]: string[] }>({});
+    const [genres, setGenres] = useState([{ name: "" }]);
+    const [autocompleteResultsInstruments, setAutocompleteResultsInstruments] = useState<{ [key: number]: string[] }>({});
+    const [autocompleteResultsGenre, setAutocompleteResultsGenre] = useState<{ [key: number]: string[] }>({});
 
     // On top of pre-existing HTML5 email validations, use regex to validate email on submission
     const validateEmail = (email: string) => {
@@ -41,6 +53,10 @@ export default function MusicianSignup() {
         return true;
     };
 
+    const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setHomeStudio(event.target.value);
+    };
+
     // Handle instrument input change
     const handleInstrumentChange = (index: number, value: string, isSelection = false) => {
         const instrumentNames = instruments.map((inst) => inst.name.toLowerCase());
@@ -57,7 +73,7 @@ export default function MusicianSignup() {
         setInstruments(newInstruments);
 
         // Filter instrument options based on the user's input
-        setAutocompleteResults((prev) => ({
+        setAutocompleteResultsInstruments((prev) => ({
             ...prev,
             [index]: instrumentOptions
                 .filter((inst) => inst.toLowerCase().startsWith(value.toLowerCase()))
@@ -66,7 +82,7 @@ export default function MusicianSignup() {
     }; 
 
     // Handle dropdown item selection
-    const handleDropdownItemClick = (index: number, instrument: string) => {
+    const handleInstrumentDropdownItemClick = (index: number, instrument: string) => {
         console.log("Clicked item")
         const isDuplicate = instruments.some((inst) => inst.name === instrument);
         if (isDuplicate) {
@@ -81,7 +97,7 @@ export default function MusicianSignup() {
     
         // Clear error and hide dropdown after selection
         setError("");
-        setAutocompleteResults((prev) => ({ ...prev, [index]: [] }));
+        setAutocompleteResultsInstruments((prev) => ({ ...prev, [index]: [] }));
         console.log(instrument)
     };
 
@@ -111,12 +127,81 @@ export default function MusicianSignup() {
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    // Function to handle genre input change
+    const handleGenreChange = (index: number, value: string) => {
+        const genreNames = genres.map((genre) => genre.name.toLowerCase());
+            
+        // Prevent duplicate genre selection
+        if (genreNames.includes(value.toLowerCase()) && genres[index].name !== value) {
+            setError("You have already selected this genre.");
+            return;
+        }
+    
+        setError(""); // Clear error if valid
+        const newGenres = [...genres];
+        newGenres[index].name = value;
+        setGenres(newGenres);
+    
+        // Filter genre options based on the user's input
+        setAutocompleteResultsGenre((prev) => ({
+            ...prev,
+            [index]: genreOptions
+                .filter((genre) => genre.toLowerCase().startsWith(value.toLowerCase()))
+                .slice(0, 5),
+        }));
+    };
+
+    // Handle dropdown item selection for genres
+    const handleGenreDropdownItemClick = (index: number, genre: string) => {
+        const isDuplicate = genres.some((gen) => gen.name === genre);
+        if (isDuplicate) {
+            setError("You have already selected this genre.");
+            return;
+        }
+    
+        // Update the genre field with the selected option
+        const newGenres = [...genres];
+        newGenres[index].name = genre;
+        setGenres(newGenres);
+    
+        // Clear error and hide dropdown after selection
+        setError("");
+        setAutocompleteResultsGenre((prev) => ({ ...prev, [index]: [] }));
+    };
+
+    // Add a new genre field
+    const addGenreField = () => {
+        // Prevent adding a duplicate genre
+        const genreNames = genres.map((genre) => genre.name.toLowerCase());
+        if (genreNames.includes("")) {
+            setError("Please fill out the current genre field before adding another.");
+            return;
+        }
+
+        setGenres([...genres, { name: "" }]);
+        setError(""); // Clear error if successful
+    };
+
+    // Remove a genre field
+    const removeGenreField = (index: number) => {
+        if (genres.length > 1) {
+            const newGenres = genres.filter((_, i) => i !== index);
+            setGenres(newGenres);
+        }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault(); // Prevent form from submitting by default
 
         // Check that all fields are filled out
-        if (!email || !username) {
+        if (!email || !username || !password || !stageName) {
             setError("All fields are required.");
+            return;
+        }
+
+        // Check if home studio question was answered
+        if (!homeStudio) {
+            setError('Please select Yes or No for having a home studio.');
             return;
         }
 
@@ -132,12 +217,45 @@ export default function MusicianSignup() {
             return;
         }
 
+        // Validate instruments against the predefined list
+        for (const instrument of instruments) {
+            if (!instrumentOptions.includes(instrument.name)) {
+                setError(`"${instrument.name}" is not a valid instrument.`);
+                return;
+            }
+        }
+
+        // Validate genres against the predefined list
+        for (const genre of genres) {
+            if (!genreOptions.includes(genre.name)) {
+                setError(`"${genre.name}" is not a valid genre.`);
+                return;
+            }
+        }
+
         setError(""); // Clear error if validation passes
         console.log("Form submitted successfully:", email, username, password);
 
-
-        // *** FINISH LATER:
-        // Proceed with form submission (e.g., API call)
+        const role = "Musician"
+        try {
+            const response = await fetch("http://localhost:8000/api/auth/signup/", {       // Replace with an env variable for both local and Kubernetes deployment
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, username, password, role }),
+            });
+    
+            const data = await response.json();
+    
+            if (response.ok) {
+                alert("Signup successful! Redirecting to login...");
+                router.push("/login"); // Redirect to login page if successful
+            } else {
+                setError(data.email || data.username || "Signup failed. Please try again.");
+            }
+        } catch (error) {
+            console.error("Signup error:", error);
+            setError("An error occurred. Please try again.");
+        }
     };
 
     return (
@@ -189,6 +307,48 @@ export default function MusicianSignup() {
                 />
                 {passwordError && <p className={styles.error}>{passwordError}</p>}
 
+                <label className={styles.label}>Stage Name:</label>
+                <input
+                    type="text"
+                    id="stageName"
+                    name="stageName"
+                    required
+                    placeholder="Stage Name"
+                    className={styles.inputField}
+                    value={stageName}
+                    onChange={(e) => setStageName(e.target.value)}
+                />
+
+                <div>
+                    <label className={styles.label}>Do you have a home studio?</label>
+                    <div className={styles.radioButtons}>
+                        <label>
+                            <input
+                                type="radio" 
+                                id="yes" 
+                                name="decision" 
+                                value="Yes" 
+                                onChange={handleRadioChange} 
+                                checked={homeStudio === 'Yes'} 
+                                className={styles.radioButton} 
+                            />
+                            Yes
+                        </label>
+                        <label>
+                            <input
+                                type="radio" 
+                                id="no" 
+                                name="decision" 
+                                value="No" 
+                                onChange={handleRadioChange} 
+                                checked={homeStudio === 'No'} 
+                                className={styles.radioButton} 
+                            />
+                            No
+                        </label>
+                    </div>
+                </div>
+
                 <h3 className={styles.label}>Instruments Played:</h3>
 
                 {instruments.map((instrument, index) => (
@@ -197,17 +357,18 @@ export default function MusicianSignup() {
                             <input
                                 type="text"
                                 placeholder="Instrument"
+                                required
                                 className={styles.inputField}
                                 value={instrument.name}
                                 onChange={(e) => handleInstrumentChange(index, e.target.value)}
                             />
-                            {autocompleteResults[index] && autocompleteResults[index].length > 0 && (
+                            {autocompleteResultsInstruments[index] && autocompleteResultsInstruments[index].length > 0 && (
                                 <div className={styles.autocompleteDropdown}>
-                                    {autocompleteResults[index].map((inst, i) => (
+                                    {autocompleteResultsInstruments[index].map((inst, i) => (
                                         <div
                                             key={i}
                                             className={styles.autocompleteItem}
-                                            onClick={() => handleDropdownItemClick(index, inst)}
+                                            onClick={() => handleInstrumentDropdownItemClick(index, inst)}
                                         >
                                         {inst}
                                         </div>
@@ -219,6 +380,7 @@ export default function MusicianSignup() {
                         <input
                             type="number"
                             placeholder="Years played"
+                            required
                             value={instrument.years}
                             onChange={(e) => handleYearsChange(index, e.target.value)}
                             className={styles.inputField}
@@ -237,6 +399,49 @@ export default function MusicianSignup() {
 
                 <button type="button" className={styles.addInstrumentButton} onClick={addInstrumentField}>
                     + Add another instrument
+                </button>
+
+                <h4 className={styles.label}>Genres Played:</h4>
+
+                {genres.map((genre, index) => (
+                    <div key={index} className={styles.instrumentRow}>
+                        <div className={styles.autocompleteWrapper}>
+                            <input
+                                type="text"
+                                placeholder="Genre"
+                                required
+                                className={styles.inputField}
+                                value={genre.name}
+                                onChange={(e) => handleGenreChange(index, e.target.value)}
+                            />
+                            {autocompleteResultsGenre[index] && autocompleteResultsGenre[index].length > 0 && (
+                                <div className={styles.autocompleteDropdown}>
+                                    {autocompleteResultsGenre[index].map((gen, i) => (
+                                        <div
+                                            key={i}
+                                            className={styles.autocompleteItem}
+                                            onClick={() => handleGenreDropdownItemClick(index, gen)}
+                                        >
+                                            {gen}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        <button 
+                            type="button" 
+                            className={styles.removeInstrumentButton} 
+                            onClick={() => removeGenreField(index)}
+                        >
+                            ➖
+                        </button>
+
+                    </div>
+                ))}
+
+                <button type="button" className={styles.addInstrumentButton} onClick={addGenreField}>
+                    + Add another genre
                 </button>
 
 
