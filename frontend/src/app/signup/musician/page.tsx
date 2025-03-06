@@ -42,26 +42,48 @@ export default function MusicianSignup() {
     };
 
     // Handle instrument input change
-    const handleInstrumentChange = (index: number, value: string) => {
+    const handleInstrumentChange = (index: number, value: string, isSelection = false) => {
+        const instrumentNames = instruments.map((inst) => inst.name.toLowerCase());
+        
+        // Prevent duplicate selection
+        if (instrumentNames.includes(value.toLowerCase()) && instruments[index].name !== value) {
+            setError("You have already selected this instrument.");
+            return;
+        }
+
+        setError(""); // Clear error if valid
         const newInstruments = [...instruments];
         newInstruments[index].name = value;
         setInstruments(newInstruments);
-    
-        // Filter and store autocomplete results only for this index
-        if (value) {
-            setAutocompleteResults((prev) => ({
-                ...prev,
-                [index]: instrumentOptions
-                    .filter((inst) => inst.toLowerCase().startsWith(value.toLowerCase()))
-                    .slice(0, 5),
-            }));
-        } else {
-            setAutocompleteResults((prev) => ({
-                ...prev,
-                [index]: [],
-            }));
+
+        // Filter instrument options based on the user's input
+        setAutocompleteResults((prev) => ({
+            ...prev,
+            [index]: instrumentOptions
+                .filter((inst) => inst.toLowerCase().startsWith(value.toLowerCase()))
+                .slice(0, 5),
+        }));
+    }; 
+
+    // Handle dropdown item selection
+    const handleDropdownItemClick = (index: number, instrument: string) => {
+        console.log("Clicked item")
+        const isDuplicate = instruments.some((inst) => inst.name === instrument);
+        if (isDuplicate) {
+            setError("You have already selected this instrument.");
+            return;
         }
-    };     
+    
+        // Update the instrument field with the selected option
+        const newInstruments = [...instruments];
+        newInstruments[index].name = instrument;
+        setInstruments(newInstruments);
+    
+        // Clear error and hide dropdown after selection
+        setError("");
+        setAutocompleteResults((prev) => ({ ...prev, [index]: [] }));
+        console.log(instrument)
+    };
 
     const handleYearsChange = (index: number, value: string) => {
         const newInstruments = [...instruments];
@@ -71,7 +93,15 @@ export default function MusicianSignup() {
 
     // Add a new instrument field
     const addInstrumentField = () => {
+        // Prevent adding a duplicate instrument
+        const instrumentNames = instruments.map((inst) => inst.name.toLowerCase());
+        if (instrumentNames.includes("")) {
+            setError("Please fill out the current instrument field before adding another.");
+            return;
+        }
+    
         setInstruments([...instruments, { name: "", years: "" }]);
+        setError(""); // Clear error if successful
     };
 
     const removeInstrumentField = (index: number) => {
@@ -177,7 +207,7 @@ export default function MusicianSignup() {
                                         <div
                                             key={i}
                                             className={styles.autocompleteItem}
-                                            onClick={() => handleInstrumentChange(index, inst)}
+                                            onClick={() => handleDropdownItemClick(index, inst)}
                                         >
                                         {inst}
                                         </div>
@@ -201,14 +231,13 @@ export default function MusicianSignup() {
                         >
                             ➖
                         </button>
+
                     </div>
                 ))}
 
                 <button type="button" className={styles.addInstrumentButton} onClick={addInstrumentField}>
                     + Add another instrument
                 </button>
-
-                {error && <p className={styles.error}>{error}</p>}
 
 
                 {error && <p className={styles.error}>{error}</p>} {/* Show error if invalid */}
