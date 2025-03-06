@@ -20,7 +20,7 @@ export default function Profile() {
 
     const handleLogout = async () => {
         try {
-            const response = await fetch("http://3.141.3.95:8000/api/auth/logout/", {
+            const response = await fetch("https://savvy-note.com:8000/api/auth/logout/", {
                 method: "POST",
                 credentials: "include",
             });

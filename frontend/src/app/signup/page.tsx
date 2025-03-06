@@ -48,7 +48,7 @@ export default function Signup() {
         setFormError("");
 
         try {
-            const response = await fetch("http://3.141.3.95:8000/api/auth/signup/", {       // Replace with an env variable for both local and Kubernetes deployment
+            const response = await fetch("https://savvy-note.com:8000/api/auth/signup/", {       // Replace with an env variable for both local and Kubernetes deployment
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, username, password, role }),

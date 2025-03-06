@@ -118,7 +118,7 @@ AUTH_PASSWORD_VALIDATORS = [
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # Local Next.js frontend
-    "http://3.141.3.95",  # Change this for production
+    "https://savvy-note.com",  # Change this for production
 ]
 
 # REST Framework settings
