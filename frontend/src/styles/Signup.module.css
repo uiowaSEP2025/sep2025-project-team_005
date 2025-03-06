@@ -22,6 +22,13 @@
     white-space: nowrap;
 }
 
+.subtitle {
+    font-size: 2.25rem;
+    font-weight: bold;
+    color: white;
+    white-space: nowrap;
+}
+
 .form {
     display: flex;
     flex-direction: column;
@@ -39,7 +46,7 @@
 .label {  
     font-weight: bold;
     font-size: 1.125rem;
-    color: #4b5563; /* gray-600 */
+    color: #9ca3af; /* gray-400 */
 }
 
 .input {
@@ -58,6 +65,7 @@
     font-size: 1rem;
     cursor: pointer;
     transition: background-color 0.2s;
+    margin-bottom: 50px;
 }
 
 .submitButton:hover {
@@ -90,6 +98,7 @@
     border-radius: 0.5rem;
     font-size: 1rem;
     color: black;
+    
 }
 
 .selectField {
@@ -172,4 +181,64 @@
   
 .dark .featureText {
     color: #e5e7eb; /* gray-200 */
+}
+
+.instrumentRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.autocompleteWrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.autocompleteDropdown {
+    position: absolute;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    max-height: 150px;
+    overflow-y: auto;
+    width: 100%;
+    z-index: 10;
+}
+
+.autocompleteItem {
+    padding: 8px;
+    cursor: pointer;
+    color: #4B5563;
+}
+
+.autocompleteItem:hover {
+    background-color: #f0f0f0;
+}
+
+
+.addInstrumentButton:hover {
+    background-color: #005bb5;
+}
+
+.removeInstrumentButton {
+    background: white;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    margin-left: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.removeInstrumentButton:hover {
+    background: #d63031;
+}
+
+.inputField::placeholder {
+    color: #4B5563;
+    opacity: 1;
 }

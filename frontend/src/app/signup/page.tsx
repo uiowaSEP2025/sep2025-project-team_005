@@ -16,6 +16,8 @@ const SignUpSelection = () => {
             <h1 className={styles.title}>Sign Up</h1>
         </header>
 
+        <p className={styles.subtitle}>Select your role:</p>
+
         <main className={styles.features}>
             <div className={styles.featureCard}>
                 <h2 className={styles.featureTitle} onClick={() => router.push('/signup/musician')} >Musician</h2>
