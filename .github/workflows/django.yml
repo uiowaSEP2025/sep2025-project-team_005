@@ -41,5 +41,6 @@ jobs:
         pip install -r requirements.txt
     - name: Run Tests
       run: |
+        systemctl start postgreSQL
         cd backend
         pytest
