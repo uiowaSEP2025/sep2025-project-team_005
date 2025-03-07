@@ -42,7 +42,7 @@ export default function Login() {
         <input type="password" placeholder="Password" className={styles.inputField} value={password} 
           onChange={(e) => setPassword(e.target.value)} required />
         <div className={styles.forgotPasswordContainer}>
-          <Link href="/login" className={styles.link}>Forgot Password?</Link>
+          <Link href="/forgot-password" className={styles.link}>Forgot Password?</Link>
         </div>
         <button type="submit" className={styles.primaryButton}>Login</button>
         {error && <p className={styles.error}>{error}</p>}
