@@ -1,6 +1,8 @@
 asgiref
 attrs
+awscli
 behave
+boto3
 certifi
 charset-normalizer
 Django
@@ -8,6 +10,7 @@ django-behave
 django-cors-headers
 django-environ
 django-extensions
+django-storages
 djangorestframework
 djangorestframework_simplejwt
 h11
@@ -23,6 +26,7 @@ PyJWT
 PySocks
 pytest
 pytest-django
+pytest-mock
 python-dotenv
 requests
 selenium

@@ -21,9 +21,13 @@ db.sqlite3
 # Environment variables
 .env*
 backend/.env
+backend/.env.prod
 
 # Testing
 .pytest_cache/
 
 # Selenium temporary user data storage
 selenium_user_data/
+
+# Mac metadata file 
+.DS_Store
