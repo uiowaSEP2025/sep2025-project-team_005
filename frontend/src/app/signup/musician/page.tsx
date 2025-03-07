@@ -4,20 +4,26 @@
 
 import styles from "@/styles/Signup.module.css";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 // Temporary list of instruments until I can seed database
-const instrumentOptions = [
+const defaultInstrumentOptions = [
     "Piano", "Guitar", "Violin", "Drums", "Flute", "Saxophone", "Trumpet", "Bass Guitar", "Cello", "Clarinet"
 ];
 
-const genreOptions = [
+const defaultGenreOptions = [
     "Rock", "Pop", "Classical", "Jazz", "Blues", "Hip-Hop", "R&B", "Country", "Reggae", "Electronic", 
     "Folk", "Soul", "Punk", "Alternative", "Metal", "Funk", "Disco", "Latin", "Indie", "Gospel", 
     "Ska", "Techno", "House", "Trance", "Bluegrass", "Opera", "Ambient", "World Music", "New Age", 
     "Experimental"
 ];
+
+// Ensures that the genres read from the database are explicitly types
+interface GenreOption {
+    id: string;
+    genre: string;
+  }
 
 export default function MusicianSignup() {
     const [error, setError] = useState("");
@@ -31,7 +37,74 @@ export default function MusicianSignup() {
     const [instruments, setInstruments] = useState([{ name: "", years: "" }]);
     const [genres, setGenres] = useState([{ name: "" }]);
     const [autocompleteResultsInstruments, setAutocompleteResultsInstruments] = useState<{ [key: number]: string[] }>({});
-    const [autocompleteResultsGenre, setAutocompleteResultsGenre] = useState<{ [key: number]: string[] }>({});
+    const [autocompleteResultsGenre, setAutocompleteResultsGenre] = useState<{
+        [key: number]: GenreOption[];
+    }>({});
+    const [instrumentOptions, setInstrumentOptions] = useState(defaultInstrumentOptions);
+    const [genreOptions, setGenreOptions] = useState<GenreOption[]>([]);
+
+    // Fetch instruments and genres from the database when the component mounts
+    useEffect(() => {
+        // Fetch instrument options
+        const fetchInstruments = async () => {
+            try {
+                const response = await fetch('http://localhost:8000/api/instruments/all/', {
+                    method: 'GET',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    credentials: 'include', // Or 'same-origin' depending on your setup
+                });
+
+
+
+                console.log('Response:', response); // Log response here
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+
+
+
+                if (response.ok) {
+                    const data = await response.json();
+                    setInstrumentOptions(data); // Assuming the API returns an array of instruments
+
+                    console.log("Found instruments: ", data)
+                } else {
+                    setError("Failed to load instruments.");
+                }
+            } catch (error) {
+                setError("Error fetching instruments.");
+                console.error(error);
+            }
+        };
+    
+        // Fetch genre options
+        const fetchGenres = async () => {
+            try {
+                const response = await fetch('http://localhost:8000/api/genres/all/', {
+                    method: 'GET',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    credentials: 'include', // Or 'same-origin' depending on your setup
+                });
+                  
+                if (response.ok) {
+                    const data = await response.json();
+                    setGenreOptions(data); // Assuming the API returns an array of genres
+
+                    console.log("Found genres: ", data)
+                } else {
+                    setError("Failed to load genres.");
+                }
+            } catch (error) {
+                setError("Error fetching genres.");
+            }
+        };
+    
+        fetchInstruments();
+        fetchGenres();
+    }, []); // Empty dependency array ensures this runs once when the component mounts
 
     // On top of pre-existing HTML5 email validations, use regex to validate email on submission
     const validateEmail = (email: string) => {
@@ -76,14 +149,13 @@ export default function MusicianSignup() {
         setAutocompleteResultsInstruments((prev) => ({
             ...prev,
             [index]: instrumentOptions
-                .filter((inst) => inst.toLowerCase().startsWith(value.toLowerCase()))
+                .filter((inst) => String(inst).toLowerCase().startsWith(value.toLowerCase()))
                 .slice(0, 5),
         }));
     }; 
 
     // Handle dropdown item selection
     const handleInstrumentDropdownItemClick = (index: number, instrument: string) => {
-        console.log("Clicked item")
         const isDuplicate = instruments.some((inst) => inst.name === instrument);
         if (isDuplicate) {
             setError("You have already selected this instrument.");
@@ -146,7 +218,7 @@ export default function MusicianSignup() {
         setAutocompleteResultsGenre((prev) => ({
             ...prev,
             [index]: genreOptions
-                .filter((genre) => genre.toLowerCase().startsWith(value.toLowerCase()))
+            .filter((genre) => genre.genre.toLowerCase().startsWith(value.toLowerCase()))
                 .slice(0, 5),
         }));
     };
@@ -227,25 +299,31 @@ export default function MusicianSignup() {
 
         // Validate genres against the predefined list
         for (const genre of genres) {
-            if (!genreOptions.includes(genre.name)) {
+            // Check if the genre's name exists in the genreOptions
+            const genreExists = genreOptions.some((option) => option.genre.toLowerCase() === genre.name.toLowerCase());
+
+            if (!genreExists) {
                 setError(`"${genre.name}" is not a valid genre.`);
                 return;
             }
         }
 
         setError(""); // Clear error if validation passes
-        console.log("Form submitted successfully:", email, username, password);
-
 
         const role = "musician"
-        // Debugging:
-        console.log("Sending payload:", JSON.stringify({ email, username, password, role }));
-
         try {
             const response = await fetch("http://localhost:8000/api/auth/signup/", {       // Replace with an env variable for both local and Kubernetes deployment
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, username, password, role }),
+                body: JSON.stringify({ 
+                    email,
+                    username,
+                    password,
+                    stageName,
+                    homeStudio,
+                    instruments,
+                    genres,
+                 }),
             });
 
             const data = await response.json();
@@ -420,13 +498,13 @@ export default function MusicianSignup() {
                             />
                             {autocompleteResultsGenre[index] && autocompleteResultsGenre[index].length > 0 && (
                                 <div className={styles.autocompleteDropdown}>
-                                    {autocompleteResultsGenre[index].map((gen, i) => (
+                                    {autocompleteResultsGenre[index].map((option, i) => (
                                         <div
                                             key={i}
                                             className={styles.autocompleteItem}
-                                            onClick={() => handleGenreDropdownItemClick(index, gen)}
+                                            onClick={() => handleGenreDropdownItemClick(index, option.genre)}
                                         >
-                                            {gen}
+                                            {option.genre} 
                                         </div>
                                     ))}
                                 </div>

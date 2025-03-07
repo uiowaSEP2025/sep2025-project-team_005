@@ -65,6 +65,14 @@ def create_instrument(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# API endpoint to get all instruments
+@api_view(['GET'])
+def get_instruments(request):
+    instruments = Instrument.objects.all()  # Retrieve all instruments
+    serializer = InstrumentSerializer(instruments, many=True)  # Serialize the list of instruments
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 # API endpoint to create a genre in the database
 @api_view(['POST'])
 def create_genre(request):
@@ -78,3 +86,11 @@ def create_genre(request):
         )
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# API endpoint to get all genres
+@api_view(['GET'])
+def get_genres(request):
+    genres = Genre.objects.all()  # Retrieve all genres
+    serializer = GenreSerializer(genres, many=True)  # Serialize the list of genres
+    return Response(serializer.data, status=status.HTTP_200_OK)
