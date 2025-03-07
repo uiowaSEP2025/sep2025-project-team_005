@@ -196,7 +196,7 @@ export default function UserSettings() {
     fetchMusicianData();
   }, [profile, isLoading]); 
   
-  const handleSave = async () => {
+  /*const handleSave = async () => {
     try {
       const response = await fetch(`http://localhost:8000/musician/${userData.id}/`, {
         method: "PATCH",
@@ -224,7 +224,7 @@ export default function UserSettings() {
     } catch (error) {
       console.error("Error updating user data:", error);
     }
-  };  
+  };  */
 
   const [editField, setEditField] = useState<keyof UserData | null>(null);
   const [editExperience, setEditExperience] = useState(false);
