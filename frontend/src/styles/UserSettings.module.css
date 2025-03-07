@@ -111,6 +111,11 @@
     align-items: center;
     gap: 1rem;
     justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.listItem {
+    font-size: 20px;
 }
 
 /* Buttons */
@@ -132,6 +137,18 @@
 
 .primaryButton:hover {
     background-color: #1d4ed8;
+}
+
+.removeButton {
+    margin-bottom: 2px;
+    margin-left: 30px;
+    padding: 0rem 1.25rem;
+    background-color: #4d26eb;
+    color: white;
+    border-radius: 10px;
+    transition: background-color 0.3s ease;
+    text-decoration: none;
+    text-align: center;
 }
 
 .secondaryButton {

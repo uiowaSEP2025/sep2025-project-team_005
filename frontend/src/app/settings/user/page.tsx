@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useAuth, useRequireAuth } from "@/context/ProfileContext";
 import { useRouter } from "next/navigation";
 import styles from "@/styles/UserSettings.module.css";
-import axios from "axios";
 
 type UserData = {
   id: string;
@@ -149,39 +148,83 @@ export default function UserSettings() {
     username: "",
     email: "",
     phone: "",
-    instruments: ["Piano", "Guitar"],
-    genre: ["Punk", "Indie"],
+    instruments: [],
+    genre: [],
     password: "",
     confirm_password: "",
   });
-  const [musicianData, setMusicianData] = useState<{ instruments: string[]; genre: string[] } | null>(null);
   
   useEffect(() => {
-    if (profile && !isLoading) {
-      setUserData({
-        id: profile.id ? String(profile.id) : "",
-        first_name: profile.first_name || "",
-        last_name: profile.last_name || "",
-        username: profile.username || "",
-        email: profile.email || "",
-        phone: profile.phone || "",
-        instruments: [],
-        genre: [],
-        password: "",
-        confirm_password: "",
-      });
-      const fetchMusicianData = async () => {
+    const fetchMusicianData = async () => {
+      if (profile && !isLoading) {
+        setUserData({
+          id: profile.id ? String(profile.id) : "",
+          first_name: profile.first_name || "",
+          last_name: profile.last_name || "",
+          username: profile.username || "",
+          email: profile.email || "",
+          phone: profile.phone || "",
+          instruments: [],
+          genre: [],
+          password: "",
+          confirm_password: "",
+        });
+  
         try {
-          const response = await axios.get(`/musician/${profile.id}`);
-          setMusicianData(response.data); // Store musician data in state
+          const response = await fetch(`http://localhost:8000/musician/${profile.id}/`, {
+            method: "GET",
+            credentials: "include",
+          });
+  
+          if (response.ok) {
+            const data = await response.json();
+            setUserData((prev) => ({
+              ...prev,
+              instruments: data.instruments,
+              genre: data.genres,
+            }));
+          } 
+          else {
+            console.error("Failed to fetch musician data", response.statusText);
+          }
         } catch (error) {
-          console.error("Error fetching musician data", error);
+          console.error("Error fetching musician data:", error);
         }
-      };
-
-      fetchMusicianData();
+      }
+    };
+  
+    fetchMusicianData();
+  }, [profile, isLoading]); 
+  
+  const handleSave = async () => {
+    try {
+      const response = await fetch(`http://localhost:8000/musician/${userData.id}/`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          first_name: userData.first_name,
+          last_name: userData.last_name,
+          username: userData.username,
+          email: userData.email,
+          phone: userData.phone,
+          instruments: userData.instruments,
+          genre: userData.genre,
+        }),
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Updated data:", data);
+      } else {
+        console.error("Failed to update user data", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error updating user data:", error);
     }
-  }, [profile, isLoading]);
+  };  
 
   const [editField, setEditField] = useState<keyof UserData | null>(null);
   const [editExperience, setEditExperience] = useState(false);
