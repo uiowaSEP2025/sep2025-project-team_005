@@ -3,7 +3,14 @@ from django.urls import path, include
 from pages.views.discover_views import GetUsersView, InstrumentListView, GenreListView
 from pages.views.post_views import CreatePostView
 
+from django.http import JsonResponse
+
+# For debugging:
+def home(request):
+    return JsonResponse({"message": "Django API is running!"})
+
 urlpatterns = [
+    path("", home),
     path('admin/', admin.site.urls),
     path("api/auth/", include("pages.authentication.urls", namespace="authentication")),
     path("discover/", GetUsersView.as_view(), name="get_users"),

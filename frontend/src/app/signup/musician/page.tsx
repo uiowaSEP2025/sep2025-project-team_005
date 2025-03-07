@@ -236,14 +236,18 @@ export default function MusicianSignup() {
         setError(""); // Clear error if validation passes
         console.log("Form submitted successfully:", email, username, password);
 
-        const role = "Musician"
+
+        const role = "musician"
+        // Debugging:
+        console.log("Sending payload:", JSON.stringify({ email, username, password, role }));
+
         try {
             const response = await fetch("http://localhost:8000/api/auth/signup/", {       // Replace with an env variable for both local and Kubernetes deployment
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, username, password, role }),
             });
-    
+
             const data = await response.json();
     
             if (response.ok) {
