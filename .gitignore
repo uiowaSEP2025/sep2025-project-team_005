@@ -19,7 +19,7 @@ db.sqlite3
 .next/
 
 # Environment variables
-.env
+.env*
 backend/.env
 
 # Testing

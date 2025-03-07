@@ -1,10 +1,8 @@
 from django.urls import path
-from pages.authentication.view import LogoutView, CustomTokenObtainPairView, ProfileView
-from .view import signup
+from .views import *
 from rest_framework_simplejwt.views import TokenRefreshView
 
 app_name = 'authentication'
-
 
 urlpatterns = [
     path("login/", CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
