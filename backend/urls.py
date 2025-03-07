@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from pages.views import CreatePostView
+from pages.views import CreatePostView, create_genre, create_instrument
 
 from django.http import JsonResponse
 
@@ -13,4 +13,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("api/auth/", include("pages.authentication.urls", namespace="authentication")),
     path('create/', CreatePostView.as_view(), name='create_post'),
+    path('api/instruments/', create_instrument, name='create-instrument'),
+    path('api/genres/', create_genre, name='create-genre'),
 ]

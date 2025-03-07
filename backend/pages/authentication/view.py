@@ -12,6 +12,9 @@ from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 from rest_framework.decorators import api_view
 from pages.models.User import User
+from pages.models.Musician import Musician
+from pages.models.MusicianInstrument import MusicianInstrument
+from pages.models.Genre import Genre
 import logging
 
 logger = logging.getLogger(__name__)
@@ -81,7 +84,7 @@ class LogoutView(APIView):
             return Response({"error": "An error occurred while logging out", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
         
-# Class for serialization of data stored in the database
+# Class for serialization of user data stored in the database
 class UserSignupSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -100,13 +103,62 @@ class UserSignupSerializer(serializers.ModelSerializer):
         validated_data['password'] = make_password(validated_data['password'])
         return User.objects.create(**validated_data)
     
-# API endpoint for signup requests
+# API endpoint for user signup requests
 @api_view(['POST'])
 def signup(request):
-    serializer = UserSignupSerializer(data=request.data)
+    user_serializer = UserSignupSerializer(data=request.data)
     
-    if serializer.is_valid():
-        user = serializer.save()
+    if user_serializer.is_valid():
+        user = user_serializer.save()
+
+        # Automatically create a musician profile if the role is "musician"
+        if request.data.get("role") == "musician":
+            musician_data = {
+                "user": user.id,  # Associate with newly created user
+                "stage_name": request.data.get("stage_name", ""),
+                "years_played": request.data.get("years_played", None),
+                "home_studio": request.data.get("home_studio", False),
+                "genres": request.data.get("genres", []),  # Expecting list of genre IDs
+                "instruments": request.data.get("instruments", [])  # Expecting list of instrument IDs
+            }
+            musician_serializer = MusicianSerializer(data=musician_data)
+
+            if musician_serializer.is_valid():
+                musician_serializer.save()
+            else:
+                return Response(musician_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
         return Response({"message": "User created successfully", "id": user.id}, status=status.HTTP_201_CREATED)
-     
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# Serializer class for the intermediate model between musicians and instrumens
+class MusicianInstrumentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MusicianInstrument
+        fields = ['instrument', 'years_played']
+
+
+# Serializer class for musicians
+class MusicianSerializer(serializers.ModelSerializer):
+    instruments = MusicianInstrumentSerializer(many=True, write_only=True)
+    genres = serializers.PrimaryKeyRelatedField(many=True, queryset=Genre.objects.all())
+
+    class Meta:
+        model = Musician
+        fields = ['user', 'stage_name', 'home_studio', 'genres', 'instruments']
+
+    def create(self, validated_data):
+        instruments_data = validated_data.pop('instruments')
+        musician = Musician.objects.create(**validated_data)
+
+        # Create MusicianInstrument entries
+        for instrument_data in instruments_data:
+            MusicianInstrument.objects.create(
+                musician=musician,
+                instrument=instrument_data['instrument'],
+                years_played=instrument_data['years_played']
+            )
+
+        return musician
