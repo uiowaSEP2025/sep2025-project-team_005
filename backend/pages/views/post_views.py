@@ -3,7 +3,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from pages.forms import PostForm
 from pages.utils.s3_utils import upload_to_s3
-from pages.models import Post
+from pages.models import Post, Instrument, Genre
+from rest_framework import serializers
+from rest_framework.decorators import api_view
 
 class CreatePostView(APIView):
     def post(self, request):
@@ -32,3 +34,47 @@ class CreatePostView(APIView):
             return Response({"error": "Invalid form data", "details": form.errors}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+# Serializer for instruments
+class InstrumentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Instrument
+        fields = ['id', 'instrument', 'class_name']
+
+
+# Serializer for genres
+class GenreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Genre
+        fields = ['id', 'genre'] 
+
+
+# API endpoint to create instrument in database
+@api_view(['POST'])
+def create_instrument(request):
+    serializer = InstrumentSerializer(data=request.data)
+
+    if serializer.is_valid():
+        instrument = serializer.save()
+        return Response(
+            {"message": "Instrument created successfully", "id": instrument.id},
+            status=status.HTTP_201_CREATED
+        )
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# API endpoint to create a genre in the database
+@api_view(['POST'])
+def create_genre(request):
+    serializer = GenreSerializer(data=request.data)
+
+    if serializer.is_valid():
+        genre = serializer.save()
+        return Response(
+            {"message": "Genre created successfully", "id": genre.id},
+            status=status.HTTP_201_CREATED
+        )
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
