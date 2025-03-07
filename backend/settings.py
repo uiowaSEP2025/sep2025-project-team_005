@@ -160,6 +160,12 @@ EMAIL_HOST_PASSWORD = env('EMAIL_PASSWORD')
 
 # CORS settings for Next.js frontend
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Local Next.js frontend
+    #"https://your-production-domain.com",  # Change this for production
+]
+
+CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]
 if django_env == 'production':
     CORS_ALLOWED_ORIGINS = [
         "https://your-production-domain.com",  # Add your production domain
