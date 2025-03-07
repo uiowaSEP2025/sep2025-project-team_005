@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from pages.views.discover_views import GetUsersView
-from pages.views import CreatePostView
+from pages.views.post_views import CreatePostView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
