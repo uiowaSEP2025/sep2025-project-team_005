@@ -3,11 +3,13 @@
 import styles from "@/styles/Discover.module.css";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/ProfileContext";
+import { useAuth, useRequireAuth } from "@/context/ProfileContext";
 import axios from "axios";
 import debounce from "lodash.debounce";
 
 export default function Discover() {
+    useRequireAuth();
+
     const router = useRouter();
     const { profile, isLoading } = useAuth();
     
