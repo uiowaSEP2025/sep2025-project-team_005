@@ -47,8 +47,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             console.error("Error fetching profile:", error);
         
             if (axios.isAxiosError(error)) {
-                if (error.response?.status === 401) {
-                    router.push("/");
+                if (axios.isAxiosError(error) && error.response?.status === 401) {
+                    setProfile(null);
                 }
             } 
             else {
