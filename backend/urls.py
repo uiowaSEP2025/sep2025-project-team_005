@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from pages.views.discover_views import GetUsersView
+from pages.views.discover_views import GetUsersView, InstrumentListView, GenreListView
 from pages.views.post_views import CreatePostView
 
 urlpatterns = [
@@ -8,4 +8,6 @@ urlpatterns = [
     path("api/auth/", include("pages.authentication.urls", namespace="authentication")),
     path("discover/", GetUsersView.as_view(), name="get_users"),
     path('create/', CreatePostView.as_view(), name='create_post'),
+    path('instruments/', InstrumentListView.as_view(), name='instrument-list'),
+    path('genres/', GenreListView.as_view(), name='genre-list'),
 ]
