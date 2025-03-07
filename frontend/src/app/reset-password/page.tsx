@@ -2,19 +2,28 @@
 
 import styles from "@/styles/Signup.module.css";
 import Image from "next/image";
-import { useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function ResetPassword() {
+function ResetPasswordForm() {
     const searchParams = useSearchParams();
-    const uid = searchParams.get("uid");
-    const token = searchParams.get("token");
+    const [uid, setUid] = useState<string | null>(null);
+    const [token, setToken] = useState<string | null>(null);
 
     const [password, setPassword] = useState("");
     const [confirmedPassword, setConfirmedPassword] = useState("");
     const [passwordError, setPasswordError] = useState("");
     const [formError, setFormError] = useState("");
     const router = useRouter();
+
+    useEffect(() => {
+        setUid(searchParams.get("uid"));
+        setToken(searchParams.get("token"));
+    }, [searchParams]);
+
+    if (!uid || !token) {
+        return <div>Loading...</div>;
+    }
 
     // Function to validate password strength
     const validatePassword = (password: string): boolean => {
@@ -120,3 +129,11 @@ export default function ResetPassword() {
         </div>
     );
 }
+
+const ResetPassword = () => (
+    <Suspense fallback={<div>Loading...</div>}>
+        <ResetPasswordForm />
+    </Suspense>
+);
+
+export default ResetPassword;
