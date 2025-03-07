@@ -1,4 +1,4 @@
-"use client"; 
+"use client";
 
 import styles from "@/styles/Signup.module.css";
 import Image from "next/image";
@@ -93,6 +93,7 @@ export default function Signup() {
                     className={styles.inputField}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    // TODO SN5-81: use onBlur to make a validation call to backend for email uniqueness
                 />
 
                 <label htmlFor="username" className={styles.label}>Username:</label>
@@ -105,6 +106,7 @@ export default function Signup() {
                     className={styles.inputField}
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
+                    // TODO SN5-81: use onBlur to make a validation call to backend for username uniqueness
                 />
 
                 <label htmlFor="password" className={styles.label}>Password:</label>
