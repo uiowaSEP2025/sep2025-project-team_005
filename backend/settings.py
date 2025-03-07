@@ -29,7 +29,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-v@uu-r6&4c0zefohg2l2%zv(ve+-%7lzx(wk6fzl2)r@1@v_g3'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -114,12 +114,22 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# email configs
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = env('EMAIL_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_PASSWORD')
+
 # CORS settings for Next.js frontend
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # Local Next.js frontend
     #"https://your-production-domain.com",  # Change this for production
 ]
+
+CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]
 
 # REST Framework settings
 REST_FRAMEWORK = {
