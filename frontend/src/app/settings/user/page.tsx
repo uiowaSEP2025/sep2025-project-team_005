@@ -4,8 +4,10 @@ import { useState, useEffect } from "react";
 import { useAuth, useRequireAuth } from "@/context/ProfileContext";
 import { useRouter } from "next/navigation";
 import styles from "@/styles/UserSettings.module.css";
+import axios from "axios";
 
 type UserData = {
+  id: string;
   first_name: string;
   last_name: string;
   username: string;
@@ -141,6 +143,7 @@ export default function UserSettings() {
   const { profile, isLoading } = useAuth();
 
   const [userData, setUserData] = useState<UserData>({
+    id: "",
     first_name: "",
     last_name: "",
     username: "",
@@ -151,20 +154,32 @@ export default function UserSettings() {
     password: "",
     confirm_password: "",
   });
+  const [musicianData, setMusicianData] = useState<{ instruments: string[]; genre: string[] } | null>(null);
   
   useEffect(() => {
     if (profile && !isLoading) {
       setUserData({
+        id: profile.id ? String(profile.id) : "",
         first_name: profile.first_name || "",
         last_name: profile.last_name || "",
         username: profile.username || "",
         email: profile.email || "",
         phone: profile.phone || "",
-        instruments: /*profile.instruments*/ ["Piano", "Guitar"],
-        genre: /*profile.genre ||*/ ["Punk", "Indie"],
+        instruments: [],
+        genre: [],
         password: "",
         confirm_password: "",
       });
+      const fetchMusicianData = async () => {
+        try {
+          const response = await axios.get(`/musician/${profile.id}`);
+          setMusicianData(response.data); // Store musician data in state
+        } catch (error) {
+          console.error("Error fetching musician data", error);
+        }
+      };
+
+      fetchMusicianData();
     }
   }, [profile, isLoading]);
 
