@@ -65,6 +65,7 @@ if django_env == 'production':
 else:
     DEBUG = True  # Enable Debug in development
 
+
 ALLOWED_HOSTS = ['*']       # Will need to be updated for production
 
 
