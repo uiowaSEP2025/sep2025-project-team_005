@@ -14,6 +14,8 @@ export default function BusinessSignup() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [passwordError, setPasswordError] = useState("");
+    const [businessName, setBusinessName] = useState("");
+    const [industry, setIndustry] = useState("")
 
     // Function to validate password strength
     const validatePassword = (password: string): boolean => {
@@ -46,7 +48,7 @@ export default function BusinessSignup() {
                     type="email"    // HTML5 pre-enforced validation for email
                     id="email"
                     name="email"
-                    required        // Require field to be filled out upon submission
+                    required 
                     placeholder="Enter your email"
                     className={styles.inputField}
                     value={email}
@@ -55,7 +57,6 @@ export default function BusinessSignup() {
 
                 <label htmlFor="username" className={styles.label}>Username:</label>
                 <input
-                    type="text"
                     id="username"
                     name="username"
                     required
@@ -81,10 +82,32 @@ export default function BusinessSignup() {
                     }}
                 />
                 {passwordError && <p className={styles.error}>{passwordError}</p>}
+
+                <label htmlFor="businessname" className={styles.label}>Your Business' Name:</label>
+                <input
+                    id="businessname"
+                    name="businessname"
+                    required
+                    placeholder="Business Name"
+                    className={styles.inputField}
+                    value={businessName}
+                    onChange={(e) => setBusinessName(e.target.value)}
+                />
+
+                <label htmlFor="industry" className={styles.label}>Industry Your Business Is In:</label>
+                <input
+                    id="industry"
+                    name="industry"
+                    required
+                    placeholder="Industry"
+                    className={styles.inputField}
+                    value={industry}
+                    onChange={(e) => setIndustry(e.target.value)}
+                />
             </form>
 
             {error && <p className={styles.error}>{error}</p>} {/* Show error if invalid */}
-            <button type="submit" className={styles.submitButton}>Sign Up</button>
+            <button type="submit" className={styles.businessSubmit}>Sign Up</button>
 
         </div>
     );

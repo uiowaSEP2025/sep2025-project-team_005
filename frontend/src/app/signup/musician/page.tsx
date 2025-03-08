@@ -72,14 +72,12 @@ export default function MusicianSignup() {
                     headers: {
                       'Content-Type': 'application/json',
                     },
-                    credentials: 'include', // Or 'same-origin' depending on your setup
+                    credentials: 'include',
                 });
 
                 if (response.ok) {
                     const data = await response.json();
-                    setInstrumentOptions(data); // Assuming the API returns an array of instruments
-
-                    console.log("Found instruments: ", data)
+                    setInstrumentOptions(data);
                 } else {
                     setError("Failed to load instruments.");
                 }
@@ -97,14 +95,12 @@ export default function MusicianSignup() {
                     headers: {
                       'Content-Type': 'application/json',
                     },
-                    credentials: 'include', // Or 'same-origin' depending on your setup
+                    credentials: 'include',
                 });
                   
                 if (response.ok) {
                     const data = await response.json();
-                    setGenreOptions(data); // Assuming the API returns an array of genres
-
-                    console.log("Found genres: ", data)
+                    setGenreOptions(data);
                 } else {
                     setError("Failed to load genres.");
                 }
@@ -185,7 +181,6 @@ export default function MusicianSignup() {
     
         // Find the instrument from the instrument options
         const selectedInstrument = instrumentOptions.find(inst => inst.instrument.toLowerCase() === instrument.toLowerCase());
-        console.log("Selected instrument: " , selectedInstrument)
 
         // If the selection is not null/undefined, update the instrument fields
         if(selectedInstrument) {
@@ -197,12 +192,10 @@ export default function MusicianSignup() {
             };
             setInstruments(newInstruments);
         }
-    
 
         // Clear error and hide dropdown after selection
         setError("");
         setAutocompleteResultsInstruments((prev) => ({ ...prev, [index]: [] }));
-        console.log("At end of handle click: ", instruments);
     };
 
     const handleYearsChange = (index: number, value: string) => {
@@ -275,7 +268,6 @@ export default function MusicianSignup() {
 
         // Find the genre from genre options
         const selectedGenre = genreOptions.find(gen => gen.genre.toLowerCase() === genre.toLowerCase());
-        console.log("Selected genre: ", selectedGenre)
     
         // If selection is not null, update the genre field with the selected option
         if(selectedGenre) {
@@ -365,15 +357,6 @@ export default function MusicianSignup() {
         setError(""); // Clear error if validation passes
 
         const role = "musician"
-
-        console.log("About to attempt post with the following data:")
-        console.log("Email: ", email)
-        console.log("Username: ", username)
-        console.log("Home studio: ", homeStudio)
-        console.log("Stage Name: ", stageName)
-        console.log("Genres:", genres)
-        console.log("Instruments: ", instruments)
-
         const userData: SignupData = {
             username: username,
             password: password,
@@ -392,8 +375,6 @@ export default function MusicianSignup() {
             }))
         };
 
-        console.log("User data: ", userData)
-
         try {
             const response = await fetch("http://localhost:8000/api/auth/signup/", {
                 method: "POST",
@@ -401,27 +382,17 @@ export default function MusicianSignup() {
                 body: JSON.stringify(userData),
             });
 
-            console.log("After post request")
-            //const data = await response.json();
-    
             if (response.ok) {
-
                 const data = await response.json();
-                console.log("API response:", data); 
-
                 alert("Signup successful! Redirecting to login...");
                 router.push("/login"); // Redirect to login page if successful
             } else {
-
-                console.log("In else statement")
-
                 const errorData = await response.json(); // Read JSON error response
                 setError(errorData.email || errorData.username || "Signup failed. Please try again.");
 
                 console.log(errorData)
             }
         } catch (error) {
-            console.log("In catch")
             console.error("Signup error:", error);
             setError("An error occurred. Please try again.");
         }
