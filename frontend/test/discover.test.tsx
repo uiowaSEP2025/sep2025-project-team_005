@@ -47,7 +47,7 @@ describe("Discover User UI", () => {
         });
     
         await waitFor(() => expect(axios.get).toHaveBeenCalledWith(
-            expect.stringContaining("http://localhost:8000/discover/"),
+            expect.stringContaining("http://18.117.105.40:8000/discover/"),
             expect.objectContaining({ params: { search: "testuser", page: 1 } })
         ));
     });

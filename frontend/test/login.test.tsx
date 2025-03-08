@@ -55,7 +55,7 @@ describe("Login Component", () => {
 
         await waitFor(() => {
         expect(axios.post).toHaveBeenCalledWith(
-            "http://localhost:8000/api/auth/login/",
+            "http://18.117.105.40:8000/api/auth/login/",
             { username: "testuser", password: "testpassword1!" },
             { withCredentials: true }
         );

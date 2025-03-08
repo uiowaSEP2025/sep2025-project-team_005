@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
 
         try {
-            const response = await axios.get<UserProfile>("https://savvy-note.com:8000/api/auth/profile/", {
+            const response = await axios.get<UserProfile>("http://18.117.105.40:8000/api/auth/profile/", {
                 headers: { Authorization: `Bearer ${accessToken}` },
                 withCredentials: true,
             });

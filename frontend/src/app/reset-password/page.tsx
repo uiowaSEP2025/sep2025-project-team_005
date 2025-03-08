@@ -63,7 +63,7 @@ function ResetPasswordForm() {
         setFormError("");
 
         try {
-            const response = await fetch("http://localhost:8000/api/auth/reset-password/", {       // Replace with an env variable for both local and Kubernetes deployment
+            const response = await fetch("http://18.117.105.40:8000/api/auth/reset-password/", {       // Replace with an env variable for both local and Kubernetes deployment
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ password, confirmedPassword, uid, token }),
