@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import Cookies from "js-cookie";
 import styles from "@/styles/Login.module.css";
+import axios from "axios";
 
 
 export default function Profile() {
@@ -13,15 +14,9 @@ export default function Profile() {
     const router = useRouter();
     const { profile, isLoading } = useAuth();
 
-
-
-
-
-
     const handleLogout = async () => {
         try {
-            const response = await fetch("https://savvy-note.com:8000/api/auth/logout/", {
-                method: "POST",
+            const response = await axios.post("https://savvy-note.com:8000/api/auth/logout/", {
                 credentials: "include",
             });
 

@@ -1,9 +1,10 @@
-"use client"; 
+"use client";
 
 import styles from "@/styles/Signup.module.css";
 import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
 export default function Signup() {
     const [role, setRole] = useState("");
@@ -48,15 +49,19 @@ export default function Signup() {
         setFormError("");
 
         try {
-            const response = await fetch("https://savvy-note.com:8000/api/auth/signup/", {       // Replace with an env variable for both local and Kubernetes deployment
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, username, password, role }),
-            });
+            const response = await axios.post(
+                "https://savvy-note.com:8000/api/auth/signup/",
+                {email, username, password, role},
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
     
-            const data = await response.json();
+            const data = await response.data;
     
-            if (response.ok) {
+            if (response.data.ok) {
                 alert("Signup successful! Redirecting to login...");
                 router.push("/login"); // Redirect to login page if successful
             } else {
@@ -88,6 +93,7 @@ export default function Signup() {
                     className={styles.inputField}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    // TODO SN5-81: use onBlur to make a validation call to backend for email uniqueness
                 />
 
                 <label htmlFor="username" className={styles.label}>Username:</label>
@@ -100,6 +106,7 @@ export default function Signup() {
                     className={styles.inputField}
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
+                    // TODO SN5-81: use onBlur to make a validation call to backend for username uniqueness
                 />
 
                 <label htmlFor="password" className={styles.label}>Password:</label>
@@ -111,11 +118,8 @@ export default function Signup() {
                     placeholder="Create a strong password"
                     className={styles.inputField}
                     value={password}
-                    onChange={(e) => {
-                        const newPassword = e.target.value;
-                        setPassword(newPassword);
-                        validatePassword(newPassword);
-                    }}
+                    onChange={(e) => {setPassword(e.target.value);}}
+                    // TODO SN5-81: Add UI for password strength
                 />
                 {passwordError && <p className={styles.error}>{passwordError}</p>}
 
