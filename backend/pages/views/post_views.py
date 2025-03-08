@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from pages.utils.s3_utils import upload_to_s3
-from pages.models import Post, Instrument, Genre, MusicianInstrument, User, Musician
+from pages.models import Post, Instrument, Genre, MusicianInstrument, User, Musician, Business
 from rest_framework import serializers
 from rest_framework.decorators import api_view
 from pages.authentication.views import MusicianInstrumentSerializer, MusicianSerializer
@@ -126,4 +126,19 @@ def get_users(request):
 def get_musicians(request):
     musicians = Musician.objects.all()  # Fetch all musicians from the database
     serializer = MusicianSerializer(musicians, many=True)  # Serialize the queryset
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# Serializer for Businesses
+class BusinessSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Business
+        fields = ['id', 'user', 'business_name', 'industry']
+
+
+# API endpoint to get all businesses
+@api_view(["GET"])
+def get_businesses(request):
+    businesses = Business.objects.all() # Fetch all businesses from the database
+    serializer = BusinessSerializer(businesses, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)

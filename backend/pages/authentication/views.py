@@ -211,11 +211,6 @@ def reset_password(request):
 # API endpoint for signup requests
 @api_view(['POST'])
 def signup(request):
-
-    print("Received sign up request: ", request.data)
-
-    logger.debug("Received sign up request with data: %s", request.data)
-
     user_serializer = UserSignupSerializer(data=request.data)
 
     if user_serializer.is_valid():
@@ -236,14 +231,10 @@ def signup(request):
             musician = Musician.objects.create(**musician_data)
 
             # Handle instruments by creating MusicianInstrument entries
-            instruments_data = request.data.get("instruments", [])  # Expecting list of instrument IDs
+            instruments_data = request.data.get("instruments", [])
             for instrument_data in instruments_data:
                 instrument_id = instrument_data.get("id")  # Extract instrument ID
                 years_played = instrument_data.get("years_played")  # Extract years_played
-
-
-                print("ID: ", instrument_id, " Years: ", years_played)
-
 
                 if instrument_id and years_played is not None:
                     try:
@@ -258,7 +249,7 @@ def signup(request):
                 else:
                     return Response({"error": "Instrument ID and years played are required."}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Now set genres after Musician instance is created
+            # Set genres after Musician instance is created
             genres_data = request.data.get("genres", [])
             if genres_data:
                 # Extract ids from the data
