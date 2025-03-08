@@ -65,6 +65,7 @@ if django_env == 'production':
 else:
     DEBUG = True  # Enable Debug in development
 
+
 ALLOWED_HOSTS = ['*']       # Will need to be updated for production
 
 
@@ -149,6 +150,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# email configs
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = env('EMAIL_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_PASSWORD')
+
 # CORS settings for Next.js frontend
 CORS_ALLOW_CREDENTIALS = True
 if django_env == 'production':
@@ -159,6 +168,8 @@ else:
     CORS_ALLOWED_ORIGINS = [
         "http://localhost:3000",  # Local Next.js frontend for development
     ]
+
+CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]
 
 # REST Framework settings
 REST_FRAMEWORK = {

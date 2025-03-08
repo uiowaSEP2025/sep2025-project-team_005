@@ -217,6 +217,9 @@ coverage erase
 coverage run --source=pages -m pytest
 coverage run --source=pages -m behave test/features
 coverage report -m
+
+cd frontend
+npm test -- --coverage
 ```
 
 # Backend
