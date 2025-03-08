@@ -7,22 +7,39 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-// Temporary list of instruments until I can seed database
-const defaultInstrumentOptions = [
-    "Piano", "Guitar", "Violin", "Drums", "Flute", "Saxophone", "Trumpet", "Bass Guitar", "Cello", "Clarinet"
-];
-
-const defaultGenreOptions = [
-    "Rock", "Pop", "Classical", "Jazz", "Blues", "Hip-Hop", "R&B", "Country", "Reggae", "Electronic", 
-    "Folk", "Soul", "Punk", "Alternative", "Metal", "Funk", "Disco", "Latin", "Indie", "Gospel", 
-    "Ska", "Techno", "House", "Trance", "Bluegrass", "Opera", "Ambient", "World Music", "New Age", 
-    "Experimental"
-];
 
 // Ensures that the genres read from the database are explicitly types
 interface GenreOption {
     id: string;
     genre: string;
+}
+
+interface InstrumentOption {
+    id: string;
+    instrument: string;
+    class_name: string;
+}
+
+interface Instrument {
+    id: string;
+    instrument: string;
+    years_played: string;
+  }
+  
+  interface Genre {
+    id: string;
+    genre: string;
+  }
+
+  interface SignupData {
+    username: string;
+    password: string;
+    email: string;
+    role: string;
+    stage_name: string;
+    home_studio: boolean;
+    instruments: Instrument[];
+    genres: Genre[];
   }
 
 export default function MusicianSignup() {
@@ -34,13 +51,15 @@ export default function MusicianSignup() {
     const [passwordError, setPasswordError] = useState("");
     const [stageName, setStageName] = useState("");
     const [homeStudio, setHomeStudio] = useState("");
-    const [instruments, setInstruments] = useState([{ name: "", years: "" }]);
-    const [genres, setGenres] = useState([{ name: "" }]);
-    const [autocompleteResultsInstruments, setAutocompleteResultsInstruments] = useState<{ [key: number]: string[] }>({});
+    const [instruments, setInstruments] = useState<Instrument[]>([{ id: "", instrument: "", years_played: "" }]);
+    const [genres, setGenres] = useState<Genre[]>([{ id: "", genre: "" }]);
+    const [autocompleteResultsInstruments, setAutocompleteResultsInstruments] = useState<{
+        [key: number]: InstrumentOption[];
+    }>({});
     const [autocompleteResultsGenre, setAutocompleteResultsGenre] = useState<{
         [key: number]: GenreOption[];
     }>({});
-    const [instrumentOptions, setInstrumentOptions] = useState(defaultInstrumentOptions);
+    const [instrumentOptions, setInstrumentOptions] = useState<InstrumentOption[]>([]);
     const [genreOptions, setGenreOptions] = useState<GenreOption[]>([]);
 
     // Fetch instruments and genres from the database when the component mounts
@@ -55,14 +74,6 @@ export default function MusicianSignup() {
                     },
                     credentials: 'include', // Or 'same-origin' depending on your setup
                 });
-
-
-
-                console.log('Response:', response); // Log response here
-                console.log('Response status:', response.status);
-                console.log('Response headers:', response.headers);
-
-
 
                 if (response.ok) {
                     const data = await response.json();
@@ -130,65 +141,86 @@ export default function MusicianSignup() {
         setHomeStudio(event.target.value);
     };
 
-    // Handle instrument input change
+    // Function to handle instrument changes
     const handleInstrumentChange = (index: number, value: string, isSelection = false) => {
-        const instrumentNames = instruments.map((inst) => inst.name.toLowerCase());
-        
+        const instrumentNames = instruments.map((inst) => inst.instrument.toLowerCase());
+    
         // Prevent duplicate selection
-        if (instrumentNames.includes(value.toLowerCase()) && instruments[index].name !== value) {
+        if (instrumentNames.includes(value.toLowerCase()) && instruments[index].instrument !== value) {
             setError("You have already selected this instrument.");
             return;
         }
-
+    
         setError(""); // Clear error if valid
         const newInstruments = [...instruments];
-        newInstruments[index].name = value;
+    
+        // Find the instrument object from the instrument options based on the name
+        const selectedInstrument = instrumentOptions.find(inst => inst.instrument.toLowerCase() === value.toLowerCase());    
+        
+        if (selectedInstrument) {
+            newInstruments[index] = { id: selectedInstrument.id, instrument: value, years_played: instruments[index].years_played };
+        } else {
+            newInstruments[index].instrument = value;
+        }
+    
         setInstruments(newInstruments);
-
+    
         // Filter instrument options based on the user's input
         setAutocompleteResultsInstruments((prev) => ({
             ...prev,
             [index]: instrumentOptions
-                .filter((inst) => String(inst).toLowerCase().startsWith(value.toLowerCase()))
+            .filter((instrument) => instrument.instrument.toLowerCase().startsWith(value.toLowerCase()))
                 .slice(0, 5),
         }));
-    }; 
+    };
+    
 
     // Handle dropdown item selection
     const handleInstrumentDropdownItemClick = (index: number, instrument: string) => {
-        const isDuplicate = instruments.some((inst) => inst.name === instrument);
+        const isDuplicate = instruments.some((inst) => inst.instrument === instrument);
         if (isDuplicate) {
             setError("You have already selected this instrument.");
             return;
         }
     
-        // Update the instrument field with the selected option
-        const newInstruments = [...instruments];
-        newInstruments[index].name = instrument;
-        setInstruments(newInstruments);
+        // Find the instrument from the instrument options
+        const selectedInstrument = instrumentOptions.find(inst => inst.instrument.toLowerCase() === instrument.toLowerCase());
+        console.log("Selected instrument: " , selectedInstrument)
+
+        // If the selection is not null/undefined, update the instrument fields
+        if(selectedInstrument) {
+            const newInstruments = [...instruments];
+            newInstruments[index] = { 
+                instrument: selectedInstrument.instrument, 
+                id: selectedInstrument.id, 
+                years_played: newInstruments[index]?.years_played || ""  // Keep existing years or set to empty string if undefined
+            };
+            setInstruments(newInstruments);
+        }
     
+
         // Clear error and hide dropdown after selection
         setError("");
         setAutocompleteResultsInstruments((prev) => ({ ...prev, [index]: [] }));
-        console.log(instrument)
+        console.log("At end of handle click: ", instruments);
     };
 
     const handleYearsChange = (index: number, value: string) => {
         const newInstruments = [...instruments];
-        newInstruments[index].years = value;
+        newInstruments[index].years_played = value;
         setInstruments(newInstruments);
     };
 
     // Add a new instrument field
     const addInstrumentField = () => {
         // Prevent adding a duplicate instrument
-        const instrumentNames = instruments.map((inst) => inst.name.toLowerCase());
+        const instrumentNames = instruments.map((inst) => inst.instrument.toLowerCase());
         if (instrumentNames.includes("")) {
             setError("Please fill out the current instrument field before adding another.");
             return;
         }
     
-        setInstruments([...instruments, { name: "", years: "" }]);
+        setInstruments([...instruments, { id: "", instrument: "", years_played: "" }]);
         setError(""); // Clear error if successful
     };
 
@@ -201,17 +233,26 @@ export default function MusicianSignup() {
 
     // Function to handle genre input change
     const handleGenreChange = (index: number, value: string) => {
-        const genreNames = genres.map((genre) => genre.name.toLowerCase());
-            
+        const genreNames = genres.map((genre) => genre.genre.toLowerCase());
+    
         // Prevent duplicate genre selection
-        if (genreNames.includes(value.toLowerCase()) && genres[index].name !== value) {
+        if (genreNames.includes(value.toLowerCase()) && genres[index].genre !== value) {
             setError("You have already selected this genre.");
             return;
         }
     
         setError(""); // Clear error if valid
         const newGenres = [...genres];
-        newGenres[index].name = value;
+    
+        // Find the genre object from the genre options based on the name
+        const selectedGenre = genreOptions.find(genre => genre.genre.toLowerCase() === value.toLowerCase());
+    
+        if (selectedGenre) {
+            newGenres[index] = { id: selectedGenre.id, genre: value };
+        } else {
+            newGenres[index].genre = value;
+        }
+    
         setGenres(newGenres);
     
         // Filter genre options based on the user's input
@@ -222,20 +263,30 @@ export default function MusicianSignup() {
                 .slice(0, 5),
         }));
     };
+    
 
     // Handle dropdown item selection for genres
     const handleGenreDropdownItemClick = (index: number, genre: string) => {
-        const isDuplicate = genres.some((gen) => gen.name === genre);
+        const isDuplicate = genres.some((gen) => gen.genre === genre);
         if (isDuplicate) {
             setError("You have already selected this genre.");
             return;
         }
+
+        // Find the genre from genre options
+        const selectedGenre = genreOptions.find(gen => gen.genre.toLowerCase() === genre.toLowerCase());
+        console.log("Selected genre: ", selectedGenre)
     
-        // Update the genre field with the selected option
-        const newGenres = [...genres];
-        newGenres[index].name = genre;
-        setGenres(newGenres);
-    
+        // If selection is not null, update the genre field with the selected option
+        if(selectedGenre) {
+            const newGenres = [...genres];
+            newGenres[index] = {
+                id: selectedGenre.id,
+                genre: selectedGenre.genre
+            };
+            setGenres(newGenres);
+        }
+        
         // Clear error and hide dropdown after selection
         setError("");
         setAutocompleteResultsGenre((prev) => ({ ...prev, [index]: [] }));
@@ -244,13 +295,13 @@ export default function MusicianSignup() {
     // Add a new genre field
     const addGenreField = () => {
         // Prevent adding a duplicate genre
-        const genreNames = genres.map((genre) => genre.name.toLowerCase());
+        const genreNames = genres.map((genre) => genre.genre.toLowerCase());
         if (genreNames.includes("")) {
             setError("Please fill out the current genre field before adding another.");
             return;
         }
 
-        setGenres([...genres, { name: "" }]);
+        setGenres([...genres, { id: "", genre: "" }]);
         setError(""); // Clear error if successful
     };
 
@@ -291,8 +342,11 @@ export default function MusicianSignup() {
 
         // Validate instruments against the predefined list
         for (const instrument of instruments) {
-            if (!instrumentOptions.includes(instrument.name)) {
-                setError(`"${instrument.name}" is not a valid instrument.`);
+            // Check if the instrument exists in instrumentOptions
+            const instrumentExists = instrumentOptions.some((option) => option.instrument.toLowerCase() === instrument.instrument.toLowerCase());
+
+            if (!instrumentExists) {
+                setError(`"${instrument.instrument}" is not a valid instrument`)
                 return;
             }
         }
@@ -300,10 +354,10 @@ export default function MusicianSignup() {
         // Validate genres against the predefined list
         for (const genre of genres) {
             // Check if the genre's name exists in the genreOptions
-            const genreExists = genreOptions.some((option) => option.genre.toLowerCase() === genre.name.toLowerCase());
+            const genreExists = genreOptions.some((option) => option.genre.toLowerCase() === genre.genre.toLowerCase());
 
             if (!genreExists) {
-                setError(`"${genre.name}" is not a valid genre.`);
+                setError(`"${genre.genre}" is not a valid genre.`);
                 return;
             }
         }
@@ -311,30 +365,63 @@ export default function MusicianSignup() {
         setError(""); // Clear error if validation passes
 
         const role = "musician"
+
+        console.log("About to attempt post with the following data:")
+        console.log("Email: ", email)
+        console.log("Username: ", username)
+        console.log("Home studio: ", homeStudio)
+        console.log("Stage Name: ", stageName)
+        console.log("Genres:", genres)
+        console.log("Instruments: ", instruments)
+
+        const userData: SignupData = {
+            username: username,
+            password: password,
+            email: email,
+            role: role,
+            stage_name: stageName,
+            home_studio: homeStudio === "Yes" ? true : homeStudio === "No" ? false : true,
+            instruments: instruments.map(inst => ({
+              id: inst.id,
+              instrument: inst.instrument,
+              years_played: inst.years_played
+            })),
+            genres: genres.map(genre => ({
+              id: genre.id,
+              genre: genre.genre
+            }))
+        };
+
+        console.log("User data: ", userData)
+
         try {
-            const response = await fetch("http://localhost:8000/api/auth/signup/", {       // Replace with an env variable for both local and Kubernetes deployment
+            const response = await fetch("http://localhost:8000/api/auth/signup/", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ 
-                    email,
-                    username,
-                    password,
-                    stageName,
-                    homeStudio,
-                    instruments,
-                    genres,
-                 }),
+                body: JSON.stringify(userData),
             });
 
-            const data = await response.json();
+            console.log("After post request")
+            //const data = await response.json();
     
             if (response.ok) {
+
+                const data = await response.json();
+                console.log("API response:", data); 
+
                 alert("Signup successful! Redirecting to login...");
                 router.push("/login"); // Redirect to login page if successful
             } else {
-                setError(data.email || data.username || "Signup failed. Please try again.");
+
+                console.log("In else statement")
+
+                const errorData = await response.json(); // Read JSON error response
+                setError(errorData.email || errorData.username || "Signup failed. Please try again.");
+
+                console.log(errorData)
             }
         } catch (error) {
+            console.log("In catch")
             console.error("Signup error:", error);
             setError("An error occurred. Please try again.");
         }
@@ -441,18 +528,18 @@ export default function MusicianSignup() {
                                 placeholder="Instrument"
                                 required
                                 className={styles.inputField}
-                                value={instrument.name}
+                                value={instrument.instrument}
                                 onChange={(e) => handleInstrumentChange(index, e.target.value)}
                             />
                             {autocompleteResultsInstruments[index] && autocompleteResultsInstruments[index].length > 0 && (
                                 <div className={styles.autocompleteDropdown}>
-                                    {autocompleteResultsInstruments[index].map((inst, i) => (
+                                    {autocompleteResultsInstruments[index].map((option, i) => (
                                         <div
                                             key={i}
                                             className={styles.autocompleteItem}
-                                            onClick={() => handleInstrumentDropdownItemClick(index, inst)}
+                                            onClick={() => handleInstrumentDropdownItemClick(index, option.instrument)}
                                         >
-                                        {inst}
+                                        {option.instrument}
                                         </div>
                                     ))}
                                 </div>
@@ -463,7 +550,7 @@ export default function MusicianSignup() {
                             type="number"
                             placeholder="Years played"
                             required
-                            value={instrument.years}
+                            value={instrument.years_played}
                             onChange={(e) => handleYearsChange(index, e.target.value)}
                             className={styles.inputField}
                         />
@@ -493,7 +580,7 @@ export default function MusicianSignup() {
                                 placeholder="Genre"
                                 required
                                 className={styles.inputField}
-                                value={genre.name}
+                                value={genre.genre}
                                 onChange={(e) => handleGenreChange(index, e.target.value)}
                             />
                             {autocompleteResultsGenre[index] && autocompleteResultsGenre[index].length > 0 && (
