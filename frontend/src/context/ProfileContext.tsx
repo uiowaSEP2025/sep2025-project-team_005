@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 if (axios.isAxiosError(error) && error.response?.status === 401) {
                     setProfile(null);
                 }
-            } 
+            }  
             else {
                 console.error("Unexpected error:", error);
             }

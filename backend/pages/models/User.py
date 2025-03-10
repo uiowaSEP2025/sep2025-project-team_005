@@ -35,3 +35,4 @@ class User(AbstractUser):
     def set_password(self, raw_password):
         """Hash and securely store the password"""
         super().set_password(raw_password)
+        # TODO SN5-81: add password db validation
