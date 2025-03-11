@@ -129,7 +129,7 @@ const PasswordField = ({ field, value, onChange, isEditing }: PasswordFieldProps
         value={value}
         onChange={(e) => onChange(field, e.target.value)}
         className={styles.inputField}
-        disabled={!isEditing} // Only enable input if editing
+        disabled={!isEditing}
       />
     </div>
   );
@@ -196,7 +196,7 @@ export default function UserSettings() {
     fetchMusicianData();
   }, [profile, isLoading]); 
   
-  /*const handleSave = async () => {
+  const handleSave = async () => {
     try {
       const response = await fetch(`http://localhost:8000/musician/${userData.id}/`, {
         method: "PATCH",
@@ -205,8 +205,6 @@ export default function UserSettings() {
         },
         credentials: "include",
         body: JSON.stringify({
-          first_name: userData.first_name,
-          last_name: userData.last_name,
           username: userData.username,
           email: userData.email,
           phone: userData.phone,
@@ -224,9 +222,8 @@ export default function UserSettings() {
     } catch (error) {
       console.error("Error updating user data:", error);
     }
-  };  */
+  };
 
-  const [editField, setEditField] = useState<keyof UserData | null>(null);
   const [editExperience, setEditExperience] = useState(false);
   const [showInputField, setShowInputField] = useState<"instruments" | "genre" | null>(null);
   const [instrumentInput, setInstrumentInput] = useState("");
@@ -234,8 +231,12 @@ export default function UserSettings() {
   const [isEditing, setIsEditing] = useState(false);
 
   const toggleEditExperience = () => {
-    setEditExperience((prev) => !prev);
-    setShowInputField(null);
+    setEditExperience((prev) => {
+        if (prev) {
+            handleSave();
+        }
+        return !prev;
+    });
   };
 
   const handleRemoveFromList = (field: "instruments" | "genre", index: number) => {
@@ -245,12 +246,13 @@ export default function UserSettings() {
     }));
   };
 
-  const handleEdit = (field: keyof UserData) => {
-    setEditField(field);
-  };
-
   const toggleEdit = () => {
-    setIsEditing((prev) => !prev);
+    setIsEditing((prev) => {
+      if (prev) {
+        handleSave();
+      }
+      return !prev;
+    });
   };
 
   const handleChange = (field: keyof UserData, value: string) => {
@@ -299,46 +301,47 @@ export default function UserSettings() {
         </div>
       </form>
       
-      {/* Experience Information Form */}
+      {/* Portfolio Information Form */}
       <form className={styles.features}>
         <div className={styles.featureCard}>
-          <h2 className={styles.cardTitle}>Experience Information</h2>
-          
-          <EditableList
-            label="Instruments"
-            field="instruments"
-            values={userData.instruments}
-            showInput={showInputField === "instruments"}
-            inputValue={instrumentInput}
-            setInputValue={setInstrumentInput}
-            onAdd={handleAddToList}
-            onRemove={handleRemoveFromList}
-            setShowInput={(show) => setShowInputField(show ? "instruments" : null)}
-            isEditing={editExperience}
-          />
-          
-          <EditableList
-            label="Genre"
-            field="genre"
-            values={userData.genre}
-            showInput={showInputField === "genre"}
-            inputValue={genreInput}
-            setInputValue={setGenreInput}
-            onAdd={handleAddToList}
-            onRemove={handleRemoveFromList}
-            setShowInput={(show) => setShowInputField(show ? "genre" : null)}
-            isEditing={editExperience}
-          />
-          
-          <button
-            type="button"
-            className={styles.secondaryButton}
-            onClick={toggleEditExperience}
-          >
-            {editExperience ? "Done" : "Edit"}
-          </button>
+            <h2 className={styles.cardTitle}>Experience Information</h2>
+            
+            <EditableList
+                label="Instruments"
+                field="instruments"
+                values={userData.instruments}
+                showInput={showInputField === "instruments"}
+                inputValue={instrumentInput}
+                setInputValue={setInstrumentInput}
+                onAdd={handleAddToList}
+                onRemove={handleRemoveFromList}
+                setShowInput={(show) => setShowInputField(show ? "instruments" : null)}
+                isEditing={editExperience}
+            />
+            
+            <EditableList
+                label="Genre"
+                field="genre"
+                values={userData.genre}
+                showInput={showInputField === "genre"}
+                inputValue={genreInput}
+                setInputValue={setGenreInput}
+                onAdd={handleAddToList}
+                onRemove={handleRemoveFromList}
+                setShowInput={(show) => setShowInputField(show ? "genre" : null)}
+                isEditing={editExperience}
+            />
+            
+            <button
+                type="button"
+                className={styles.secondaryButton}
+                onClick={toggleEditExperience}
+            >
+                {editExperience ? "Done" : "Edit"}
+            </button>
         </div>
       </form>
+
       
       {/* Security Information Form */}
       <form className={styles.features}>
@@ -365,7 +368,7 @@ export default function UserSettings() {
           <button
             type="button"
             className={styles.secondaryButton}
-            onClick={toggleEdit} // Toggle edit mode
+            onClick={toggleEdit}
             disabled={userData.password !== userData.confirm_password}
           >
             {isEditing ? "Done" : "Edit"}

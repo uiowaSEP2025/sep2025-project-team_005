@@ -23,8 +23,6 @@ class MusicianDetailView(APIView):
             musician = Musician.objects.get(user=user)
 
             # Update the user data
-            user.first_name = request.data.get("first_name", user.first_name)
-            user.last_name = request.data.get("last_name", user.last_name)
             user.username = request.data.get("username", user.username)
             user.email = request.data.get("email", user.email)
             user.phone = request.data.get("phone", user.phone)
@@ -37,13 +35,19 @@ class MusicianDetailView(APIView):
             instruments = request.data.get("instruments", [])
             genres = request.data.get("genre", [])
 
-            for instrument_id in instruments:
-                instrument = Instrument.objects.get(id=instrument_id)
-                musician.instruments.add(instrument)
+            for instrument_name in instruments:
+                try:
+                    instrument = Instrument.objects.get(instrument=instrument_name)
+                    musician.instruments.add(instrument)
+                except Instrument.DoesNotExist:
+                    print(f"Instrument '{instrument_name}' not found")
 
-            for genre_id in genres:
-                genre = Genre.objects.get(id=genre_id)
-                musician.genres.add(genre)
+            for genre_name in genres:
+                try:
+                    genre = Genre.objects.get(genre=genre_name)
+                    musician.genres.add(genre)
+                except Genre.DoesNotExist:
+                    print(f"Genre '{genre_name}' not found")
 
             musician.save()
 
