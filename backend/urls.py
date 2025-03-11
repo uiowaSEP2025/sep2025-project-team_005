@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from pages.views.settings_views import MusicianDetailView
+from pages.views.settings_views import MusicianDetailView, ChangePasswordView
 from pages.views.discover_views import GetUsersView, InstrumentListView, GenreListView
 from pages.views.post_views import CreatePostView
 
@@ -12,4 +12,5 @@ urlpatterns = [
     path('musician/<uuid:user_id>/', MusicianDetailView.as_view(), name='musician-detail'),
     path('instruments/', InstrumentListView.as_view(), name='instrument-list'),
     path('genres/', GenreListView.as_view(), name='genre-list'),
+    path("api/change-password/", ChangePasswordView.as_view(), name="change-password"),
 ]

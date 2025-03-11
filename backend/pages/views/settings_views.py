@@ -3,6 +3,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from pages.models import Musician, User, Genre, Instrument
 from pages.serializers.musician_serializers import MusicianSerializer
+from django.contrib.auth.hashers import check_password
+from rest_framework.permissions import IsAuthenticated
 
 class MusicianDetailView(APIView):
     def get(self, request, user_id):
@@ -60,3 +62,20 @@ class MusicianDetailView(APIView):
             return Response({"error": "Instrument not found"}, status=status.HTTP_404_NOT_FOUND)
         except Genre.DoesNotExist:
             return Response({"error": "Genre not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        current_password = request.data.get("password")
+        new_password = request.data.get("new_password")
+
+        if not user.check_password(current_password):
+            return Response({"error": "Current password is incorrect"}, status=400)
+
+        user.set_password(new_password)
+        user.save()
+
+        return Response({"message": "Password changed successfully"}, status=200)

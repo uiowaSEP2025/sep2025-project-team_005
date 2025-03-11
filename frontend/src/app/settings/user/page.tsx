@@ -1,21 +1,22 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { useAuth, useRequireAuth } from "@/context/ProfileContext";
 import { useRouter } from "next/navigation";
 import styles from "@/styles/UserSettings.module.css";
+import Cookies from "js-cookie";
+
 
 type UserData = {
   id: string;
-  first_name: string;
-  last_name: string;
   username: string;
   email: string;
   phone: string;
   instruments: string[];
   genre: string[];
   password: string;
-  confirm_password: string;
+  new_password: string;
 };
 
 const EditableInput = ({
@@ -82,9 +83,12 @@ const EditableList = ({
     </ul>
     {isEditing && (
       <>
-        <button type="button" className={styles.primaryButton} onClick={() => setShowInput(true)}>
-          +
-        </button>
+        {!showInput && (
+          <button type="button" className={styles.primaryButton} onClick={() => setShowInput(true)}>
+            +
+          </button>
+        )}
+
         {showInput && (
           <>
             <input
@@ -112,25 +116,36 @@ const EditableList = ({
 );
 
 type PasswordFieldProps = {
-  field: "password" | "confirm_password";
+  field: "password" | "new_password";
   value: string;
   onChange: (field: keyof UserData, value: string) => void;
   isEditing: boolean;
 };
 
 const PasswordField = ({ field, value, onChange, isEditing }: PasswordFieldProps) => {
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
     <div className={styles.field}>
       <label className={styles.featureTitle}>
-        {field === "password" ? "Password" : "Confirm Password"}
+        {field === "password" ? "Current Password" : "New Password"}
       </label>
-      <input
-        type="password"
-        value={value}
-        onChange={(e) => onChange(field, e.target.value)}
-        className={styles.inputField}
-        disabled={!isEditing}
-      />
+      <div className={styles.passwordContainer}>
+        <input
+          type={showPassword ? "text" : "password"}
+          value={value}
+          onChange={(e) => onChange(field, e.target.value)}
+          className={styles.inputField}
+          disabled={!isEditing}
+        />
+        <button
+          type="button"
+          className={styles.eyeButton}
+          onClick={() => setShowPassword((prev) => !prev)}
+        >
+          {showPassword ? <EyeOff size={30} /> : <Eye size={30} />}
+        </button>
+      </div>
     </div>
   );
 };
@@ -140,34 +155,43 @@ export default function UserSettings() {
   
   const router = useRouter();
   const { profile, isLoading } = useAuth();
+  const [editExperience, setEditExperience] = useState(false);
+  const [editSecurity, setEditSecurity] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [showInputField, setShowInputField] = useState<"instruments" | "genre" | null>(null);
+  const [instrumentInput, setInstrumentInput] = useState("");
+  const [genreInput, setGenreInput] = useState("");
 
   const [userData, setUserData] = useState<UserData>({
     id: "",
-    first_name: "",
-    last_name: "",
     username: "",
     email: "",
     phone: "",
     instruments: [],
     genre: [],
     password: "",
-    confirm_password: "",
+    new_password: "",
   });
+
+  const formatPhoneNumber = (value: string) => {
+    const cleaned = value.replace(/\D/g, ""); // Remove all non-numeric characters
+    if (cleaned.length <= 3) return `(${cleaned}`;
+    if (cleaned.length <= 6) return `(${cleaned.slice(0, 3)})${cleaned.slice(3)}`;
+    return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6, 10)}`;
+  };
   
   useEffect(() => {
     const fetchMusicianData = async () => {
       if (profile && !isLoading) {
         setUserData({
           id: profile.id ? String(profile.id) : "",
-          first_name: profile.first_name || "",
-          last_name: profile.last_name || "",
           username: profile.username || "",
           email: profile.email || "",
           phone: profile.phone || "",
           instruments: [],
           genre: [],
           password: "",
-          confirm_password: "",
+          new_password: "",
         });
   
         try {
@@ -224,19 +248,57 @@ export default function UserSettings() {
     }
   };
 
-  const [editExperience, setEditExperience] = useState(false);
-  const [showInputField, setShowInputField] = useState<"instruments" | "genre" | null>(null);
-  const [instrumentInput, setInstrumentInput] = useState("");
-  const [genreInput, setGenreInput] = useState("");
-  const [isEditing, setIsEditing] = useState(false);
+  const handleChangePassword = async () => {
+    if (!userData.password || !userData.new_password) {
+      alert("Please enter both the current and new passwords.");
+      return;
+    }
 
-  const toggleEditExperience = () => {
-    setEditExperience((prev) => {
-        if (prev) {
-            handleSave();
-        }
-        return !prev;
-    });
+    try {
+      const response = await fetch("http://localhost:8000/api/change-password/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Cookies.get("access_token")}`,
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          password: userData.password,
+          new_password: userData.new_password,
+        }),
+      });
+
+      if (response.ok) {
+        alert("Password changed successfully");
+        setUserData((prev) => ({ ...prev, password: "", new_password: "" }));
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || "Failed to change password");
+      }
+    } catch (error) {
+      console.error("Error changing password:", error);
+    }
+  };
+
+  const handleChange = (field: keyof UserData, value: string) => {
+    let newValue = value;
+  
+    if (field === "phone") {
+      newValue = formatPhoneNumber(value);
+    }
+  
+    setUserData((prev) => ({ ...prev, [field]: newValue }));
+  };
+
+  const handleAddToList = (field: "instruments" | "genre", value: string) => {
+    if (value.trim() !== "") {
+      setUserData((prev) => ({
+        ...prev,
+        [field]: [...prev[field], value],
+      }));
+    }
+    if (field === "instruments") setInstrumentInput("");
+    if (field === "genre") setGenreInput("");
   };
 
   const handleRemoveFromList = (field: "instruments" | "genre", index: number) => {
@@ -255,19 +317,22 @@ export default function UserSettings() {
     });
   };
 
-  const handleChange = (field: keyof UserData, value: string) => {
-    setUserData((prev) => ({ ...prev, [field]: value }));
+  const toggleEditExperience = () => {
+    setEditExperience((prev) => {
+        if (prev) {
+            handleSave();
+        }
+        return !prev;
+    });
   };
 
-  const handleAddToList = (field: "instruments" | "genre", value: string) => {
-    if (value.trim() !== "") {
-      setUserData((prev) => ({
-        ...prev,
-        [field]: [...prev[field], value],
-      }));
-    }
-    if (field === "instruments") setInstrumentInput("");
-    if (field === "genre") setGenreInput("");
+  const toggleEditSecurity = () => {
+    setEditSecurity((prev) => {
+      if (prev) {
+        handleChangePassword();
+      }
+      return !prev;
+    });
   };
 
   if (!profile) {
@@ -285,7 +350,7 @@ export default function UserSettings() {
       <form className={styles.features}>
         <div className={styles.featureCard}>
           <h2 className={styles.cardTitle}>Personal Information</h2>
-          {["first_name", "last_name", "username", "email", "phone"].map((field) => (
+          {["username", "email", "phone"].map((field) => (
             <EditableInput
               key={field}
               label={field.charAt(0).toUpperCase() + field.slice(1)}
@@ -301,7 +366,7 @@ export default function UserSettings() {
         </div>
       </form>
       
-      {/* Portfolio Information Form */}
+      {/* Experience Information Form */}
       <form className={styles.features}>
         <div className={styles.featureCard}>
             <h2 className={styles.cardTitle}>Experience Information</h2>
@@ -353,25 +418,24 @@ export default function UserSettings() {
             field="password"
             value={userData.password}
             onChange={handleChange}
-            isEditing={isEditing}
-          />
-          
-          {/* Confirm Password Field */}
-          <PasswordField
-            field="confirm_password"
-            value={userData.confirm_password}
-            onChange={handleChange}
-            isEditing={isEditing}
+            isEditing={editSecurity}
           />
 
-          {/* Done Button */}
+          {/* New Password Field */}
+          <PasswordField
+            field="new_password"
+            value={userData.new_password}
+            onChange={handleChange}
+            isEditing={editSecurity}
+          />
+
+          {/* Edit/Done Button */}
           <button
             type="button"
             className={styles.secondaryButton}
-            onClick={toggleEdit}
-            disabled={userData.password !== userData.confirm_password}
+            onClick={toggleEditSecurity}
           >
-            {isEditing ? "Done" : "Edit"}
+            {editSecurity ? "Done" : "Edit"}
           </button>
         </div>
       </form>
