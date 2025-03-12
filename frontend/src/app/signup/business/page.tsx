@@ -17,6 +17,12 @@ export default function BusinessSignup() {
     const [businessName, setBusinessName] = useState("");
     const [industry, setIndustry] = useState("")
 
+    // On top of pre-existing HTML5 email validations, use regex to validate email on submission
+    const validateEmail = (email: string) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+
     // Function to validate password strength
     const validatePassword = (password: string): boolean => {
         const strongPasswordRegex =
@@ -32,7 +38,63 @@ export default function BusinessSignup() {
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
+        // For debugging
         console.log("In handleSubmit function")
+
+        // Prevent form submitting by default
+        e.preventDefault();
+
+        // Check that all fields have been filled out
+        if (!email || !username || !password || !businessName || !industry) {
+            setError("All fields are required.")
+        }
+
+        // Double-check that email address is valid
+        if (!validateEmail(email)) {
+            setError("Please enter a valid email address.")
+            return;
+        }
+
+        // Validate strong password
+        if (!validatePassword(password)) {
+            setError("Please fix the errors before submitting.")
+            return;
+        }
+
+        // If these validations pass, clear the error message on screen
+        setError("");
+
+        const role = "business"
+        const userData = {
+            username: username,
+            password: password,
+            email: email,
+            role: role,
+            business_name: businessName,
+            industry: industry
+        }
+
+        try {
+            const response = await fetch("http://localhost:8000/api/auth/signup/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(userData)
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log("Response data: ", data);
+                alert("Signup successful! Redirecting to login...");
+                router.push("/login")
+            } else {
+                const errorData = await response.json();
+                setError(errorData.email || errorData.username || "Signup failed. Please try again.")
+            }
+        }
+        catch (error) {
+            console.error("Signup error: ", error)
+            setError("An error occurred. Please try again.")
+        }
     }
 
     return (
@@ -107,7 +169,7 @@ export default function BusinessSignup() {
             </form>
 
             {error && <p className={styles.error}>{error}</p>} {/* Show error if invalid */}
-            <button type="submit" className={styles.businessSubmit}>Sign Up</button>
+            <button type="submit" className={styles.businessSubmit} onClick={handleSubmit}>Sign Up</button>
 
         </div>
     );
