@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from pages.views.post_views import CreatePostView, create_genre, create_instrument, get_instruments, get_genres, get_musician_instruments, get_users, get_musicians
+from pages.views.post_views import CreatePostView, create_genre, create_instrument, get_instruments, get_genres, get_musician_instruments, get_users, get_musicians, get_businesses
 
 from django.http import JsonResponse
 
@@ -25,4 +25,5 @@ urlpatterns = [
     path('api/musicians/all/', get_musicians, name='get-musicians'),
     path('instruments/', InstrumentListView.as_view(), name='instrument-list'),
     path('genres/', GenreListView.as_view(), name='genre-list'),
+    path('api/businesses/all/', get_businesses, name='get-businesses')
 ]

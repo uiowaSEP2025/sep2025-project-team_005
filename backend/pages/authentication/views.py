@@ -18,6 +18,7 @@ from pages.models.Musician import Musician
 from pages.models.Instrument import Instrument
 from pages.models.MusicianInstrument import MusicianInstrument
 from pages.models.Genre import Genre
+from pages.models.Business import Business
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -208,7 +209,7 @@ def reset_password(request):
         {"message": "Successfully reset the password!"}, status=status.HTTP_200_OK
     )
 
-# API endpoint for signup requests
+# API endpoint for signup requests (handles both musicians and business account)
 @api_view(['POST'])
 def signup(request):
     user_serializer = UserSignupSerializer(data=request.data)
@@ -257,6 +258,21 @@ def signup(request):
                 musician.genres.set(genre_ids)  # Use set() to assign ManyToMany field
 
             return Response({"message": "User and musician created successfully", "id": user.id}, status=status.HTTP_201_CREATED)
+        
+        # If not a musician, check if the role is business
+        elif request.data.get("role") == "business":
+            # Create Business instance
+            business_data = {
+                "user": user,  # Associate the business with the User instance
+                "business_name": request.data.get("business_name", ""),
+                "industry": request.data.get("industry", "")
+            }
+
+            # Create and save business in the database
+            business = Business.objects.create(**business_data)
+
+            # Debugging:
+            print("Created business: ", business)
 
         return Response({"message": "User created successfully", "id": user.id}, status=status.HTTP_201_CREATED)
 
