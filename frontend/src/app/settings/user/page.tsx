@@ -69,9 +69,9 @@ const EditableList = ({
 }) => (
   <div className={styles.field}>
     <label className={styles.featureTitle}>{label}</label>
-    <ul>
+    <ul data-testid={field === "instruments" ? "instruments-list" : "genres-list"}>
       {values.map((item, index) => (
-        <li key={index} className={styles.listItem}>
+        <li key={index} className={styles.listItem} data-testid={`${field}-item`}>
           {item}
           {isEditing && (
             <button type="button" className={styles.removeButton} onClick={() => onRemove(field, index)}>
@@ -97,6 +97,7 @@ const EditableList = ({
               onChange={(e) => setInputValue(e.target.value)}
               className={styles.inputField}
               placeholder={`Add ${label.toLowerCase()}`}
+              data-testid={`${field}-input`}
             />
             <button
               type="button"
@@ -105,6 +106,7 @@ const EditableList = ({
                 onAdd(field, inputValue);
                 setShowInput(false);
               }}
+              data-testid={`${field}-confirm-add`}
             >
               Add
             </button>
