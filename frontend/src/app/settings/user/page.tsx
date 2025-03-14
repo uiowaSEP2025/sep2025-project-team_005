@@ -33,13 +33,15 @@ const EditableInput = ({
   isEditing: boolean;
 }) => (
   <div className={styles.field}>
-    <label className={styles.featureTitle}>{label}</label>
+    <label className={styles.featureTitle} htmlFor={field}>{label}</label>
     <input
+      id={field}
       type="text"
       value={value}
       onChange={(e) => onChange(field, e.target.value)}
       className={styles.inputField}
       disabled={!isEditing}
+      data-testid={`${field}-input`}
     />
   </div>
 );
@@ -74,7 +76,7 @@ const EditableList = ({
         <li key={index} className={styles.listItem} data-testid={`${field}-item`}>
           {item}
           {isEditing && (
-            <button type="button" className={styles.removeButton} onClick={() => onRemove(field, index)}>
+            <button type="button" className={styles.removeButton} data-testid={`remove-button-${index}`} onClick={() => onRemove(field, index)}>
               -
             </button>
           )}
@@ -84,7 +86,7 @@ const EditableList = ({
     {isEditing && (
       <>
         {!showInput && (
-          <button type="button" className={styles.primaryButton} onClick={() => setShowInput(true)}>
+          <button type="button" className={styles.primaryButton} onClick={() => setShowInput(true)} data-testid={`${field}-add-button`}>
             +
           </button>
         )}
@@ -129,11 +131,12 @@ const PasswordField = ({ field, value, onChange, isEditing }: PasswordFieldProps
 
   return (
     <div className={styles.field}>
-      <label className={styles.featureTitle}>
+      <label className={styles.featureTitle} htmlFor={field}>
         {field === "password" ? "Current Password" : "New Password"}
       </label>
       <div className={styles.passwordContainer}>
         <input
+          id={field}
           type={showPassword ? "text" : "password"}
           value={value}
           onChange={(e) => onChange(field, e.target.value)}

@@ -39,6 +39,7 @@
     "jest-environment-jsdom": "^29.7.0",
     "jest-fetch-mock": "^3.0.3",
     "jest-transform-css": "^6.0.2",
+    "node-fetch": "^3.3.2",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17",
     "ts-jest": "^29.2.6",
