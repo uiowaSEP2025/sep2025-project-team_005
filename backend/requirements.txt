@@ -5,6 +5,7 @@ behave
 boto3
 certifi
 charset-normalizer
+coverage
 Django
 django-behave
 django-cors-headers

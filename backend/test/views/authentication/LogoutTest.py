@@ -6,59 +6,72 @@ from rest_framework import status
 
 
 User = get_user_model()
-LOGIN_URL = "/api/auth/login/"
+LOGOUT_URL = "/api/auth/logout/"
 
 ## Test User Model correctly retrieves the user
 def test_get_user_model():
     user_model = get_user_model()
     assert user_model == User 
-    
 
-
+## Login Function
 @pytest.fixture
 def create_user(db):
     """Fixture to create a user for authentication tests."""
-    User.objects.create_user(username="testuser1", password="testpassword1!", email="user1@gmail.com", first_name="John", last_name="Doe", role="musician")
-    User.objects.create_user(username="testuser2", password="testpassword2!", email="user2@gmail.com", first_name="Jane", last_name="Doe", role="musician")
+    return User.objects.create_user(username="testuser", password="testpassword", first_name="John", last_name="Doe", role="musician")
 
 @pytest.fixture
 def api_client():
     """Fixture to provide API test client."""
     return APIClient()
 
-@pytest.mark.django_db
-def test_login_success(api_client, create_user):
-    """Test successful login with valid credentials."""
-    url = LOGIN_URL
-    response = api_client.post(url, {"username": "testuser1", "password": "testpassword1!"}, format="json")
-    
-    # Assert successful login (200 OK)
-    assert response.status_code == 200
-    assert "access" in response.data
-    assert "refresh" in response.data
-    assert response.data["user"]["username"] == "testuser1"
-    
-@pytest.mark.django_db
-def test_unique_tokens_for_different_users(api_client, create_user):
-    """Test that two different users receive different access tokens."""
-    url = LOGIN_URL
-
-    response1 = api_client.post(url, {"username": "testuser1", "password": "testpassword1!"}, format="json")
-    assert response1.status_code == 200
-    assert "access" in response1.data
-
-    response2 = api_client.post(url, {"username": "testuser2", "password": "testpassword2!"}, format="json")
-    assert response2.status_code == 200
-    assert "access" in response2.data
-
-    assert response1.data["access"] != response2.data["access"]
-
 
 @pytest.mark.django_db
-def test_login_failure(api_client):
-    """Test failed login with invalid credentials."""
-    url = LOGIN_URL
-    response = api_client.post(url, {"username": "wronguser", "password": "wrongpassword"}, format="json")
+def test_logout_success():
+    client = APIClient()
+
+    # Simulate a logged-in user by setting cookies
+    client.cookies["access_token"] = "test_access_token"
+    client.cookies["refresh_token"] = "test_refresh_token"
+
+    response = client.post(LOGOUT_URL)  # Call the logout endpoint
+
+    # Assertions
+    assert response.status_code == 200  # Check if logout is successful
+    assert response.data["message"] == "Logged out successfully"
+
+    # Ensure cookies have expired
+    assert response.cookies["access_token"].value == ""
+    assert response.cookies["refresh_token"].value == ""
+
+@pytest.mark.django_db
+def test_logout_without_cookies():
+    client = APIClient()
     
-    assert response.status_code == 401
+    response = client.post(LOGOUT_URL)  # Call the logout endpoint
+
+    # Assertions
+    assert response.status_code == 200  # Should still return success
+    assert response.data["message"] == "Logged out successfully"
+
+    # Ensure cookies have expired
+    assert response.cookies["access_token"].value == ""
+    assert response.cookies["refresh_token"].value == ""
+
+@pytest.mark.django_db
+def test_logout_exception(monkeypatch):
+    client = APIClient()
+
+    # Patch response.delete_cookie to raise an exception
+    def mock_delete_cookie(*args, **kwargs):
+        raise Exception("Mocked exception")
+
+    monkeypatch.setattr("rest_framework.response.Response.delete_cookie", mock_delete_cookie)
+
+    response = client.post(LOGOUT_URL)
+
+    # Assertions
+    assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
     assert "error" in response.data
+    assert response.data["error"] == "An error occurred while logging out"
+    assert "details" in response.data
+    assert response.data["details"] == "Mocked exception"

@@ -38,6 +38,8 @@ class ProfileView(APIView):
             "username": user.username,
             "first_name": user.first_name,
             "last_name": user.last_name,
+            "email": user.email,
+            "phone": user.phone,
             "role": user.role,
         })
         
@@ -67,6 +69,8 @@ class CustomTokenObtainPairView(TokenObtainPairView):
                 "username": user.username,
                 "first_name": user.first_name,
                 "last_name": user.last_name,
+                "email": user.email,
+                "phone": user.phone,
                 "role": user.role,
             }
         })

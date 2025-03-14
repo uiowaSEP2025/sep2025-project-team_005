@@ -1,0 +1,211 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 2rem;
+    text-align: center;
+    font-family: var(--font-geist-sans);
+}
+
+@media (min-width: 640px) {
+.container {
+    text-align: left;
+    padding: 5rem;
+}
+}
+
+.header {
+    width: 100%;
+    max-width: 64rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+@media (min-width: 640px) {
+    .header {
+        align-items: flex-start;
+    }
+}
+
+.title {
+    font-size: 2.25rem;
+    font-weight: bold;
+    color: #3b82f6;
+}
+
+.description {
+    font-size: 1.125rem;
+    color: #4b5563;
+}
+
+.dark .description {
+    color: #d1d5db;
+}
+
+
+.features {
+    width: 100%;
+    max-width: 64rem;
+    margin-top: 4rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    text-align: center;
+}
+
+@media (min-width: 640px) {
+    .features {
+      grid-template-columns: 1fr;
+    }
+  }
+
+.featureCard {
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #4f46e5, #9333ea);
+    color: white;
+    border: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    min-width: 50rem;
+    width: 90%;
+    padding: 3rem;
+    margin-bottom: 2rem;
+}
+
+.cardTitle {
+    font-size: 1.75rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+}
+
+.inputField {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #d1d5db;
+    background-color: #f9fafb;
+    color: black;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    flex-grow: 1;
+    width: auto;
+}
+
+.inputField:focus {
+    outline: none;
+    border-color: #2563eb;
+}
+
+.featureTitle {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.field {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.listItem {
+    font-size: 20px;
+}
+
+/* Buttons */
+.buttonGroup {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.primaryButton {
+    padding: 0.75rem 1.5rem;
+    background-color: #2563eb;
+    color: white;
+    border-radius: 9999px;
+    transition: background-color 0.3s ease;
+    text-decoration: none;
+    text-align: center;
+}
+
+.primaryButton:hover {
+    background-color: #1d4ed8;
+}
+
+.removeButton {
+    margin-bottom: 2px;
+    margin-left: 30px;
+    padding: 0rem 1.25rem;
+    background-color: #4d26eb;
+    color: white;
+    border-radius: 10px;
+    transition: background-color 0.3s ease;
+    text-decoration: none;
+    text-align: center;
+}
+
+.secondaryButton {
+    padding: 0.75rem 1.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 9999px;
+    text-decoration: none;
+    text-align: center;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.secondaryButton:hover {
+    background-color: #f3f4f6;
+}
+
+.dark .secondaryButton {
+    border-color: #4b5563;
+}
+
+.dark .secondaryButton:hover {
+    background-color: #1f2937;
+}
+
+.listContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.passwordContainer {
+    display: flex;
+    align-items: center;
+    position: relative;
+    width: 70%;
+}
+
+.eyeButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    color: gray;
+}  
+
+.addFieldContainer {
+    margin-top: 1rem;
+}
+
+.addFieldContainer input {
+    margin-bottom: 1rem;
+}
+
+.footer {
+    margin-top: 4rem;
+    color: #6b7280;
+}
+
+.dark .footer {
+    color: #9ca3af;
+}
