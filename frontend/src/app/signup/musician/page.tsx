@@ -447,7 +447,7 @@ export default function MusicianSignup() {
                 />
                 {passwordError && <p className={styles.error}>{passwordError}</p>}
 
-                <label className={styles.label}>Stage Name:</label>
+                <label htmlFor="stageName" className={styles.label}>Stage Name:</label>
                 <input
                     type="text"
                     id="stageName"
