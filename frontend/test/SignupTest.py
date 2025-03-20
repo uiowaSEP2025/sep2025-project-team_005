@@ -51,6 +51,7 @@ service = Service(ChromeDriverManager().install())
 driver = webdriver.Chrome(service=service, options=options)
 
 try:
+    print("Testing initial sign up page: ")
     # Open the sign up page where you select your role
     driver.get("http://localhost:3000/signup")
 
@@ -58,8 +59,10 @@ try:
     musician_button = driver.find_element(By.XPATH, "//h2[text()='Musician']")
     musician_button.click()
 
-    # Wait for a few seconds to ensure page has time to reroute
-    time.sleep(2)
+    # Wait for the last element of the musician page to load, which is the submit button
+    WebDriverWait(driver, 5).until(
+       EC.presence_of_element_located((By.CSS_SELECTOR, "button[class*='submitButton']"))
+    )
 
     # Check that the page has successfully rerouted
     assert driver.current_url == "http://localhost:3000/signup/musician"
@@ -67,18 +70,30 @@ try:
     # If the above test passes, then we will reach this print statement:
     print("Test 1 passed: clicking on musician role reroutes to the appropriate page")
 
-    # Go back to the selection page, allow some time for redirection
+    # Go back to the selection page, wait for the featureText element of the page to load
     driver.back()
-    time.sleep(2)
+    WebDriverWait(driver, 5).until(
+       EC.presence_of_element_located((By.CSS_SELECTOR, "p[class*='featureText']"))
+    )
 
     # Repeat but with business role selection
     business_button = driver.find_element(By.XPATH, "//h2[text()='Business']")
     business_button.click()
 
-    time.sleep(2)
+    WebDriverWait(driver, 5).until(
+       EC.presence_of_element_located((By.CSS_SELECTOR, "button[class*='businessSubmit']"))
+    )
 
     assert driver.current_url == "http://localhost:3000/signup/business"
-    print("Test 2 passed: clicking on business role reroutes to the appropriate")
+    print("Test 2 passed: clicking on business role reroutes to the appropriate page")
+
+    # Now need to test each signup page: business and musician
+    # Start with business since we are already there if the above assertion passes
+    print("Testing business signup page: ")
+
+    #
+
+    # First, check
 finally:
     # Ensure browser closes after tests run
     driver.quit()
