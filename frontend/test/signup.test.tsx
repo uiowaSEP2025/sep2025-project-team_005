@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, findByText } from "@testing-library/react";
 import SignUpSelection from "@/app/signup/page";
 import MusicianSignup from "@/app/signup/musician/page";
 import "@testing-library/jest-dom";
@@ -232,6 +232,47 @@ describe("Musician Signup Page", () => {
     expect(instrumentInputs.length).toBe(1);
   });
 
+  // Check that the user is not allowed to add another instrument if the previous input field is still empty
+  it("does not allow the user to add another instrument field until the previous is filled out first", async () => {
+    // Verify that only one is present to start and ensure it is empty
+    let instrumentInputs = screen.getAllByPlaceholderText('Instrument');
+    expect(instrumentInputs.length).toBe(1);
+    expect(instrumentInputs[0]).toHaveValue("")
+
+    // Try clicking the add instrument button without typing anything into the first instrument input
+    const addInstrumentButton = screen.getByText('+ Add another instrument');
+    await user.click(addInstrumentButton);
+
+    // Check that there is still only one input, and a message has appeared saying that you must fill out the first one before adding another
+    instrumentInputs = screen.getAllByPlaceholderText('Instrument');
+    expect(instrumentInputs.length).toBe(1);
+    expect(await screen.findByText(/Please fill out the current instrument field before adding another./i));
+  });
+
+  // Check that the user cannot select an instrument they have already selected
+  it("does not allow the user to select an instrument they have already selected", async () => {
+    // Find the instrument input field and set it to one of the dropdown options
+    const instrumentInput1 = screen.getByPlaceholderText('Instrument');
+    await user.type(instrumentInput1, 'Gu');
+    const autocompleteOption1 = await screen.findByText('Guitar');
+    await user.click(autocompleteOption1);
+    expect(instrumentInput1).toHaveValue('Guitar');
+
+    // Find and click the add instrument button
+    const addInstrumentButton = screen.getByText('+ Add another instrument');
+    await user.click(addInstrumentButton);
+
+    // Find the second instrument input and try to select Guitar again
+    let instrumentInputs = screen.getAllByPlaceholderText('Instrument');
+    await user.type(instrumentInputs[1], 'Gui');
+    const autocompleteOption2 = await screen.findByText('Guitar');
+    await user.click(autocompleteOption2);
+
+    // The input should NOT have been updated to guitar, and there should now be a message saying you have already selected that
+    expect(instrumentInputs[1]).toHaveValue('Gui');
+    expect(await screen.findByText(/You have already selected this instrument./i));
+  })
+
   // Check that the genres drop down menu functions as intended
   it("allows the user to type into the genre text box and displays autocomplete genre options", async () => {
     // Find the genre input field
@@ -278,6 +319,47 @@ describe("Musician Signup Page", () => {
     expect(genreInputs.length).toBe(1);
   });
 
+  // Check that the user is not allowed to add another genre if the previous input field is still empty
+  it("does not allow the user to add another genre field until the previous is filled out first", async () => {
+    // Verify that only one is present to start and ensure it is empty
+    let genreInputs = screen.getAllByPlaceholderText('Genre');
+    expect(genreInputs.length).toBe(1);
+    expect(genreInputs[0]).toHaveValue("")
+
+    // Try clicking the add instrument button without typing anything into the first instrument input
+    const addGenreButton = screen.getByText('+ Add another genre');
+    await user.click(addGenreButton);
+
+    // Check that there is still only one input, and a message has appeared saying that you must fill out the first one before adding another
+    genreInputs = screen.getAllByPlaceholderText('Instrument');
+    expect(genreInputs.length).toBe(1);
+    expect(await screen.findByText(/Please fill out the current genre field before adding another./i));
+  });
+
+  // Check that the user cannot select an genre they have already selected
+  it("does not allow the user to select a genre they have already selected", async () => {
+    // Find the genre input field and set it to one of the dropdown options
+    const genreInput1 = screen.getByPlaceholderText('Genre');
+    await user.type(genreInput1, 'Cla');
+    const autocompleteOption1 = await screen.findByText('Classical');
+    await user.click(autocompleteOption1);
+    expect(genreInput1).toHaveValue('Classical');
+
+    // Find and click the add genre button
+    const addGenreButton = screen.getByText('+ Add another genre');
+    await user.click(addGenreButton);
+
+    // Find the second genre input and try to select Guitar again
+    let genreInputs = screen.getAllByPlaceholderText('Genre');
+    await user.type(genreInputs[1], 'Class');
+    const autocompleteOption2 = await screen.findByText('Classical');
+    await user.click(autocompleteOption2);
+
+    // The input should NOT have been updated to guitar, and there should now be a message saying you have already selected that
+    expect(genreInputs[1]).toHaveValue('Class');
+    expect(await screen.findByText(/You have already selected this genre./i));
+  })
+
   // Check that the password input provides validation, showing an error message if the password is not strong
   it("checks for a strong password upon password input and removes error message when input is fixed", async () => {
     // Find the password text box and type in something that is not a strong password
@@ -294,7 +376,6 @@ describe("Musician Signup Page", () => {
     // Check that the error message is now gone (use queryByText here since it will return null if not found)
     expect(screen.queryByText(/Password must be at least 8 characters, include an uppercase letter, a lowercase letter, a number, and a special character./i)).not.toBeInTheDocument();
   });
-
 
 
   // Testing for form submission and validation of the musician sign up page:
