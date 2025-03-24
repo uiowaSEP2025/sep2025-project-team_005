@@ -217,7 +217,7 @@ describe("Musician Signup Page", () => {
 
     // Simulate clicking the add instrument button
     const addInstrumentButton = screen.getByText('+ Add another instrument');
-    await userEvent.click(addInstrumentButton);
+    await user.click(addInstrumentButton);
 
     // Check that there are now 2 instrument input UI elements
     instrumentInputs = screen.getAllByPlaceholderText('Instrument');
@@ -225,11 +225,57 @@ describe("Musician Signup Page", () => {
 
     // Now simulate user clicking the remove instrument button
     const removeButtons = screen.getAllByRole('button', { name: /➖/i });
-    await userEvent.click(removeButtons[1]); // Remove the second instrument field
+    await user.click(removeButtons[1]); // Remove the second instrument field
 
-    // Check that we now only have on instrument field
+    // Check that we now only have one instrument field
     instrumentInputs = screen.getAllByPlaceholderText('Instrument');
     expect(instrumentInputs.length).toBe(1);
+  });
+
+  // Check that the genres drop down menu functions as intended
+  it("allows the user to type into the genre text box and displays autocomplete genre options", async () => {
+    // Find the genre input field
+    const genreInput = screen.getByPlaceholderText('Genre');
+
+    // Simulate the user typing in the first few letters of the genre they are looking for
+    await user.type(genreInput, 'Po');
+
+    // Wait for autocomplete dropdown menu to appear
+    const autocompleteOption = await screen.findByText('Pop');
+
+    // Simulate the user clicking this option in the drop down menu
+    await user.click(autocompleteOption);
+
+    expect(genreInput).toHaveValue("Pop");
+  });
+
+  // Check that the user can add and remove genre input fields
+  it("allows the user to add another genre field and remove genre fields", async () => {
+    // First, check that there is currently only one genre input field present
+    let genreInputs = screen.getAllByPlaceholderText('Genre');
+    expect(genreInputs.length).toBe(1);
+
+    // Type something in the first genre input so that the user is allowed to add another
+    const genreInput1 = screen.getByPlaceholderText('Genre');
+    await user.type(genreInput1, "Clas");
+    const autocompleteOption = await screen.findByText("Classical");
+    await user.click(autocompleteOption);
+
+    // Simulate the user clicking the add genre option
+    const addGenreButton = screen.getByText('+ Add another genre');
+    await user.click(addGenreButton);
+
+    // Check that there are now 2 genre input UI elements
+    genreInputs = screen.getAllByPlaceholderText('Genre');
+    expect(genreInputs.length).toBe(2);
+
+    // Now simulate the user clicking the remove genre button
+    const removeButtons = screen.getAllByRole('button', { name: /➖/i });
+    await user.click(removeButtons[1]);   // Remove the second genre field
+
+    // Check that we now only have one genre field
+    genreInputs = screen.getAllByPlaceholderText('Genre');
+    expect(genreInputs.length).toBe(1);
   });
 
   // Check that the password input provides validation, showing an error message if the password is not strong
