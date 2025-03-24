@@ -405,7 +405,7 @@ export default function MusicianSignup() {
                 <h1 className={styles.title}>Sign Up: Musician</h1>
             </header>
             
-            <form className={styles.form} onSubmit={handleSubmit}>
+            <form role="form" className={styles.form} onSubmit={handleSubmit}>
                 <label htmlFor="email" className={styles.label}>Email:</label>
                 <input
                     type="email"    // HTML5 pre-enforced validation for email

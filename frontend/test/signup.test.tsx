@@ -3,6 +3,7 @@ import SignUpSelection from "@/app/signup/page";
 import MusicianSignup from "@/app/signup/musician/page";
 import "@testing-library/jest-dom";
 import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation"
 import { fetch } from 'undici';  // For mocking fetch, as Jest does not provide a built-in fetch API
 import { act } from "react";
 import { userEvent } from '@testing-library/user-event';
@@ -15,9 +16,10 @@ jest.mock('undici', () => ({
 
 (global as any).fetch = fetch;
 
-// Mock the useRouter hook
+// Mock the useRouter hook and usePathname
 jest.mock("next/navigation", () => ({
   useRouter: jest.fn(),
+  usePathname: jest.fn(),
 }));
 
 // Sign up option page testing (page where you select your role)
@@ -70,15 +72,35 @@ describe("Musician Signup Page", () => {
 
   // Before each test, render the musician signup page, create a user to perform events, and use the mocked fetch function to have a few instruments and genres
   beforeEach(async () => {
-    // Mock fetching instruments before rendering page
-    jest.spyOn(global, 'fetch').mockResolvedValue({
-      ok: true,
-      json: jest.fn().mockResolvedValue([
-        { instrument: 'Guitar'},
-        { instrument: 'Piano' },
-        { instrument: 'Violin' },
-      ]),
-    } as unknown as Response);
+    // Mock fetch to return different data based on the URL
+    jest.spyOn(global, 'fetch').mockImplementation((url: string | URL | Request) => {
+      // Mock for fetching instruments
+      if (url.toString().includes('instruments')) {
+        return Promise.resolve({
+          ok: true,
+          json: jest.fn().mockResolvedValue([
+            { instrument: 'Guitar' },
+            { instrument: 'Piano' },
+            { instrument: 'Violin' },
+          ]),
+        } as unknown as Response);
+      }
+
+      // Mock for fetching genres
+      if (url.toString().includes('genres')) {
+        return Promise.resolve({
+          ok: true,
+          json: jest.fn().mockResolvedValue([
+            { genre: 'Pop' },
+            { genre: 'Classical' },
+            { genre: 'Contemporary' },
+          ]),
+        } as unknown as Response);
+      }
+
+      // Default response if no match (optional)
+      return Promise.reject('Unknown URL');
+    });
 
     // Wrap the rendering of the sign up page in an act method since the intruments and genres states will be updated via fetch
     await act(async () => {
@@ -87,8 +109,6 @@ describe("Musician Signup Page", () => {
 
     // Create user
     user = userEvent.setup();
-
-    
   });
 
   // Check that the page is rendered correctly and the expected UI elements are present
@@ -174,7 +194,7 @@ describe("Musician Signup Page", () => {
     expect(yearsPlayedInput).toHaveValue(7);
 
     // Clear the input field
-    await userEvent.clear(yearsPlayedInput);
+    await user.clear(yearsPlayedInput);
 
     // Now, try entering an invalid input
     await user.type(yearsPlayedInput, "invalid");
@@ -211,4 +231,94 @@ describe("Musician Signup Page", () => {
     instrumentInputs = screen.getAllByPlaceholderText('Instrument');
     expect(instrumentInputs.length).toBe(1);
   });
+
+  // Check that the password input provides validation, showing an error message if the password is not strong
+  it("checks for a strong password upon password input and removes error message when input is fixed", async () => {
+    // Find the password text box and type in something that is not a strong password
+    const passwordInput = screen.getByLabelText(/Password/i);
+    await user.type(passwordInput, "weakpassword");
+
+    // With this weak password, there should be a message in red beneath the password input box telling the user it is not a strong enough password
+    expect(await screen.findByText(/Password must be at least 8 characters, include an uppercase letter, a lowercase letter, a number, and a special character./i)).toBeInTheDocument();
+
+    // Now clear the password input box and type something valid and ensure that message goes away
+    await user.clear(passwordInput);
+    await user.type(passwordInput, "StrongPass@789")
+
+    // Check that the error message is now gone (use queryByText here since it will return null if not found)
+    expect(screen.queryByText(/Password must be at least 8 characters, include an uppercase letter, a lowercase letter, a number, and a special character./i)).not.toBeInTheDocument();
+  });
+
+
+
+  // Testing for form submission and validation of the musician sign up page:
+  describe("Form Submission", () => {
+    let emailInput: HTMLInputElement;
+    let usernameInput: HTMLInputElement;
+    let passwordInput: HTMLInputElement;
+    let stageNameInput: HTMLInputElement;
+    let yesRadioButton: HTMLInputElement;
+    let noRadioButton: HTMLInputElement;
+    let instrumentInput: HTMLInputElement;
+    let yearsPlayedInput: HTMLInputElement;
+    let genreInput: HTMLInputElement;
+    let submitButton: HTMLInputElement;
+
+    // Before the form submission tests, find all the input elements and type a valid input
+    // Inputs will be changed later to check for cases in which invalid input is given
+    beforeEach(async () => {
+      // Find all UI elements for input
+      emailInput = screen.getByLabelText(/Email/i);
+      usernameInput = screen.getByLabelText(/Username/i);
+      passwordInput = screen.getByLabelText(/Password/i);
+      stageNameInput = screen.getByLabelText(/Stage Name/i);
+      yesRadioButton = screen.getByLabelText(/Yes/i);
+      noRadioButton = screen.getByLabelText(/No/i);
+      instrumentInput = screen.getByPlaceholderText('Instrument');
+      yearsPlayedInput = screen.getByPlaceholderText('Years played');
+      genreInput = screen.getByPlaceholderText('Genre')
+
+      // Give a valid input for each field
+      await user.type(emailInput, "jestTesting@test.com");
+      await user.type(usernameInput, "jestTesting");
+      await user.type(passwordInput, "JestTesting#456");
+      await user.type(stageNameInput, "Jest Test Musician");
+      await user.click(yesRadioButton);
+      // *** Select a drop down option from the instruments list
+      await user.type(instrumentInput, "Gu");
+      const autocompleteOption = await screen.findByText("Guitar");
+      await user.click(autocompleteOption);
+      // ***
+      await user.type(yearsPlayedInput, "7");
+      // *** Select a drop down option from the genres list
+      await user.type(genreInput, "Conte");
+      const autocompleteGenreOption = await screen.findByText("Contemporary");
+      await user.click(autocompleteGenreOption);
+      // ***
+
+      // Get the submit button UI element
+      submitButton = screen.getByRole("button", { name: /Sign Up/i});
+      
+      // Mock the useRouter hook to simulate being on the sign-up page
+      (usePathname as jest.Mock).mockReturnValue({ pathname: "/signup/musician" });
+    })
+
+    // Check that upon submit, the form checks for a valid email format
+    it("does not allow submission if email is not in a valid format", async () => {
+      // Clear the email input field and input something that is not valid
+      await user.clear(emailInput)
+      await user.type(emailInput, "invalidemail")
+
+      // Click submit
+      await user.click(submitButton);
+
+      // Trigger form submission manually since Jest and RTL do not automatically simulate this native browser validation
+      // (Used built-in HTML 5 validation for email, so need to simulate this)
+      fireEvent.submit(screen.getByRole('form'));
+
+      // Ensure that we stay on the same page and see the message for invalid email input
+      expect(usePathname()).toHaveProperty('pathname', "/signup/musician")
+      expect(await screen.findByText(/Please enter a valid email address./i)).toBeInTheDocument();
+    });
+  });    
 });
