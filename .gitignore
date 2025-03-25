@@ -31,3 +31,7 @@ selenium_user_data/
 
 # Mac metadata file 
 .DS_Store
+
+#SSL
+*.key
+*.pem
