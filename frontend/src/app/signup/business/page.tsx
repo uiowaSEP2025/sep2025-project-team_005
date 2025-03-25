@@ -38,10 +38,6 @@ export default function BusinessSignup() {
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
-        // For debugging
-        console.log("In handleSubmit function")
-        console.log("Business name: ---" + businessName + "---")
-
         // Prevent form submitting by default
         e.preventDefault();
 

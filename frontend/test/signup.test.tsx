@@ -440,8 +440,8 @@ describe("Musician Signup Page", () => {
       // Click submit
       await user.click(submitButton);
 
-      // Trigger form submission manually since Jest and RTL do not automatically simulate this native browser validation
-      // (Used built-in HTML 5 validation for email, so need to simulate this)
+      // Because the built in HTML5 email validation was used on top of regex validation, need to trigger form submission manually
+      // HTML5 validations will appear first, want to test this validation as a fail safe
       fireEvent.submit(screen.getByRole('form'));
 
       // Ensure that we stay on the same page and see the message for invalid email input
@@ -459,8 +459,8 @@ describe("Musician Signup Page", () => {
       expect(noRadioButton).not.toBeChecked();
 
       // Click submit button and trigger form submission manually since jest does not automatically do this
-      user.click(submitButton);
-      fireEvent.submit(screen.getByRole('form'));
+      await user.click(submitButton);
+      //fireEvent.submit(screen.getByRole('form'));
 
       // Wait for the error message to appear
       await waitFor(() => {
@@ -519,4 +519,88 @@ describe("Business Sign Up Page", () => {
     expect(businessNameInput).toHaveValue("My Business Name");
     expect(industryInput).toHaveValue("My Industry");
   })
+
+  // Check that the password input provides validation, showing an error message if the password is not strong
+  it("checks for a strong password upon password input and removes error message when input is fixed", async () => {
+    // Find the password text box and type in something that is not a strong password
+    const passwordInput = screen.getByLabelText(/Password/i);
+    await user.type(passwordInput, "notsStrong123");
+
+    // With this weak password, there should be a message in red beneath the password input box telling the user it is not a strong enough password
+    expect(await screen.findByText(/Password must be at least 8 characters, include an uppercase letter, a lowercase letter, a number, and a special character./i)).toBeInTheDocument();
+
+    // Now clear the password input box and type something valid and ensure that message goes away
+    await user.clear(passwordInput);
+    await user.type(passwordInput, "246!NowStrong!")
+
+    // Check that the error message is now gone (use queryByText here since it will return null if not found)
+    expect(screen.queryByText(/Password must be at least 8 characters, include an uppercase letter, a lowercase letter, a number, and a special character./i)).not.toBeInTheDocument();
+  });
+
+  // Preventing submitting if anything is empty
+  it("does not allow submission if any input field is empty", async () => {
+    // Find all input fields
+    const inputs = {
+      email: screen.getByLabelText(/Email/i),
+      username: screen.getByLabelText(/Username/i),
+      password: screen.getByLabelText(/Password/i),
+      businessName: screen.getByLabelText(/Your Business' Name/i),
+      industry: screen.getByLabelText(/Industry Your Business Is In/i),
+    };
+  
+    // Define valid inputs
+    const validValues = {
+      email: "test@business.com",
+      username: "myBusiness",
+      password: "strongPass#789",
+      businessName: "My Business Name",
+      industry: "My Industry",
+    };
+  
+    const submitButton = screen.getByRole("button", { name: /Sign Up/i });
+  
+    // Iterate over each input field, leaving it empty while filling in the others
+    for (const [emptyField, inputElement] of Object.entries(inputs)) {
+      // Reset all fields
+      for (const [field, value] of Object.entries(validValues)) {
+        if (field !== emptyField) {
+          await user.type(inputs[field as keyof typeof inputs], value); // Fill other fields
+        }
+      }
+  
+      // Submit the form
+      await user.click(submitButton);
+  
+      // Expect an error message to be displayed
+      expect(screen.getByText(/All fields are required./i)).toBeInTheDocument();
+  
+      // Clear all fields before the next iteration
+      for (const input of Object.values(inputs)) {
+        await user.clear(input);
+      }
+    }
+  });
+
+  // Check that an error is shown if an invalid email input is typed
+  it("does not allow an invalid email to be submitted", async () => {
+    // Find and fill out every field appropriately except email
+    const emailInput = screen.getByLabelText(/Email/i);
+    const usernameInput = screen.getByLabelText(/Username/i);
+    const passwordInput = screen.getByLabelText(/Password/i);
+    const businessNameInput = screen.getByLabelText(/Your Business' Name/i);
+    const industryInput = screen.getByLabelText(/Industry Your Business Is In/i);
+
+    await user.type(emailInput, "invalidEmail");
+    await user.type(usernameInput, "companyUsername");
+    await user.type(passwordInput, "123GoodPass$");
+    await user.type(businessNameInput, "Company Name");
+    await user.type(industryInput, "Company's Industry");
+
+    // Find and click the submit button
+    const submitButton = screen.getByRole("button", { name: /Sign Up/i});
+    await user.click(submitButton);
+
+    // Check that the proper error message is dipslayed
+    expect(await screen.findByText(/Please enter a valid email address./i)).toBeInTheDocument();
+  });
 });
