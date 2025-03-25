@@ -3,11 +3,16 @@
 import styles from "@/styles/Discover.module.css";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+<<<<<<< HEAD
 import { useAuth, useRequireAuth } from "@/context/ProfileContext";
+=======
+import { useAuth, useRequireAuth } from "@/context/ProfileContext"
+>>>>>>> Profile search is functional at /discover, authentication requirement has been commented out for dev. This page will pull up the first 5 profiles in the db, and then load 5 more if the user clicks "Load More". Searching will dynamically query db and when you click on a user it will rout to "discoverprofile/username" which will be the future UI of another users profile.
 import axios from "axios";
 import debounce from "lodash.debounce";
 
 export default function Discover() {
+<<<<<<< HEAD
     useRequireAuth();
 
     const router = useRouter();
@@ -18,11 +23,19 @@ export default function Discover() {
     const [genres, setGenres] = useState<string[]>([]);
     const [selectedInstruments, setSelectedInstruments] = useState<string[]>([]);
     const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
+=======
+    //useRequireAuth();
+    
+    const router = useRouter();
+    const { profile, isLoading } = useAuth();
+    const [searchTerm, setSearchTerm] = useState("");
+>>>>>>> Profile search is functional at /discover, authentication requirement has been commented out for dev. This page will pull up the first 5 profiles in the db, and then load 5 more if the user clicks "Load More". Searching will dynamically query db and when you click on a user it will rout to "discoverprofile/username" which will be the future UI of another users profile.
     const [users, setUsers] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
 
+<<<<<<< HEAD
     // Fetch available instruments and genres
     useEffect(() => {
         const fetchFilters = async () => {
@@ -63,6 +76,14 @@ export default function Discover() {
                     });
                     return searchParams.toString();
                 }
+=======
+    // Fetch users from the backend
+    const fetchUsers = async (query = "", pageNum = 1) => {
+        setLoading(true);
+        try {
+            const response = await axios.get(`http://localhost:8000/create/`, {
+                params: { search: query, page: pageNum }
+>>>>>>> Profile search is functional at /discover, authentication requirement has been commented out for dev. This page will pull up the first 5 profiles in the db, and then load 5 more if the user clicks "Load More". Searching will dynamically query db and when you click on a user it will rout to "discoverprofile/username" which will be the future UI of another users profile.
             });
 
             if (pageNum === 1) {
@@ -79,6 +100,7 @@ export default function Discover() {
         }
     };
 
+<<<<<<< HEAD
     const debouncedFetchUsers = debounce((query, instruments, genres) => {
         setPage(1);
         fetchUsers(query, instruments, genres, 1);
@@ -92,10 +114,29 @@ export default function Discover() {
     const loadMoreUsers = () => {
         if (hasMore && !loading) {
             fetchUsers(searchTerm, selectedInstruments, selectedGenres, page + 1);
+=======
+    // Debounce search to prevent excessive API calls
+    const debouncedFetchUsers = debounce((query) => {
+        setPage(1);
+        fetchUsers(query, 1);
+    }, 300);
+
+    // Run when searchTerm changes
+    useEffect(() => {
+        debouncedFetchUsers(searchTerm);
+        return () => debouncedFetchUsers.cancel();
+    }, [searchTerm]);
+
+    // Infinite Scroll (Load More)
+    const loadMoreUsers = () => {
+        if (hasMore && !loading) {
+            fetchUsers(searchTerm, page + 1);
+>>>>>>> Profile search is functional at /discover, authentication requirement has been commented out for dev. This page will pull up the first 5 profiles in the db, and then load 5 more if the user clicks "Load More". Searching will dynamically query db and when you click on a user it will rout to "discoverprofile/username" which will be the future UI of another users profile.
             setPage((prevPage) => prevPage + 1);
         }
     };
 
+<<<<<<< HEAD
     const handleUserClick = (username: string) => {
         router.push(`/profile/discoverprofile/${username}`);
     };
@@ -110,13 +151,24 @@ export default function Discover() {
         setSelectedGenres(prev => prev.includes(genre)
             ? prev.filter(g => g !== genre)
             : [...prev, genre]);
+=======
+    // Navigate to selected user profile
+    const handleUserClick = (username: string) => {
+        router.push(`/discoverprofile/${username}`);
+>>>>>>> Profile search is functional at /discover, authentication requirement has been commented out for dev. This page will pull up the first 5 profiles in the db, and then load 5 more if the user clicks "Load More". Searching will dynamically query db and when you click on a user it will rout to "discoverprofile/username" which will be the future UI of another users profile.
     };
 
     return (
         <div className={styles.container}>
             <div className={styles.header}>
                 <h1 className={styles.title}>Discover Musicians</h1>
+<<<<<<< HEAD
                 <p className={styles.description}>Search for musicians and connect with them.</p>
+=======
+                <p className={styles.description}>
+                    Search for musicians and connect with them.
+                </p>
+>>>>>>> Profile search is functional at /discover, authentication requirement has been commented out for dev. This page will pull up the first 5 profiles in the db, and then load 5 more if the user clicks "Load More". Searching will dynamically query db and when you click on a user it will rout to "discoverprofile/username" which will be the future UI of another users profile.
             </div>
 
             <div className={styles.searchContainer}>
@@ -127,6 +179,7 @@ export default function Discover() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
+<<<<<<< HEAD
                 
                 {/* Instrument Dropdown */}
                 <div className={styles.dropdown}>
@@ -161,6 +214,8 @@ export default function Discover() {
                         ))}
                     </div>
                 </div>
+=======
+>>>>>>> Profile search is functional at /discover, authentication requirement has been commented out for dev. This page will pull up the first 5 profiles in the db, and then load 5 more if the user clicks "Load More". Searching will dynamically query db and when you click on a user it will rout to "discoverprofile/username" which will be the future UI of another users profile.
             </div>
 
             {loading && <p>Loading users...</p>}
@@ -168,7 +223,12 @@ export default function Discover() {
             <ul className={styles.userList}>
                 {users.length > 0 ? (
                     users.map((user, index) => (
+<<<<<<< HEAD
                         <li key={index} className={styles.userCard} onClick={() => handleUserClick(user)}>
+=======
+                        <li key={index} className={styles.userCard} onClick={() => handleUserClick(user)}
+                        style={{ cursor: "pointer" }}>
+>>>>>>> Profile search is functional at /discover, authentication requirement has been commented out for dev. This page will pull up the first 5 profiles in the db, and then load 5 more if the user clicks "Load More". Searching will dynamically query db and when you click on a user it will rout to "discoverprofile/username" which will be the future UI of another users profile.
                             {user}
                         </li>
                     ))
