@@ -3,9 +3,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from pages.forms import PostForm
 from pages.utils.s3_utils import upload_to_s3
-from pages.models import Post, Instrument, Genre
+from pages.models import Post, Instrument, Genre, MusicianInstrument, User, Musician
 from rest_framework import serializers
 from rest_framework.decorators import api_view
+from pages.authentication.views import MusicianInstrumentSerializer, MusicianSerializer
 
 class CreatePostView(APIView):
     def post(self, request):
@@ -93,4 +94,34 @@ def create_genre(request):
 def get_genres(request):
     genres = Genre.objects.all()  # Retrieve all genres
     serializer = GenreSerializer(genres, many=True)  # Serialize the list of genres
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+# API endpoint to get all musician instruments
+@api_view(['GET'])
+def get_musician_instruments(request):
+    musician_instruments = MusicianInstrument.objects.all() # Retrieve all musician-instruments
+    serializer = MusicianInstrumentSerializer(musician_instruments, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# Serializer for users
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'role', 'rating', 'created_at']
+
+
+# API endpoint to get all all users
+@api_view(['GET'])
+def get_users(request):
+    users = User.objects.all()
+    serializer = UserSerializer(users, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# API endpoint to get all musicians
+@api_view(['GET'])
+def get_musicians(request):
+    musicians = Musician.objects.all()  # Fetch all musicians from the database
+    serializer = MusicianSerializer(musicians, many=True)  # Serialize the queryset
     return Response(serializer.data, status=status.HTTP_200_OK)
