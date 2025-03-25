@@ -2,6 +2,7 @@
 
 import styles from "@/styles/Signup.module.css";
 import Image from "next/image";
+<<<<<<< HEAD
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -9,6 +10,15 @@ function ResetPasswordForm() {
     const searchParams = useSearchParams();
     const [uid, setUid] = useState<string | null>(null);
     const [token, setToken] = useState<string | null>(null);
+=======
+import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+
+export default function ResetPassword() {
+    const searchParams = useSearchParams();
+    const uid = searchParams.get("uid");
+    const token = searchParams.get("token");
+>>>>>>> Setup forgot password reset via email
 
     const [password, setPassword] = useState("");
     const [confirmedPassword, setConfirmedPassword] = useState("");
@@ -16,6 +26,7 @@ function ResetPasswordForm() {
     const [formError, setFormError] = useState("");
     const router = useRouter();
 
+<<<<<<< HEAD
     useEffect(() => {
         setUid(searchParams.get("uid"));
         setToken(searchParams.get("token"));
@@ -25,6 +36,8 @@ function ResetPasswordForm() {
         return <div>Loading...</div>;
     }
 
+=======
+>>>>>>> Setup forgot password reset via email
     // Function to validate password strength
     const validatePassword = (password: string): boolean => {
         const strongPasswordRegex =
@@ -129,6 +142,7 @@ function ResetPasswordForm() {
         </div>
     );
 }
+<<<<<<< HEAD
 
 const ResetPassword = () => (
     <Suspense fallback={<div>Loading...</div>}>
@@ -137,3 +151,5 @@ const ResetPassword = () => (
 );
 
 export default ResetPassword;
+=======
+>>>>>>> Setup forgot password reset via email
