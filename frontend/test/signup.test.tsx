@@ -1,12 +1,14 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import SignUpSelection from "@/app/signup/page";
 import MusicianSignup from "@/app/signup/musician/page";
+import BusinessSignUp from "@/app/signup/business/page"
 import "@testing-library/jest-dom";
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation"
 import { fetch } from 'undici';  // For mocking fetch, as Jest does not provide a built-in fetch API
 import { act } from "react";
 import { userEvent } from '@testing-library/user-event';
+import exp from "constants";
 
 // Mock fetch since jest does not provide a built-in fetch API
 jest.mock('undici', () => ({
@@ -118,7 +120,7 @@ describe("Musician Signup Page", () => {
     // Check that the sign up form exists for user input
     expect(document.querySelector("form")).toBeInTheDocument();
 
-    // Check that th submit button is present
+    // Check that the submit button is present
     expect(screen.getByRole("button", { name: /Sign Up/i})).toBeInTheDocument();
   });
 
@@ -466,4 +468,55 @@ describe("Musician Signup Page", () => {
       });
     })
   });    
+});
+
+// Tests for business sign up page:
+describe("Business Sign Up Page", () => {
+
+  let user: any;
+
+  // Before each test, render the business sign up page and create a user to perform events
+  beforeEach(() => {
+    // Render business sign up page
+    render(<BusinessSignUp />);
+
+    // Create user
+    user = userEvent.setup();
+  });
+
+  // Check that the page is rendered correctly and the expected UI elements are present
+  it("renders the business sign up title, the sign up form, and the submit button", () => {
+    // Check that the title "Sign Up: Business" is displayed
+    expect(screen.getByRole("heading", { level: 1, name: /Sign Up: Business/i})).toBeInTheDocument();
+
+    // Check that the sign up form exists for user input
+    expect(document.querySelector("form")).toBeInTheDocument();
+
+    // Check that the submit button is present
+    expect(screen.getByRole("button", { name: /Sign Up/i})).toBeInTheDocument();
+  })
+
+  // Check that the user can type in the text boxes
+  it("allows the user to type information into the input fields", async () => {
+    // Find each input text field (5 of them)
+    const emailInput = screen.getByLabelText(/Email/i);
+    const usernameInput = screen.getByLabelText(/Username/i);
+    const passwordInput = screen.getByLabelText(/Password/i);
+    const businessNameInput = screen.getByLabelText(/Your Business' Name/i);
+    const industryInput = screen.getByLabelText(/Industry Your Business Is In/i);
+
+    // Type test values into these input text fields
+    await user.type(emailInput, "test@business.com");
+    await user.type(usernameInput, "myBusiness");
+    await user.type(passwordInput, "strongPass#789");
+    await user.type(businessNameInput, "My Business Name");
+    await user.type(industryInput, "My Industry");
+
+    // Check if the values have been properly typed
+    expect(emailInput).toHaveValue("test@business.com");
+    expect(usernameInput).toHaveValue("myBusiness");
+    expect(passwordInput).toHaveValue("strongPass#789");
+    expect(businessNameInput).toHaveValue("My Business Name");
+    expect(industryInput).toHaveValue("My Industry");
+  })
 });
