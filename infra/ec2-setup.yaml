@@ -1,0 +1,146 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  CloudFormation template to create EC2 instances for the Frontend,
+  Backend, and VPN. The public website is served via an ALB (defined in alb-controller.yaml)
+  which redirects HTTP to HTTPS. Direct SSH access is disabled on the frontend/backend,
+  and administrative access is provided only via the VPN.
+
+Parameters:
+  KeyName:
+    Description: Name of an existing EC2 KeyPair for SSH access (used for VPN instance if needed)
+    Type: AWS::EC2::KeyPair::KeyName
+
+  InstanceType:
+    Description: EC2 instance type (only micro instances allowed)
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+      - t2.micro
+
+  VpcId:
+    Description: "VPC ID in which the instances will be launched"
+    Type: AWS::EC2::VPC::Id
+    Default: vpc-0588c4e6d2c293b9b
+
+Mappings:
+  RegionMap:
+    us-east-1:
+      AMI: ami-0a25f237e97fa2b5e
+    us-east-2:
+      AMI: ami-08529db39844c00c2
+
+Resources:
+
+  #####################################
+  # Security Groups
+  #####################################
+
+  # InstanceSecurityGroup is for the Frontend and Backend instances.
+  # Only HTTPS (port 443) traffic is allowed from anywhere.
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Allow only internal/ALB traffic (HTTPS) to the instances"
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+  
+  # VPNSecurityGroup allows public VPN connections (UDP port 1194) only.
+  VPNSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Allow only OpenVPN access (UDP 1194) to the VPN instance"
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: udp
+          FromPort: 1194
+          ToPort: 1194
+          CidrIp: 0.0.0.0/0
+
+  #####################################
+  # EC2 Instances
+  #####################################
+
+  FrontendInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyName
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      # The Frontend instance is not directly exposed; it will receive traffic via the ALB.
+      SecurityGroupIds:
+        - !Ref InstanceSecurityGroup
+      UserData: 
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          apt-get update -y
+          apt-get install -y docker.io
+          systemctl start docker
+          usermod -a -G docker ubuntu
+          curl -L "https://github.com/docker/compose/releases/download/2.34.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          chmod +x /usr/local/bin/docker-compose
+          # Assume your application code is present at /home/ubuntu/myapp
+          cd /home/ubuntu/myapp
+          docker-compose up -d frontend
+      Tags:
+        - Key: Name
+          Value: Frontend-Instance
+
+  BackendInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyName
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      # The Backend instance is kept isolated; it should only be accessible from internal sources (ALB or VPN).
+      SecurityGroupIds:
+        - !Ref InstanceSecurityGroup
+      UserData: 
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          apt-get update -y
+          apt-get install -y docker.io git
+          systemctl start docker
+          usermod -a -G docker ubuntu
+          cd /home/ubuntu
+          git clone https://github.com/uiowaSEP2025/sep2025-project-team_005.git savvynote
+          cd savvynote
+          docker-compose up -d backend
+      Tags:
+        - Key: Name
+          Value: Backend-Instance
+
+  VPNInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]  # Ubuntu AMI is used here
+      KeyName: !Ref KeyName
+      # The VPN instance allows only OpenVPN traffic (UDP 1194); no SSH is allowed.
+      SecurityGroupIds:
+        - !Ref VPNSecurityGroup
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          apt-get update -y
+          apt-get install -y curl
+          curl -O https://raw.githubusercontent.com/angristan/openvpn-install/master/openvpn-install.sh
+          chmod +x openvpn-install.sh
+          export AUTO_INSTALL=y
+          export CLIENT="savvynote-client"
+          ./openvpn-install.sh
+          # (Optional) Upload the generated client.ovpn to S3 or output it via CloudFormation Outputs
+
+Outputs:
+  FrontendPublicIP:
+    Description: "Public IP of the Frontend instance (this is what your ALB will target)"
+    Value: !GetAtt [FrontendInstance, PublicIp]
+  BackendPublicIP:
+    Description: "Public IP of the Backend instance (for internal use only)"
+    Value: !GetAtt [BackendInstance, PublicIp]
+  VPNPublicIP:
+    Description: "Public IP of the VPN instance (for team VPN access)"
+    Value: !GetAtt [VPNInstance, PublicIp]

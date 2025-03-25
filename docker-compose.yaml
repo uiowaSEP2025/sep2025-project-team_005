@@ -16,7 +16,7 @@ services:
       - DB_USER=${DB_USER}
       - DB_PASS=${DB_PASSWORD}
       - DB_HOST=${DB_HOST}
-      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+      - SECRET_KEY=${SECRET_KEY}
     depends_on:
       - db
     ports:

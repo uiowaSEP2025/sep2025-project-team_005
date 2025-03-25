@@ -220,7 +220,7 @@ coverage report -m
 ```
 
 # Backend
-DJANGO_SECRET_KEY=your_secret_key
+SECRET_KEY=your_secret_key
 DATABASE_URL=postgres://<user>:<password>@localhost:5432/savvy-note-sp
 AWS_ACCESS_KEY_ID=your_aws_key
 AWS_SECRET_ACCESS_KEY=your_aws_secret
