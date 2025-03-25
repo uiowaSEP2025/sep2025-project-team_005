@@ -50,7 +50,7 @@ export default function Signup() {
 
         try {
             const response = await axios.post(
-                "http://18.117.105.40:8000/api/auth/signup/",
+                "https://savvy-note.com:8000/api/auth/signup/",
                 {email, username, password, role},
                 {
                     headers: {
