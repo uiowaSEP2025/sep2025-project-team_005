@@ -48,8 +48,7 @@ export default function DiscoverProfile() {
 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log(data.user_id)
-                    setUserId(data.user_id);
+                    setUserId(data);
                 } else {
                     console.error("Failed to fetch user ID", response.statusText);
                 }
@@ -61,12 +60,12 @@ export default function DiscoverProfile() {
         fetchUserId();
     }, [username]);
 
-    // Fetch Musician Profile ***********
+    // Fetch Musician Profile
     useEffect(() => {
         const fetchProfile = async () => {
-            if (!profile?.id) return;
+            if (!userId) return;
             try {
-                const response = await fetch(`http://localhost:8000/musician/${userId}/`, {
+                const response = await fetch(`http://localhost:8000/musician/${userId.user_id}/`, {
                     method: "GET",
                     credentials: "include",
                 });
@@ -83,14 +82,14 @@ export default function DiscoverProfile() {
         };
 
         fetchProfile();
-    }, [profile]);
+    }, [userId]);
 
-    // Fetch Follow Count ********
+    // Fetch Follow Count
     useEffect(() => {
         const fetchFollowCount = async () => {
-            if (!profile?.id) return;
+            if (!userId) return;
             try {
-                const response = await fetch(`http://localhost:8000/follower/${userId}/`, {
+                const response = await fetch(`http://localhost:8000/follower/${userId.user_id}/`, {
                     method: "GET",
                     credentials: "include",
                 });
@@ -107,7 +106,7 @@ export default function DiscoverProfile() {
         };
 
         fetchFollowCount();
-    }, [profile]);
+    }, [userId]);
 
     const handleDropdownToggle = () => {
         setDropdownOpen(prevState => !prevState);

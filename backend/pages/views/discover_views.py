@@ -53,4 +53,4 @@ class UserByUsernameView(APIView):
     def get(self, request, *args, **kwargs):
         username = kwargs.get('username')
         user = get_object_or_404(User, username=username)
-        return Response({"user_id": str(user.id)}, status=status.HTTP_200_OK)
+        return JsonResponse({"user_id": str(user.id)}, status=status.HTTP_200_OK)
