@@ -25,6 +25,7 @@
     justify-content: space-between;
     width: 100%;
     align-items: center;
+    position: relative;
 }
 
 .profilePhoto {
@@ -151,7 +152,8 @@
 }
 
 .threeDotButton {
-    padding-left: 18rem;
+    position: absolute;
+    right: 0;
     cursor: pointer;
 }
 
