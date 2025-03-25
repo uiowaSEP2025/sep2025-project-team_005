@@ -3,108 +3,182 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: 100vh;
     padding: 2rem;
     text-align: center;
     font-family: var(--font-geist-sans);
 }
 
-@media (min-width: 640px) {
-    .container {
-        text-align: left;
-        padding: 5rem;
-    }
-}
-
 /* Profile Header */
-.header {
+.profileHeader {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid #e5e7eb;
     width: 100%;
     max-width: 48rem;
+    position: relative;
+}
+
+.headerWithDots {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+}
+
+.profilePhoto {
+    border-radius: 50%;
+    border: 4px solid #2563eb;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.profileInfo {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
-    padding-bottom: 2rem;
-    border-bottom: 2px solid #e5e7eb; /* gray-200 */
-}
-
-@media (min-width: 640px) {
-    .header {
-        align-items: flex-start;
-    }
 }
 
 .title {
     font-size: 2rem;
     font-weight: bold;
-    color: #3b82f6; /* indigo-600 */
+    color: #3b82f6;
+}
+
+/* Follow Stats */
+.followStats {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    margin-right: 18rem;
+}
+
+.statCard {
+    text-align: center;
+}
+
+.statNumber {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.statLabel {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+/* Buttons */
+.profileActions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    margin-right: 16rem;
+}
+
+.followButton, .messageButton {
+    padding: 0.5rem 1.5rem;
+    border-radius: 999px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.followButton {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+}
+
+.messageButton {
+    background-color: transparent;
+    color: #2563eb;
+    border: 2px solid #2563eb;
+}
+
+.followButton:hover {
+    background-color: #1e40af;
+}
+
+.messageButton:hover {
+    background-color: #2563eb;
+    color: white;
+}
+
+/* Bio Section */
+.bioSection {
+    width: 100%;
+    max-width: 48rem;
+    margin-top: 2rem;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    background-color: #1e1e1e;  /* Darker background */
+    color: #ffffff;  /* White text for contrast */
+}
+
+/* Improve Readability */
+.bioTitle {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #ffffff;  /* Ensure title is visible */
 }
 
 .description {
-    font-size: 1.125rem;
-    color: #4b5563; /* gray-600 */
-}
-
-.dark .description {
-    color: #d1d5db; /* gray-300 */
-}
-
-/* Profile Picture */
-.profilePhoto {
-    border-radius: 9999px;
-    border: 4px solid #2563eb; /* blue-600 */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-}
-
-/* Followers */
-.followers {
-    font-size: 0.875rem;
-    color: #6b7280; /* gray-500 */
-}
-
-.dark .followers {
-    color: #9ca3af; /* gray-400 */
+    font-size: 1rem;
+    color: #d1d5db;  /* Lighter gray text */
 }
 
 /* Posts Section */
-.features {
+.postsSection {
     width: 100%;
     max-width: 48rem;
     margin-top: 2rem;
 }
 
-.featureTitle {
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin-bottom: 1rem;
-    color: #3b82f6; /* indigo-600 */
+.postsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
 }
 
-.featureCard {
-    padding: 1.5rem;
+.postCard {
+    padding: 1rem;
     border-radius: 1rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    background: linear-gradient(135deg, #4f46e5, #9333ea); /* indigo and purple gradient */
+    background: #3b82f6;
     color: white;
+    text-align: center;
+}
+
+.threeDotButton {
+    padding-left: 18rem;
+    cursor: pointer;
+}
+
+/* Dropdown Menu */
+.dropdownMenu {
+    position: absolute;
+    top: 3rem;
+    right: 1rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 150px;
+    text-align: left;
+    z-index: 10;
+}
+
+/* Dropdown Item */
+.dropdownItem {
+    padding: 0.8rem;
+    width: 100%;
     border: none;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background-color: white;
+    color: #2563eb;
+    text-align: left;
+    cursor: pointer;
 }
 
-.featureCard:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
-}
-
-.dark .featureCard {
-    background: linear-gradient(135deg, #374151, #6b21a8); /* dark indigo to purple gradient */
-}
-
-.featureText {
-    font-size: 1rem;
-    line-height: 1.5;
-    color: #e5e7eb; /* gray-200 */
-}
-
-.dark .featureText {
-    color: #f9fafb; /* gray-50 */
+.dropdownItem:hover {
+    background-color: #f3f4f6;
 }
