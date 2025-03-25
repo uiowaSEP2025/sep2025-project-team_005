@@ -40,6 +40,7 @@ export default function BusinessSignup() {
     const handleSubmit = async (e: React.FormEvent) => {
         // For debugging
         console.log("In handleSubmit function")
+        console.log("Business name: ---" + businessName + "---")
 
         // Prevent form submitting by default
         e.preventDefault();
@@ -47,6 +48,7 @@ export default function BusinessSignup() {
         // Check that all fields have been filled out
         if (!email || !username || !password || !businessName || !industry) {
             setError("All fields are required.")
+            return;
         }
 
         // Double-check that email address is valid
@@ -57,7 +59,7 @@ export default function BusinessSignup() {
 
         // Validate strong password
         if (!validatePassword(password)) {
-            setError("Please fix the errors before submitting.")
+            setError("Please fix the password errors before submitting.")
             return;
         }
 
