@@ -3,7 +3,6 @@ from rest_framework.response import Response
 from rest_framework import status
 from pages.serializers.follower_serializers import FollowCountSerializer
 from pages.models import User, Musician
-from django.http import JsonResponse
 
 
 class FollowingView(APIView):

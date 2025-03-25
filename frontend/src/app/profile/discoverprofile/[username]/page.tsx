@@ -114,7 +114,7 @@ export default function DiscoverProfile() {
 
     const handleBlockUser = () => {
         // Add functionality for "Block User"
-        console.log("User blocked");
+        //console.log("User blocked");
     };
 
     if (isLoading || !userProfile || !followCount) return <p className="description">Loading...</p>;
@@ -133,7 +133,7 @@ export default function DiscoverProfile() {
                     <div className={styles.headerWithDots}>
                         <h1 className={styles.title}>{userProfile.stage_name || username}</h1>
                         {/* Three-Dot Button */}
-                        <div className={styles.threeDotButton} onClick={handleDropdownToggle}>
+                        <div className={styles.threeDotButton} onClick={handleDropdownToggle} data-testid="dropdown-button">
                             <FaEllipsisV size={24} />
                         </div>
                     </div>

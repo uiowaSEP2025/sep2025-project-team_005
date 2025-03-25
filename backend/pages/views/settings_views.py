@@ -63,7 +63,6 @@ class MusicianDetailView(APIView):
         except Genre.DoesNotExist:
             return Response({"error": "Genre not found"}, status=status.HTTP_404_NOT_FOUND)
 
-
 class ChangePasswordView(APIView):
     permission_classes = [IsAuthenticated]
 
