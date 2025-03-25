@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, findByText } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import SignUpSelection from "@/app/signup/page";
 import MusicianSignup from "@/app/signup/musician/page";
 import "@testing-library/jest-dom";
@@ -7,7 +7,6 @@ import { usePathname } from "next/navigation"
 import { fetch } from 'undici';  // For mocking fetch, as Jest does not provide a built-in fetch API
 import { act } from "react";
 import { userEvent } from '@testing-library/user-event';
-import exp from "constants";
 
 // Mock fetch since jest does not provide a built-in fetch API
 jest.mock('undici', () => ({
@@ -447,5 +446,24 @@ describe("Musician Signup Page", () => {
       expect(usePathname()).toHaveProperty('pathname', "/signup/musician")
       expect(await screen.findByText(/Please enter a valid email address./i)).toBeInTheDocument();
     });
+
+    // Check that the user cannot submit the form if they have not selected Yes or No for the home studio input
+    it("does not allow submission if the user has not selected yes or no for a home studio", async () => {
+      // Force uncheck of each radio button to ensure that neither are checked
+      fireEvent.change(screen.getByLabelText(/Yes/i), { target: { checked: false } });
+      fireEvent.change(screen.getByLabelText(/No/i), { target: { checked: false } });
+
+      expect(yesRadioButton).not.toBeChecked();
+      expect(noRadioButton).not.toBeChecked();
+
+      // Click submit button and trigger form submission manually since jest does not automatically do this
+      user.click(submitButton);
+      fireEvent.submit(screen.getByRole('form'));
+
+      // Wait for the error message to appear
+      await waitFor(() => {
+        expect(screen.getByText(/An error occurred. Please try again./i)).toBeInTheDocument();
+      });
+    })
   });    
 });
