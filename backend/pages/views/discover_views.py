@@ -6,6 +6,8 @@ from pages.models import User, Musician, Instrument, Genre
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
+from rest_framework import status
+
 
 class GetUsersView(APIView, PageNumberPagination):
     page_size = 5
@@ -51,5 +53,4 @@ class UserByUsernameView(APIView):
     def get(self, request, *args, **kwargs):
         username = kwargs.get('username')
         user = get_object_or_404(User, username=username)
-        print(user.id)
-        return JsonResponse({"user": str(user.id)})
+        return Response({"user_id": str(user.id)}, status=status.HTTP_200_OK)

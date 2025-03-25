@@ -18,8 +18,17 @@ class User(AbstractUser):
     
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.0)  # Example: 4.5 rating
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    followers = models.ManyToManyField("self", symmetrical=False, related_name="following")
+
 
     def set_password(self, raw_password):
         """Hash and securely store the password"""
         super().set_password(raw_password)
         # TODO SN5-81: add password db validation
+        
+    def follower_count(self):
+        return self.followers.count()
+    
+    def following_count(self):
+        return self.following.count()
