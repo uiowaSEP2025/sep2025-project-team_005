@@ -17,7 +17,11 @@ export default function Login() {
     e.preventDefault();
     try {
       const response = await axios.post(
+<<<<<<< Updated upstream
         "http://3.141.3.95:8000/api/auth/login/",      // Replace with an env variable for both local and Kubernetes deployment
+=======
+        "https://savvy-note.com/api/auth/login/",      // Replace with an env variable for both local and Kubernetes deployment
+>>>>>>> Stashed changes
         { username, password },
         { withCredentials: true } // Sends cookies to backend
       );
