@@ -72,6 +72,23 @@
     background-color: #2563eb; /* indigo-700 */
 }
 
+/* For some reason the Business signup button does not look
+    the same as the Musician one under the same CSS styling, so
+    made a separate style for Business button */
+.businessSubmit {
+    background-color: #3b82f6; /* indigo-600 */
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-bottom: 50px;
+    margin-top: 50px;
+    width: 26.4%;
+}
+
 .select {
     padding: 10px;
     border: 1px solid #ccc;

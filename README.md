@@ -71,8 +71,27 @@ npm run dev
 
 ### Docker & Kubernetes Deployment
 ```sh
-docker-compose up --build
-kubectl apply -f infra/
+# This is all you need to run the docker-compose build
+docker login
+docker-compose up -d
+# Versions:
+# - Docker: 26.1.3
+# - Docker Desktop: 4.38.0 -- may not be necessary; did not try without
+# - psql: 17.4
+# - python3: 3.13.2
+
+#Using RDS:
+# - Copy "Endpoint" (from under "Endpoint & Port") into DB_HOST.
+# - Go to the "VPC security groups" (also under "Endpoint & Port").
+# - Go to "Inbound Rules" and click "Edit inbound rules".
+# - Add a new inbound rule of "Type" PostgreSQL and "Source" Custom, with your public IP address in the textbox with the magnifying glass with "/32" after (eg. 192.168.6.54/32).
+# - Add a description like "Desktop Postgres Rule" or "Temp Laptop Rule" if you'd like (remember this will need to be changed every time your public IP changes).
+
+#Debugging:
+# - "docker-compose down --rmi all --volumes --remove-orphans" will completely tear down the docker build and give a clean docker desktop if needed.
+# - "docker-compose ps" will sure you the running services. You should have db, backend, and frontend.
+# - "lsof -i :8000" will show you what is running on port 8000. Good for "Port already in use" errors. If this doesn't work, restarting VSCode (and computer if that still doesn't work) has worked each time for me.
+# - If you get an error asking if the DB host is listening, you likely need to refresh your security group inbound rules with your current public IP address.
 ```
 
 ### PostgreSQL Setup and Migration
@@ -88,6 +107,13 @@ python manage.py showmigrations
 python manage.py makemigrations pages
 python manage.py makemigrations admin
 ```
+
+### Setup S3 Bucket configuration
+```sh
+cd backend
+aws configure
+```
+To properly configure S3 buckets, you will have to ensure your AWS user has correctly been added to the bucket permissions. Once added, you will need your AWS user access key, secret key, and bucket region. All information will have to be provided by S3 account manager.
 
 ## Testing
 ### Selenium Setup
@@ -191,6 +217,9 @@ coverage erase
 coverage run --source=pages -m pytest
 coverage run --source=pages -m behave test/features
 coverage report -m
+
+cd frontend
+npm test -- --coverage
 ```
 
 # Backend
