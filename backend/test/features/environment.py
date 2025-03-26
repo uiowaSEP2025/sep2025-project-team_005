@@ -3,7 +3,7 @@ import django
 from selenium import webdriver
 
 def before_all(context):
-    context.base_url = os.getenv("SAVVY_NOTE_URL", "https://savvy-note.com:3000")
+    context.base_url = os.getenv("SAVVY_NOTE_URL", "https://savvy-note.com")
     context.browser = webdriver.Chrome()
 
 def after_all(context):

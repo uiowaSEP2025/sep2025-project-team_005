@@ -55,7 +55,7 @@ describe("Login Component", () => {
 
         await waitFor(() => {
         expect(axios.post).toHaveBeenCalledWith(
-            "https://savvy-note.com:8000/api/auth/login/",
+            "https://savvy-note.com/api/auth/login/",
             { username: "testuser", password: "testpassword1!" },
             { withCredentials: true }
         );

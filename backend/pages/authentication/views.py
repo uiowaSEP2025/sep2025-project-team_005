@@ -123,7 +123,7 @@ def forgot_password_email(request):
             uid = urlsafe_base64_encode(force_bytes(user.id))
             token = tokenGenerator.make_token(user)
 
-            resetUrl = (f"https://savvy-note.com:3000/reset-password/?uid={uid}&token={token}")
+            resetUrl = (f"https://savvy-note.com/reset-password/?uid={uid}&token={token}")
 
             send_mail(
                 # TODO SN5-84: Move HTML into separate files and parse them. Personalize email.

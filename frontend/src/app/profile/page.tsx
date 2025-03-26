@@ -16,7 +16,7 @@ export default function Profile() {
 
     const handleLogout = async () => {
         try {
-            const response = await axios.post("https://savvy-note.com:8000/api/auth/logout/", {
+            const response = await axios.post("https://savvy-note.com/api/auth/logout/", {
                 credentials: "include",
             });
 

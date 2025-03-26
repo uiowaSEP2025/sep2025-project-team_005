@@ -31,7 +31,7 @@ export default function ForgotPassword() {
         // Clear form errors and then attempt API call
         setEmailError("");
         const response = await axios.post(
-            "https://savvy-note.com:8000/api/auth/forgot-password/", // Replace with an env variable
+            "https://savvy-note.com/api/auth/forgot-password/", // Replace with an env variable
             { email },
             {
                 headers: {

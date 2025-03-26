@@ -47,7 +47,7 @@ describe("Discover User UI", () => {
         });
     
         await waitFor(() => expect(axios.get).toHaveBeenCalledWith(
-            expect.stringContaining("https://savvy-note.com:8000/discover/"),
+            expect.stringContaining("https://savvy-note.com/discover/"),
             expect.objectContaining({ params: { search: "testuser", page: 1 } })
         ));
     });
