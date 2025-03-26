@@ -162,14 +162,14 @@ EMAIL_HOST_PASSWORD = env('EMAIL_PASSWORD')
 CORS_ALLOW_CREDENTIALS = True
 if django_env == 'production':
     CORS_ALLOWED_ORIGINS = [
-        "https://savvy-note.com/",  # Add your production domain
+        "https://savvy-note.com",  # Add your production domain
     ]
 else:
     CORS_ALLOWED_ORIGINS = [
         "http://localhost:3000",  # Local Next.js frontend for development
     ]
 
-CSRF_TRUSTED_ORIGINS = ["http://localhost:3000, https://savvy-note.com/"]
+CSRF_TRUSTED_ORIGINS = ["http://localhost:3000, https://savvy-note.com"]
 
 # REST Framework settings
 REST_FRAMEWORK = {
@@ -188,7 +188,7 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
     "AUTH_COOKIE": "access_token",  # Cookie name for JWT
     "AUTH_COOKIE_REFRESH": "refresh_token",
-    "AUTH_COOKIE_SECURE": False,  # Set True in production with HTTPS
+    "AUTH_COOKIE_SECURE": True,  # Set True in production with HTTPS
     "AUTH_COOKIE_HTTP_ONLY": True,
     "AUTH_COOKIE_PATH": "/",
     "AUTH_COOKIE_SAMESITE": "Lax",
@@ -215,3 +215,16 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+#SSL
+SECURE_SSL_REDIRECT = True
+
+SECURE_BROWSER_XSS_FILTER = True
+
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+SESSION_COOKIE_SECURE = True
+
+CSRF_COOKIE_SECURE = True
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
