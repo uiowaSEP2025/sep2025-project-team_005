@@ -59,7 +59,7 @@ describe("Login Component", () => {
             { username: "testuser", password: "testpassword1!" },
             { withCredentials: true }
         );
-        expect(pushMock).toHaveBeenCalledWith("/profile");
+        expect(pushMock).toHaveBeenCalledWith("/testuser");
         });
     });
 
