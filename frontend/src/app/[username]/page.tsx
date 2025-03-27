@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { FaEllipsisV } from "react-icons/fa";
 import Image from "next/image";
 
-import styles from "@/styles/DiscoverProfile.module.css";
+import styles from "@/styles/Profile.module.css";
 import axios from "axios";
 import Cookies from "js-cookie";
 
@@ -192,7 +192,6 @@ export default function DiscoverProfile() {
                 {isDropdownOpen && (
                     profile?.username === username ? (
                         <div>
-                            <button className={styles.dropdownItem} onClick={handleUpdateProfile}>Update Profile Information</button>
                             <button className={styles.dropdownItem} onClick={handleSettings}>Settings</button>
                             <button className={styles.dropdownItem} onClick={handleLogout}>Logout</button>
                         </div>
@@ -207,6 +206,9 @@ export default function DiscoverProfile() {
             </div>
 
             <div className={styles.bioSection}>
+                {profile?.username === username && (
+                    <button className={styles.editButton} onClick={handleUpdateProfile}>Edit</button>
+                )}
                 <h2 className={styles.bioTitle}>About</h2>
                 <p className={styles.description}><strong>Years Played:</strong> {userProfile.years_played}</p>
                 <p className={styles.description}><strong>Home Studio:</strong> {userProfile.home_studio ? "Yes" : "No"}</p>
