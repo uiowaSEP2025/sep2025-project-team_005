@@ -14,7 +14,7 @@ class Musician(models.Model):
     home_studio = models.BooleanField(default=False)
     
     genres = models.ManyToManyField(Genre, related_name="musicians")
-    instruments = models.ManyToManyField(Instrument, related_name="musicians")
+    instruments = models.ManyToManyField(Instrument, through="MusicianInstrument")
 
     def __str__(self):
         return self.stage_name

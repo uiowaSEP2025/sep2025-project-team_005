@@ -21,7 +21,7 @@ class InstrumentTest:
 
     @pytest.mark.django_db
     def test_string_representation(self, create_instrument):
-        assert str(create_instrument) == "Savvy Piano - Percussion"
+        assert str(create_instrument) == "Savvy Piano"
     
     @pytest.mark.django_db
     def test_field_max_length(self, create_instrument):

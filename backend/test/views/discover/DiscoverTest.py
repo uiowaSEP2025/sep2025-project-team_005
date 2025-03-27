@@ -1,7 +1,7 @@
 import pytest
 import random
 from django.contrib.auth import get_user_model
-from pages.models import User, Musician, Genre, Instrument
+from pages.models import User, Musician, Genre, Instrument, MusicianInstrument
 from rest_framework.test import APIClient
 
 User = get_user_model()
@@ -30,26 +30,30 @@ def create_users(db):
         num_instruments = random.randint(1, 3)
         num_genres = random.randint(1, 2)
 
-        # Add instruments
+        selected_instruments = set()
+        selected_genres = set()
+
+        # Add instruments using the MusicianInstrument model
         for _ in range(num_instruments):
             instrument_name = random.choice(instruments)
-            instrument, _ = Instrument.objects.get_or_create(instrument=instrument_name)
-            musician.instruments.add(instrument)
+            if instrument_name not in selected_instruments:
+                selected_instruments.add(instrument_name)
+                instrument, _ = Instrument.objects.get_or_create(instrument=instrument_name)
+                MusicianInstrument.objects.create(musician=musician, instrument=instrument, years_played=random.randint(1, 20))
 
         # Add genres
         for _ in range(num_genres):
             genre_name = random.choice(genres)
-            genre, _ = Genre.objects.get_or_create(genre=genre_name)
-            musician.genres.add(genre)
+            if genre_name not in selected_genres:
+                selected_genres.add(genre_name)
+                genre, _ = Genre.objects.get_or_create(genre=genre_name)
+                musician.genres.add(genre)
 
         musician.save()
         users.append(user)
-        print(i)
-        print(musician.instruments.all())
-        print(musician.genres.all())
-
 
     return users
+
 
 @pytest.mark.filterwarnings("ignore:Pagination may yield inconsistent results with an unordered object_list")
 def test_get_users_pagination(api_client, create_users):
