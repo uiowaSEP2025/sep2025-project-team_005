@@ -1,20 +1,185 @@
 "use client";
 
-import { useParams } from 'next/navigation';
+import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useAuth, useRequireAuth } from "@/context/ProfileContext";
+import { useEffect, useState } from "react";
+import { FaEllipsisV } from "react-icons/fa";
+import Image from "next/image";
+
+import styles from "@/styles/DiscoverProfile.module.css";
+
+interface UserID {
+    user_id: string;
+}
+
+interface UserProfile {
+    stage_name: string;
+    years_played: number;
+    home_studio: boolean;
+    genres: string[];
+    instruments: string[];
+}
+
+interface FollowCount {
+    follower_count: number;
+    following_count: number;
+}
 
 export default function DiscoverProfile() {
     useRequireAuth();
-    
-    const router = useRouter();
-    const { profile, isLoading } = useAuth();
+
     const { username } = useParams();
+    const { profile, isLoading } = useAuth();
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+    const [followCount, setFollowCount] = useState<FollowCount | null>(null);
+    const [userId, setUserId] = useState<UserID | null>(null);
+    const [isDropdownOpen, setDropdownOpen] = useState(false);
+
+    useEffect(() => {
+        const fetchUserId = async () => {
+            if (!username) return; // Ensure username is available
+
+            try {
+                const response = await fetch(`http://localhost:8000/user/${username}/`, {
+                    method: "GET",
+                    credentials: "include",
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    setUserId(data);
+                } else {
+                    console.error("Failed to fetch user ID", response.statusText);
+                }
+            } catch (error) {
+                console.error("Error fetching user ID:", error);
+            }
+        };
+
+        fetchUserId();
+    }, [username]);
+
+    // Fetch Musician Profile
+    useEffect(() => {
+        const fetchProfile = async () => {
+            if (!userId) return;
+            try {
+                const response = await fetch(`http://localhost:8000/musician/${userId.user_id}/`, {
+                    method: "GET",
+                    credentials: "include",
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    setUserProfile(data);
+                } else {
+                    console.error("Failed to fetch musician profile", response.statusText);
+                }
+            } catch (error) {
+                console.error("Error fetching musician profile:", error);
+            }
+        };
+
+        fetchProfile();
+    }, [userId]);
+
+    // Fetch Follow Count
+    useEffect(() => {
+        const fetchFollowCount = async () => {
+            if (!userId) return;
+            try {
+                const response = await fetch(`http://localhost:8000/follower/${userId.user_id}/`, {
+                    method: "GET",
+                    credentials: "include",
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    setFollowCount(data);
+                } else {
+                    console.error("Failed to fetch follow count", response.statusText);
+                }
+            } catch (error) {
+                console.error("Error fetching follow count:", error);
+            }
+        };
+
+        fetchFollowCount();
+    }, [userId]);
+
+    const handleDropdownToggle = () => {
+        setDropdownOpen(prevState => !prevState);
+    };
+
+    const handleBlockUser = () => {
+        // Add functionality for "Block User"
+        //console.log("User blocked");
+    };
+
+    if (isLoading || !userProfile || !followCount) return <p className="description">Loading...</p>;
 
     return (
-        <div>
-            <h1>Profile of {username}</h1>
-            <p>Profile Details</p>
+        <div className={styles.container}>
+            <div className={styles.profileHeader}>
+                <Image 
+                    src="/savvy.png" 
+                    alt={`${username}'s profile picture`} 
+                    width={120} 
+                    height={120} 
+                    className={styles.profilePhoto}
+                />
+                <div className={styles.profileInfo}>
+                    <div className={styles.headerWithDots}>
+                        <h1 className={styles.title}>{userProfile.stage_name || username}</h1>
+                        {/* Three-Dot Button */}
+                        <div className={styles.threeDotButton} onClick={handleDropdownToggle} data-testid="dropdown-button">
+                            <FaEllipsisV size={24} />
+                        </div>
+                    </div>
+
+                    <div className={styles.followStats}>
+                        <div className={styles.statCard}>
+                            <p className={styles.statNumber}>{followCount.follower_count}</p>
+                            <p className={styles.statLabel}>Followers</p>
+                        </div>
+                        <div className={styles.statCard}>
+                            <p className={styles.statNumber}>{followCount.following_count}</p>
+                            <p className={styles.statLabel}>Following</p>
+                        </div>
+                    </div>
+                    <div className={styles.profileActions}>
+                        <button className={styles.followButton}>Follow</button>
+                        <button className={styles.messageButton}>Message</button>
+                    </div>
+                </div>
+
+                {/* Dropdown Menu */}
+                {isDropdownOpen && (
+                    <div className={styles.dropdownMenu}>
+                        <button className={styles.dropdownItem} onClick={handleBlockUser}>
+                            Block User
+                        </button>
+                    </div>
+                )}
+            </div>
+
+            <div className={styles.bioSection}>
+                <h2 className={styles.bioTitle}>About</h2>
+                <p className={styles.description}><strong>Years Played:</strong> {userProfile.years_played}</p>
+                <p className={styles.description}><strong>Home Studio:</strong> {userProfile.home_studio ? "Yes" : "No"}</p>
+                <p className={styles.description}><strong>Genres:</strong> {userProfile.genres.join(", ")}</p>
+                <p className={styles.description}><strong>Instruments:</strong> {userProfile.instruments.join(", ")}</p>
+            </div>
+
+            <div className={styles.postsSection}>
+                <h2 className={styles.featureTitle}>Posts</h2>
+                <div className={styles.postsGrid}>
+                    <div className={styles.postCard}>🎵 Post 1</div>
+                    <div className={styles.postCard}>🎵 Post 2</div>
+                    <div className={styles.postCard}>🎵 Post 3</div>
+                </div>
+            </div>
         </div>
     );
 }

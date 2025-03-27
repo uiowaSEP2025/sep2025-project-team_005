@@ -4,6 +4,10 @@ from django.core.paginator import Paginator
 from rest_framework.pagination import PageNumberPagination
 from pages.models import User, Musician, Instrument, Genre
 from django.db.models import Q
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from rest_framework import status
+
 
 class GetUsersView(APIView, PageNumberPagination):
     page_size = 5
@@ -44,3 +48,9 @@ class GenreListView(APIView):
     def get(self, request):
         genres = Genre.objects.values_list("genre", flat=True)
         return Response(list(genres))
+
+class UserByUsernameView(APIView):
+    def get(self, request, *args, **kwargs):
+        username = kwargs.get('username')
+        user = get_object_or_404(User, username=username)
+        return JsonResponse({"user_id": str(user.id)}, status=status.HTTP_200_OK)
