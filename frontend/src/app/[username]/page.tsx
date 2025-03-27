@@ -8,6 +8,8 @@ import { FaEllipsisV } from "react-icons/fa";
 import Image from "next/image";
 
 import styles from "@/styles/DiscoverProfile.module.css";
+import axios from "axios";
+import Cookies from "js-cookie";
 
 interface UserID {
     user_id: string;
@@ -29,6 +31,7 @@ interface FollowCount {
 export default function DiscoverProfile() {
     useRequireAuth();
 
+    const router = useRouter();
     const { username } = useParams();
     const { profile, isLoading } = useAuth();
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -108,6 +111,35 @@ export default function DiscoverProfile() {
         fetchFollowCount();
     }, [userId]);
 
+    const handleUpdateProfile = async () =>  {
+        try {
+            router.push("/settings/user");
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    const handleSettings = async () => {
+        // TODO: Create settings
+    }
+
+    const handleLogout = async () => {
+        try {
+            await axios.post("http://localhost:8000/api/auth/logout/", {
+                credentials: "include",
+            });
+
+            // Clear stored token
+            Cookies.remove("access_token");
+
+            // Redirect to login page
+            router.push("/login");
+        } 
+        catch (error) {
+            console.error("Logout failed", error);
+        }
+    };
+
     const handleDropdownToggle = () => {
         setDropdownOpen(prevState => !prevState);
     };
@@ -148,19 +180,29 @@ export default function DiscoverProfile() {
                             <p className={styles.statLabel}>Following</p>
                         </div>
                     </div>
-                    <div className={styles.profileActions}>
-                        <button className={styles.followButton}>Follow</button>
-                        <button className={styles.messageButton}>Message</button>
-                    </div>
+                    {profile?.username !== username && (
+                        <div className={styles.profileActions}>
+                            <button className={styles.followButton}>Follow</button>
+                            <button className={styles.messageButton}>Message</button>
+                        </div>
+                    )}
                 </div>
 
                 {/* Dropdown Menu */}
                 {isDropdownOpen && (
-                    <div className={styles.dropdownMenu}>
-                        <button className={styles.dropdownItem} onClick={handleBlockUser}>
-                            Block User
-                        </button>
-                    </div>
+                    profile?.username === username ? (
+                        <div>
+                            <button className={styles.dropdownItem} onClick={handleUpdateProfile}>Update Profile Information</button>
+                            <button className={styles.dropdownItem} onClick={handleSettings}>Settings</button>
+                            <button className={styles.dropdownItem} onClick={handleLogout}>Logout</button>
+                        </div>
+                    ) : (
+                        <div className={styles.dropdownMenu}>
+                            <button className={styles.dropdownItem} onClick={handleBlockUser}>
+                                Block User
+                            </button>
+                        </div>
+                    )
                 )}
             </div>
 

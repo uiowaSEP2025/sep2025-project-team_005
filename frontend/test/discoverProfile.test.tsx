@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import DiscoverProfile from "@/app/profile/discoverprofile/[username]/page";
+import DiscoverProfile from "@/app/[username]/page";
 import { AuthProvider } from "@/context/ProfileContext";
 import fetchMock from "jest-fetch-mock";
 

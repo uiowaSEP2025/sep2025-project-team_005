@@ -97,7 +97,7 @@ export default function Discover() {
     };
 
     const handleUserClick = (username: string) => {
-        router.push(`/profile/discoverprofile/${username}`);
+        router.push(`/${username}/`);
     };
 
     const toggleInstrumentSelection = (instrument: string) => {
