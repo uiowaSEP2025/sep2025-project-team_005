@@ -6,7 +6,7 @@ from pages.models import Post
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 User = get_user_model()
-CREATE_URL = "/create/"
+CREATE_URL = "/api/create/"
 
 @pytest.fixture
 def create_user(db):

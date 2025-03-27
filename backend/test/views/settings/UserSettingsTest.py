@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from pages.models import Musician, Instrument, Genre
 
 User = get_user_model()
-MUSICIAN_URL = "/musician/{}/"
+MUSICIAN_URL = "/api/musician/{}/"
 CHANGE_PASSWORD_URL = "/api/change-password/"
 
 @pytest.fixture

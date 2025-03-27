@@ -28,8 +28,8 @@ export default function Discover() {
         const fetchFilters = async () => {
             try {
                 const [instrumentRes, genreRes] = await Promise.all([
-                    axios.get("http://localhost:8000/instruments/"),
-                    axios.get("http://localhost:8000/genres/"),
+                    axios.get("http://localhost:8000/api/instruments/"),
+                    axios.get("http://localhost:8000/api/genres/"),
                 ]);
                 setInstruments(instrumentRes.data);
                 setGenres(genreRes.data);
@@ -45,7 +45,7 @@ export default function Discover() {
     const fetchUsers = async (query = "", selectedInstruments: string[], selectedGenres: string[], pageNum = 1) => {
         setLoading(true);
         try {
-            const response = await axios.get("http://localhost:8000/discover/", {
+            const response = await axios.get("http://localhost:8000/api/discover/", {
                 params: {
                     search: query,
                     instrument: selectedInstruments,

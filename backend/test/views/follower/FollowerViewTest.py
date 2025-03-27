@@ -6,7 +6,7 @@ from pages.models import Musician, Follower
 import uuid
 
 User = get_user_model()
-FOLLOWER_URL = "/follower/{}/"
+FOLLOWER_URL = "/api/follower/{}/"
 
 @pytest.mark.django_db
 class FollowerViewTest:

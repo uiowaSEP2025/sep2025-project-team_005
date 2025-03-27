@@ -41,7 +41,7 @@ export default function DiscoverProfile() {
             if (!username) return; // Ensure username is available
 
             try {
-                const response = await fetch(`http://localhost:8000/user/${username}/`, {
+                const response = await fetch(`http://localhost:8000/api/user/${username}/`, {
                     method: "GET",
                     credentials: "include",
                 });
@@ -65,7 +65,7 @@ export default function DiscoverProfile() {
         const fetchProfile = async () => {
             if (!userId) return;
             try {
-                const response = await fetch(`http://localhost:8000/musician/${userId.user_id}/`, {
+                const response = await fetch(`http://localhost:8000/api/musician/${userId.user_id}/`, {
                     method: "GET",
                     credentials: "include",
                 });
@@ -89,7 +89,7 @@ export default function DiscoverProfile() {
         const fetchFollowCount = async () => {
             if (!userId) return;
             try {
-                const response = await fetch(`http://localhost:8000/follower/${userId.user_id}/`, {
+                const response = await fetch(`http://localhost:8000/api/follower/${userId.user_id}/`, {
                     method: "GET",
                     credentials: "include",
                 });
