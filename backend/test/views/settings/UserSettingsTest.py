@@ -45,7 +45,7 @@ def test_get_user_not_found(api_client):
     """Test retrieving a musician profile for a non-existent user."""
     url = MUSICIAN_URL.format("00000000-0000-0000-0000-000000000000")
     response = api_client.get(url)
-    
+
     assert response.status_code == 404
     assert response.data == {"error": "User not found"}
 

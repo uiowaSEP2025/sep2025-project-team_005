@@ -30,7 +30,6 @@ class MusicianDetailView(APIView):
             user.phone = request.data.get("phone", user.phone)
             user.save()
 
-            print("kkkkkkkk")
             # Update musician data
             musician.stage_name = request.data.get("stage_name", musician.stage_name)
             musician.years_played = request.data.get("years_played", musician.years_played)
@@ -66,7 +65,7 @@ class MusicianDetailView(APIView):
             return Response({"error": "Instrument not found"}, status=status.HTTP_404_NOT_FOUND)
         except Genre.DoesNotExist:
             return Response({"error": "Genre not found"}, status=status.HTTP_404_NOT_FOUND)
-        
+
 
 class ChangePasswordView(APIView):
     permission_classes = [IsAuthenticated]
@@ -83,3 +82,4 @@ class ChangePasswordView(APIView):
         user.save()
 
         return Response({"message": "Password changed successfully"}, status=200)
+
