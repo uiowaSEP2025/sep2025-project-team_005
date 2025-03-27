@@ -41,7 +41,7 @@ export default function FollowPage() {
         setLoading(true);
         try {
             const response = await fetch(
-                `http://localhost:8000/follow-list/${id}/?type=${type}&page=${pageNum}`,
+                `http://localhost:8000/api/follow-list/${id}/?type=${type}&page=${pageNum}`,
                 { method: "GET", credentials: "include" }
             );
 
@@ -67,7 +67,7 @@ export default function FollowPage() {
     };
 
     const handleUserClick = (username: string) => {
-        router.push(`/profile/discoverprofile/${username}`);
+        router.push(`/${username}`);
     };
 
     const handleFollowToggle = async (userId: string, isFollowing: boolean) => {

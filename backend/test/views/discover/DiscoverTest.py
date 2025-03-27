@@ -5,8 +5,8 @@ from pages.models import User, Musician, Genre, Instrument
 from rest_framework.test import APIClient
 
 User = get_user_model()
-DISCOVER_URL = "/discover/"
-USER_URL = "/user/{}/"
+DISCOVER_URL = "/api/discover/"
+USER_URL = "/api/user/{}/"
 
 @pytest.fixture
 def api_client():

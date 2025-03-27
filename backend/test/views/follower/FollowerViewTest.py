@@ -7,8 +7,9 @@ from rest_framework import status
 import uuid
 
 User = get_user_model()
-FOLLOWER_URL = "/follower/{}/"
-FOLLOW_LIST_URL = "/follow-list/{}/"
+
+FOLLOW_LIST_URL = "/api/follow-list/{}/"
+FOLLOWER_URL = "/api/follower/{}/"
 
 @pytest.mark.django_db
 class FollowerViewTest:

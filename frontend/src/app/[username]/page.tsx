@@ -7,7 +7,9 @@ import { useEffect, useState } from "react";
 import { FaEllipsisV } from "react-icons/fa";
 import Image from "next/image";
 
-import styles from "@/styles/DiscoverProfile.module.css";
+import styles from "@/styles/Profile.module.css";
+import axios from "axios";
+import Cookies from "js-cookie";
 
 interface UserID {
     user_id: string;
@@ -42,7 +44,7 @@ export default function DiscoverProfile() {
             if (!username) return; // Ensure username is available
 
             try {
-                const response = await fetch(`http://localhost:8000/user/${username}/`, {
+                const response = await fetch(`http://localhost:8000/api/user/${username}/`, {
                     method: "GET",
                     credentials: "include",
                 });
@@ -66,7 +68,7 @@ export default function DiscoverProfile() {
         const fetchProfile = async () => {
             if (!userId) return;
             try {
-                const response = await fetch(`http://localhost:8000/musician/${userId.user_id}/`, {
+                const response = await fetch(`http://localhost:8000/api/musician/${userId.user_id}/`, {
                     method: "GET",
                     credentials: "include",
                 });
@@ -90,7 +92,7 @@ export default function DiscoverProfile() {
         const fetchFollowCount = async () => {
             if (!userId) return;
             try {
-                const response = await fetch(`http://localhost:8000/follower/${userId.user_id}/`, {
+                const response = await fetch(`http://localhost:8000/api/follower/${userId.user_id}/`, {
                     method: "GET",
                     credentials: "include",
                 });
@@ -109,6 +111,35 @@ export default function DiscoverProfile() {
         fetchFollowCount();
     }, [userId]);
 
+    const handleUpdateProfile = async () =>  {
+        try {
+            router.push("/settings/user");
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    const handleSettings = async () => {
+        // TODO: Create settings
+    }
+
+    const handleLogout = async () => {
+        try {
+            await axios.post("http://localhost:8000/api/auth/logout/", {
+                credentials: "include",
+            });
+
+            // Clear stored token
+            Cookies.remove("access_token");
+
+            // Redirect to login page
+            router.push("/login");
+        } 
+        catch (error) {
+            console.error("Logout failed", error);
+        }
+    };
+
     const handleDropdownToggle = () => {
         setDropdownOpen(prevState => !prevState);
     };
@@ -119,7 +150,7 @@ export default function DiscoverProfile() {
     };
 
     const handleNavigation = (user_id: string, type: "followers" | "following") => {
-        router.push(`/profile/follow/${user_id}?type=${type}`);
+        router.push(`/follow/${user_id}?type=${type}`);
     };
 
     if (isLoading || !musicianProfile || !followCount) return <p className="description">Loading...</p>;
@@ -153,23 +184,35 @@ export default function DiscoverProfile() {
                             <p className={styles.statLabel}>Following</p>
                         </div>
                     </div>
-                    <div className={styles.profileActions}>
-                        <button className={styles.followButton}>Follow</button>
-                        <button className={styles.messageButton}>Message</button>
-                    </div>
+                    {profile?.username !== username && (
+                        <div className={styles.profileActions}>
+                            <button className={styles.followButton}>Follow</button>
+                            <button className={styles.messageButton}>Message</button>
+                        </div>
+                    )}
                 </div>
 
                 {/* Dropdown Menu */}
                 {isDropdownOpen && (
-                    <div className={styles.dropdownMenu}>
-                        <button className={styles.dropdownItem} onClick={handleBlockUser}>
-                            Block User
-                        </button>
-                    </div>
+                    profile?.username === username ? (
+                        <div>
+                            <button className={styles.dropdownItem} onClick={handleSettings} data-testid="setting-button">Settings</button>
+                            <button className={styles.dropdownItem} onClick={handleLogout} data-testid="logout-button">Logout</button>
+                        </div>
+                    ) : (
+                        <div className={styles.dropdownMenu}>
+                            <button className={styles.dropdownItem} onClick={handleBlockUser}>
+                                Block User
+                            </button>
+                        </div>
+                    )
                 )}
             </div>
 
             <div className={styles.bioSection}>
+                {profile?.username === username && (
+                    <button className={styles.editButton} onClick={handleUpdateProfile}>Edit</button>
+                )}
                 <h2 className={styles.bioTitle}>About</h2>
                 <p className={styles.description}><strong>Years Played:</strong> {musicianProfile.years_played}</p>
                 <p className={styles.description}><strong>Home Studio:</strong> {musicianProfile.home_studio ? "Yes" : "No"}</p>
