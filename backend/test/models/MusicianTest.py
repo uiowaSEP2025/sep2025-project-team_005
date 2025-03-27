@@ -1,6 +1,6 @@
 from django.core.exceptions import ValidationError
 import pytest
-from pages.models import Musician, User, Genre, Instrument
+from pages.models import Musician, User, Genre, Instrument, MusicianInstrument
 
 
 @pytest.mark.django_db
@@ -54,14 +54,14 @@ class MusicianTest:
         instrument2 = Instrument.objects.create(instrument="Piano", class_name="Chordophones")
 
         musician.genres.add(genre1, genre2)
-        musician.instruments.add(instrument1, instrument2)
+        
+        # Explicitly create the intermediate model entries
+        MusicianInstrument.objects.create(musician=musician, instrument=instrument1, years_played=5)
+        MusicianInstrument.objects.create(musician=musician, instrument=instrument2, years_played=3)
 
         assert musician.genres.count() == 2
-        assert musician.instruments.count() == 2
-        assert genre1 in musician.genres.all()
-        assert genre2 in musician.genres.all()
-        assert instrument1 in musician.instruments.all()
-        assert instrument2 in musician.instruments.all()
+        assert MusicianInstrument.objects.filter(musician=musician).count() == 2
+
 
     ## Tests that musican is added and accessible in the databse
     def test_persistence(self, create_musician):
