@@ -23,14 +23,7 @@ export default function Login() {
         { username, password },
         { withCredentials: true } // Sends cookies to backend
       );
-
-      try {
-        if(!isLoading && profile)
-          router.push(`/${username}`);
-      } 
-      catch (error) {
-          console.error(error)
-      }
+      router.push(`/${username}`);
     }
     catch (err) {
       setError("Invalid username or password");
