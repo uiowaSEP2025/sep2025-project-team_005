@@ -14,6 +14,7 @@ jest.mock("next/navigation", () => ({
     }),
 }));
 
+
 describe("Discover Profile Page", () => {
     beforeEach(() => {
         fetchMock.resetMocks();
