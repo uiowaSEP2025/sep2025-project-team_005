@@ -12,7 +12,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 env = environ.Env()
-env.read_env(os.path.join(os.path.dirname(__file__), "../../.env"))
+env.read_env(os.path.join(os.path.dirname(__file__), "../.env"))
 
 # Path to the user data directory
 user_data_dir = env("SELENIUM_USER_DIR")
