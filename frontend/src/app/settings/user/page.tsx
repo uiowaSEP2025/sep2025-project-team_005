@@ -17,6 +17,9 @@ type UserData = {
   genre: string[];
   password: string;
   new_password: string;
+  stage_name: string;
+  years_played: number;
+  home_studio: boolean;
 };
 
 const EditableInput = ({
@@ -176,6 +179,9 @@ export default function UserSettings() {
     genre: [],
     password: "",
     new_password: "",
+    stage_name: "",
+    years_played: 0,
+    home_studio: false,
   });
 
   const formatPhoneNumber = (value: string) => {
@@ -197,10 +203,13 @@ export default function UserSettings() {
           genre: [],
           password: "",
           new_password: "",
+          stage_name: "",
+          years_played: 0,
+          home_studio: false,
         });
   
         try {
-          const response = await fetch(`http://localhost:8000/musician/${profile.id}/`, {
+          const response = await fetch(`http://localhost:8000/api/musician/${profile.id}/`, {
             method: "GET",
             credentials: "include",
           });
@@ -211,6 +220,9 @@ export default function UserSettings() {
               ...prev,
               instruments: data.instruments,
               genre: data.genres,
+              stage_name: data.stage_name,
+              years_played: data.years_played,
+              home_studio: data.home_studio,
             }));
           } 
           else {
@@ -227,7 +239,7 @@ export default function UserSettings() {
   
   const handleSave = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/musician/${userData.id}/`, {
+      const response = await fetch(`http://localhost:8000/api/musician/${userData.id}/`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -239,6 +251,9 @@ export default function UserSettings() {
           phone: userData.phone,
           instruments: userData.instruments,
           genre: userData.genre,
+          stage_name: userData.stage_name,
+          years_played: userData.years_played,
+          home_studio: userData.home_studio,
         }),
       });
   

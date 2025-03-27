@@ -7,4 +7,8 @@ class MusicianSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Musician
-        fields = ['instruments', 'genres']
+        fields = ['instruments', 
+                  'genres', 
+                  'stage_name',
+                  'years_played',
+                  'home_studio']

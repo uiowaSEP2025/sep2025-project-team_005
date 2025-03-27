@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from pages.models import Musician, Instrument, Genre
 
 User = get_user_model()
-MUSICIAN_URL = "/musician/{}/"
+MUSICIAN_URL = "/api/musician/{}/"
 CHANGE_PASSWORD_URL = "/api/change-password/"
 
 @pytest.fixture
@@ -32,10 +32,13 @@ def test_get_musician_detail(api_client, create_musician):
     user, musician = create_musician
     url = MUSICIAN_URL.format(user.id)
     response = api_client.get(url)
-    
+
     assert response.status_code == 200
     assert response.data["instruments"] == ["Guitar", "Piano"]
     assert response.data["genres"] == ["Rock"]
+    assert response.data["stage_name"] == "Test Band"
+    assert response.data["years_played"] == 5
+    assert response.data["home_studio"] == True
 
 @pytest.mark.django_db
 def test_get_user_not_found(api_client):

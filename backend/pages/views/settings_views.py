@@ -17,8 +17,8 @@ class MusicianDetailView(APIView):
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
         except Musician.DoesNotExist:
             return Response({"error": "Musician profile not found"}, status=status.HTTP_404_NOT_FOUND)
-        
-        
+
+
     def patch(self, request, user_id):
         try:
             user = User.objects.get(id=user_id)
@@ -30,7 +30,11 @@ class MusicianDetailView(APIView):
             user.phone = request.data.get("phone", user.phone)
             user.save()
 
+            print("kkkkkkkk")
             # Update musician data
+            musician.stage_name = request.data.get("stage_name", musician.stage_name)
+            musician.years_played = request.data.get("years_played", musician.years_played)
+            musician.home_studio = request.data.get("home_studio", musician.stage_name)
             musician.instruments.clear()
             musician.genres.clear()
 

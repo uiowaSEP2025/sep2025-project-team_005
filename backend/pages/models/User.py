@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinLengthValidator
 from django.core.validators import RegexValidator
 from django.db import models
+from pages.models.Follower import Follower
 import uuid
 
 class User(AbstractUser):
@@ -36,3 +37,9 @@ class User(AbstractUser):
         """Hash and securely store the password"""
         super().set_password(raw_password)
         # TODO SN5-81: add password db validation
+        
+    def follower_count(self):
+        return Follower.objects.filter(following=self).count()
+
+    def following_count(self):
+        return Follower.objects.filter(follower=self).count()
