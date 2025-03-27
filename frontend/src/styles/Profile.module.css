@@ -40,9 +40,10 @@
 }
 
 .title {
-    font-size: 2rem;
+    font-size: 2.15rem;
     font-weight: bold;
-    color: #3b82f6;
+    margin-top: 1.15rem;
+    color: #3985ff;
     position: absolute;
 }
 
@@ -50,7 +51,7 @@
 .followStats {
     display: flex;
     gap: 1.5rem;
-    margin-top: 1rem;
+    margin-top: 3.5rem;
     margin-right: 18rem;
 }
 
@@ -64,8 +65,8 @@
 }
 
 .statLabel {
-    font-size: 0.875rem;
-    color: #6b7280;
+    font-size: 1.15rem;
+    color: #ffffff;
 }
 
 /* Buttons */
@@ -85,7 +86,7 @@
 .followButton, .messageButton {
     padding: 0.5rem 1.5rem;
     border-radius: 999px;
-    font-size: 1rem;
+    font-size: 1.15rem;
     font-weight: bold;
     cursor: pointer;
     transition: 0.3s;
@@ -142,14 +143,15 @@
 }
 
 /* Improve Readability */
-.bioTitle {
-    font-size: 1.5rem;
+.bioTitle, .featureTitle {
+    font-size: 1.75rem;
     font-weight: bold;
     color: #ffffff;  /* Ensure title is visible */
 }
 
 .description {
-    font-size: 1rem;
+    font-size: 1.15rem;
+    padding-top: 0.25rem;
     color: #d1d5db;  /* Lighter gray text */
 }
 

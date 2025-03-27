@@ -110,4 +110,38 @@ describe("Discover Profile Page", () => {
     
         consoleErrorSpy.mockRestore();
     });
+
+    it("shows edit button when viewing own profile", async () => {
+        jest.spyOn(require("@/context/ProfileContext"), "useAuth").mockReturnValue({
+            profile: { username: "johndoe" },
+            isLoading: false,
+        });
+    
+        render(
+            <AuthProvider>
+                <DiscoverProfile />
+            </AuthProvider>
+        );
+    
+        await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
+    
+        expect(screen.getByText("Edit")).toBeInTheDocument();
+    });
+    
+    it("does not show edit button when viewing someone else's profile", async () => {
+        jest.spyOn(require("@/context/ProfileContext"), "useAuth").mockReturnValue({
+            profile: { username: "janedoe" },
+            isLoading: false,
+        });
+    
+        render(
+            <AuthProvider>
+                <DiscoverProfile />
+            </AuthProvider>
+        );
+    
+        await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
+    
+        expect(screen.queryByText("Edit")).not.toBeInTheDocument();
+    }); 
 });

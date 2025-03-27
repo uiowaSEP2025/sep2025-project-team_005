@@ -9,7 +9,15 @@ jest.mock("next/navigation", () => ({
     useRouter: jest.fn(),
 }));
 
+// Mock axios
 jest.mock("axios");
+
+// Mock useAuth
+jest.mock("@/context/ProfileContext", () => ({
+    useAuth: jest.fn(),
+}));
+
+import { useAuth } from "@/context/ProfileContext";
 
 describe("Login Component", () => {
     let pushMock: jest.Mock;
@@ -21,6 +29,11 @@ describe("Login Component", () => {
     });
 
     test("renders login screen correctly", () => {
+        (useAuth as jest.Mock).mockReturnValue({
+            profile: null,
+            isLoading: false,
+        });
+
         render(<Login />);
 
         expect(screen.getByPlaceholderText("Username")).toBeInTheDocument();
@@ -29,6 +42,11 @@ describe("Login Component", () => {
     });
 
     test("allows user to type in username and password", () => {
+        (useAuth as jest.Mock).mockReturnValue({
+            profile: null,
+            isLoading: false,
+        });
+
         render(<Login />);
 
         const usernameInput = screen.getByPlaceholderText("Username");
@@ -42,8 +60,13 @@ describe("Login Component", () => {
     });
 
     test("successful login redirects to profile", async () => {
+        (useAuth as jest.Mock).mockReturnValue({
+            profile: { username: "testuser" },
+            isLoading: false,
+        });
+
         (axios.post as jest.Mock).mockResolvedValue({
-        data: { access: "mock_access_token" },
+            data: { access: "mock_access_token" },
         });
 
         render(<Login />);
@@ -54,16 +77,21 @@ describe("Login Component", () => {
         fireEvent.click(screen.getByText("Login"));
 
         await waitFor(() => {
-        expect(axios.post).toHaveBeenCalledWith(
-            "http://localhost:8000/api/auth/login/",
-            { username: "testuser", password: "testpassword1!" },
-            { withCredentials: true }
-        );
-        expect(pushMock).toHaveBeenCalledWith("/testuser");
+            expect(axios.post).toHaveBeenCalledWith(
+                "http://localhost:8000/api/auth/login/",
+                { username: "testuser", password: "testpassword1!" },
+                { withCredentials: true }
+            );
+            expect(pushMock).toHaveBeenCalledWith("/testuser");
         });
     });
 
     test("failed login shows error message", async () => {
+        (useAuth as jest.Mock).mockReturnValue({
+            profile: null,
+            isLoading: false,
+        });
+
         (axios.post as jest.Mock).mockRejectedValue(new Error("Invalid credentials"));
 
         render(<Login />);
