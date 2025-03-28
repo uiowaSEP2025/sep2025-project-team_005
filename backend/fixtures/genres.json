@@ -1,0 +1,366 @@
+[
+    {
+        "model": "pages.Genre",
+        "pk": "7e09369d-8748-4948-a737-ca2d6b073688",
+        "fields": {
+            "genre": "Pop"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "13389a2d-5c4d-44b8-8725-ca1aa0507cf3",
+        "fields": {
+            "genre": "Rock"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "3831c41a-28f8-45bb-b7b5-32ca9230f57b",
+        "fields": {
+            "genre": "Jazz"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "282a33b8-d82a-40f6-9e38-aac2cd38885b",
+        "fields": {
+            "genre": "Classical"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "fd0c39e3-4cad-4917-b25c-f8967a245622",
+        "fields": {
+            "genre": "Hip Hop"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "1c3f2989-b96d-4a31-b64d-9772fa6e0f67",
+        "fields": {
+            "genre": "R&B"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "a47f8820-9e96-4150-8faa-b4ab639194da",
+        "fields": {
+            "genre": "Country"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "2f89e16f-6ffa-48c5-93ea-913b240d5865",
+        "fields": {
+            "genre": "Blues"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "fff7ae0e-84d0-460a-a80a-f7cdf589bacf",
+        "fields": {
+            "genre": "Electronic"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "792f0095-a1f7-4048-a90a-8a23e579aca3",
+        "fields": {
+            "genre": "Reggae"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "ae172ea0-e685-4cf4-b2ae-08e9a99b88cf",
+        "fields": {
+            "genre": "Folk"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "2ea1dad6-0f08-45cc-8d7c-45d355551642",
+        "fields": {
+            "genre": "Metal"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "3d6d7a3d-0d38-40ef-af1b-26f4bebd4274",
+        "fields": {
+            "genre": "Punk"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "303ca86b-c7ad-4ea1-82e6-8d2c351d7c03",
+        "fields": {
+            "genre": "Indie"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "b73b43b6-9af1-4fe1-bde1-48e4a421248b",
+        "fields": {
+            "genre": "Soul"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "27490072-7e50-4c65-b138-d4fffb169943",
+        "fields": {
+            "genre": "Latin"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "fc717a26-28f6-4899-a03b-bbcc2e459eed",
+        "fields": {
+            "genre": "Disco"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "a497a67e-46a2-46a2-8b8e-33df3510f09a",
+        "fields": {
+            "genre": "Funk"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "23db2b19-1ffb-4196-a35a-b0544cf62a0d",
+        "fields": {
+            "genre": "Alternative"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "7fdf9ac1-bd4d-4405-a556-2501b838d1df",
+        "fields": {
+            "genre": "Dance"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "bab52f3a-512f-47a5-96a4-a20202a8c625",
+        "fields": {
+            "genre": "Gospel"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "5bea964c-7c24-4ebd-8758-a868c70047cb",
+        "fields": {
+            "genre": "World"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "07fcdc07-418f-4ecd-8b7a-7042cbb17ec4",
+        "fields": {
+            "genre": "Bluegrass"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "b56b5f57-39dd-49d4-984c-52434e73f1d0",
+        "fields": {
+            "genre": "Ska"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "bd54debb-72ea-4ff7-848d-74bb58fdfa1d",
+        "fields": {
+            "genre": "Techno"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "157bdd51-20c7-4d42-8806-6d6b0dfb25bc",
+        "fields": {
+            "genre": "House"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "4d51b035-48e6-4a25-90b5-a14a63b3025d",
+        "fields": {
+            "genre": "Ambient"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "d0f9f530-a23d-4119-b209-cae1631a88a3",
+        "fields": {
+            "genre": "Trance"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "170b5115-e12e-4f21-b89f-c1d5f3dfb73c",
+        "fields": {
+            "genre": "New Age"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "8e439f36-a000-4c0f-b9d6-19ac2815d5b0",
+        "fields": {
+            "genre": "K-pop"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "97e483d4-1ed9-407b-b7c8-090cc5757fb3",
+        "fields": {
+            "genre": "Reggaeton"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "7e91a70e-8e1c-4f81-8f51-a51d3b361770",
+        "fields": {
+            "genre": "Synthwave"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "693f0a65-bdcd-40cc-813d-0eab02389b79",
+        "fields": {
+            "genre": "Post-rock"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "b9b6b9cc-3b55-4b97-93de-bc52821ef0e5",
+        "fields": {
+            "genre": "Emo"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "e3e84c8e-ba9f-4c5d-9517-37068e3f69c0",
+        "fields": {
+            "genre": "Hardcore"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "9f54c0ca-0d53-422f-8e86-0fd3c00e3ee6",
+        "fields": {
+            "genre": "Grunge"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "162c728b-a7c2-4b04-af1e-cab73657abf5",
+        "fields": {
+            "genre": "Shoegaze"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "72a2d89d-da2f-424c-9e9c-c138dd4a156e",
+        "fields": {
+            "genre": "Progressive Rock"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "cc6b860d-1714-4d22-aac8-d1015a104bcd",
+        "fields": {
+            "genre": "Industrial"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "d551ab37-1ac3-4025-9de7-16f1faf3e762",
+        "fields": {
+            "genre": "Trap"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "70ca76cd-d42c-40f3-8021-5e1558906a89",
+        "fields": {
+            "genre": "Dubstep"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "8e64c30f-91cd-49b0-83a4-7d81b91bdc72",
+        "fields": {
+            "genre": "Folk Rock"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "bc657763-77a0-437c-adb2-82e8236fe1fa",
+        "fields": {
+            "genre": "Experimental"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "ed2c40c5-e8cd-44ba-9e7e-22acaf54b9e3",
+        "fields": {
+            "genre": "Alternative Hip Hop"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "c20e775d-41d7-4ae8-bb3d-7b24e267f938",
+        "fields": {
+            "genre": "Krautrock"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "fff65d7e-9422-4096-99a4-c574ebcea62e",
+        "fields": {
+            "genre": "Gothic"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "9f4d182d-a440-4997-8cad-2083b24798ec",
+        "fields": {
+            "genre": "Indie Pop"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "d223f2ea-b3b8-45cc-9f37-6fcbb38cad75",
+        "fields": {
+            "genre": "Nu Metal"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "24eb1839-6652-473b-bf51-b6bab4999b4f",
+        "fields": {
+            "genre": "Jazz Fusion"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "9bcffa61-a33b-4c11-bb6e-c15bdf164d42",
+        "fields": {
+            "genre": "Acoustic"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "6993e343-a405-4f77-8daf-73205366be40",
+        "fields": {
+            "genre": "Tech House"
+        }
+    },
+    {
+        "model": "pages.Genre",
+        "pk": "01f8cd3f-6f86-473c-95ab-9d02790c1e4a",
+        "fields": {
+            "genre": "Lofi Hip Hop"
+        }
+    }
+]
