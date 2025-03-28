@@ -61,7 +61,7 @@ AWS_S3_FILE_OVERWRITE = False
 
 # SECURITY WARNING: don't run with debug turned on in production!
 if django_env == 'production':
-    DEBUG = False
+    DEBUG = True
 else:
     DEBUG = True  # Enable Debug in development
 
