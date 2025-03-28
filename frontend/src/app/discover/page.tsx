@@ -28,8 +28,8 @@ export default function Discover() {
         const fetchFilters = async () => {
             try {
                 const [instrumentRes, genreRes] = await Promise.all([
-                    axios.get("http://localhost:8000/api/instruments/"),
-                    axios.get("http://localhost:8000/api/genres/"),
+                    axios.get("https://savvy-note.com/api/instruments/"),
+                    axios.get("https://savvy-note.com/api/genres/"),
                 ]);
                 setInstruments(instrumentRes.data);
                 setGenres(genreRes.data);

@@ -66,7 +66,7 @@ else:
     DEBUG = True  # Enable Debug in development
 
 
-ALLOWED_HOSTS = ['*']       # Will need to be updated for production
+ALLOWED_HOSTS = ['savvy-note.com', 'www.savvy-note.com']
 
 
 # Application definition

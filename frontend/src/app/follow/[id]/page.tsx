@@ -41,7 +41,7 @@ export default function FollowPage() {
         setLoading(true);
         try {
             const response = await fetch(
-                `http://localhost:8000/api/follow-list/${id}/?type=${type}&page=${pageNum}`,
+                `https://savvy-note.com/api/follow-list/${id}/?type=${type}&page=${pageNum}`,
                 { method: "GET", credentials: "include" }
             );
 
@@ -72,7 +72,7 @@ export default function FollowPage() {
 
     const handleFollowToggle = async (userId: string, isFollowing: boolean) => {
         try {
-            const response = await fetch(`http://localhost:8000/follow/${userId}/`, {
+            const response = await fetch(`https://savvy-note.com/follow/${userId}/`, {
                 method: isFollowing ? "DELETE" : "POST",
                 credentials: "include",
             });

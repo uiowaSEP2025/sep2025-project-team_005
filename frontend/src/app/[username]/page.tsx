@@ -44,7 +44,7 @@ export default function DiscoverProfile() {
             if (!username) return; // Ensure username is available
 
             try {
-                const response = await fetch(`http://localhost:8000/api/user/${username}/`, {
+                const response = await fetch(`https://savvy-note.com/api/user/${username}/`, {
                     method: "GET",
                     credentials: "include",
                 });
@@ -68,7 +68,7 @@ export default function DiscoverProfile() {
         const fetchProfile = async () => {
             if (!userId) return;
             try {
-                const response = await fetch(`http://localhost:8000/api/musician/${userId.user_id}/`, {
+                const response = await fetch(`https://savvy-note.com/api/musician/${userId.user_id}/`, {
                     method: "GET",
                     credentials: "include",
                 });
@@ -92,7 +92,7 @@ export default function DiscoverProfile() {
         const fetchFollowCount = async () => {
             if (!userId) return;
             try {
-                const response = await fetch(`http://localhost:8000/api/follower/${userId.user_id}/`, {
+                const response = await fetch(`https://savvy-note.com/api/follower/${userId.user_id}/`, {
                     method: "GET",
                     credentials: "include",
                 });
@@ -125,7 +125,7 @@ export default function DiscoverProfile() {
 
     const handleLogout = async () => {
         try {
-            await axios.post("http://localhost:8000/api/auth/logout/", {
+            await axios.post("https://savvy-note.com/api/auth/logout/", {
                 credentials: "include",
             });
 
