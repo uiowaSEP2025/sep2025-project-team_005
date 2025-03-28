@@ -23,6 +23,15 @@ class MusicianDetailView(APIView):
         try:
             user = User.objects.get(id=user_id)
             musician = Musician.objects.get(user=user)
+            
+            new_username = request.data.get("username", user.username)
+            new_email = request.data.get("email", user.email)
+            
+            if User.objects.exclude(id=user_id).filter(username=new_username).exists():
+                return Response({"error": "Username already taken"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            if User.objects.exclude(id=user_id).filter(email=new_email).exists():
+                return Response({"error": "Email already in use"}, status=status.HTTP_400_BAD_REQUEST)
 
             # Update the user data
             user.username = request.data.get("username", user.username)
@@ -40,19 +49,25 @@ class MusicianDetailView(APIView):
             instruments = request.data.get("instruments", [])
             genres = request.data.get("genre", [])
 
-            for instrument_name in instruments:
-                try:
-                    instrument = Instrument.objects.get(instrument=instrument_name)
-                    musician.instruments.add(instrument)
-                except Instrument.DoesNotExist:
-                    print(f"Instrument '{instrument_name}' not found")
+            if 'instruments' in request.data:
+                musician.instruments.clear()
+                instruments = request.data.get("instruments", [])
+                for instrument_name in instruments:
+                    try:
+                        instrument = Instrument.objects.get(instrument=instrument_name)
+                        musician.instruments.add(instrument)
+                    except Instrument.DoesNotExist:
+                        print(f"Instrument '{instrument_name}' not found")
 
-            for genre_name in genres:
-                try:
-                    genre = Genre.objects.get(genre=genre_name)
-                    musician.genres.add(genre)
-                except Genre.DoesNotExist:
-                    print(f"Genre '{genre_name}' not found")
+            if 'genre' in request.data:
+                musician.genres.clear()
+                genres = request.data.get("genre", [])
+                for genre_name in genres:
+                    try:
+                        genre = Genre.objects.get(genre=genre_name)
+                        musician.genres.add(genre)
+                    except Genre.DoesNotExist:
+                        print(f"Genre '{genre_name}' not found")
 
             musician.save()
 
