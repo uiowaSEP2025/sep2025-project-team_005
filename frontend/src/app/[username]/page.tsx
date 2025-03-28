@@ -38,6 +38,8 @@ export default function DiscoverProfile() {
     const [followCount, setFollowCount] = useState<FollowCount | null>(null);
     const [userId, setUserId] = useState<UserID | null>(null);
     const [isDropdownOpen, setDropdownOpen] = useState(false);
+    const [caption, setCaption] = useState("");
+    const [file, setFile] = useState("");
 
     useEffect(() => {
         const fetchUserId = async () => {
@@ -149,6 +151,25 @@ export default function DiscoverProfile() {
         //console.log("User blocked");
     };
 
+    const handlePost = async () => {
+        try {
+            const fileContent = new Blob(["This is a test file."], { type: "image/png" });
+            const testFile = new File([fileContent], "test.png", { type: "image/png" });
+            const formData = new FormData();
+            formData.append("file", testFile);
+            formData.append("caption", "Test");
+    
+            const response = await axios.post("http://localhost:8000/api/create-post/", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+                withCredentials: true
+            });
+        } catch (error) {
+            console.error(error)
+        }
+    };
+
     if (isLoading || !userProfile || !followCount) return <p className="description">Loading...</p>;
 
     return (
@@ -217,7 +238,12 @@ export default function DiscoverProfile() {
             </div>
 
             <div className={styles.postsSection}>
-                <h2 className={styles.featureTitle}>Posts</h2>
+                <div className={styles.postsHeader}>
+                    <h2 className={styles.featureTitle}>Posts</h2>
+                    {profile?.username === username && (
+                        <button className={styles.editButton} onClick={handlePost}>Post</button>
+                    )}
+                </div>
                 <div className={styles.postsGrid}>
                     <div className={styles.postCard}>🎵 Post 1</div>
                     <div className={styles.postCard}>🎵 Post 2</div>

@@ -144,6 +144,8 @@
 
 /* Improve Readability */
 .bioTitle, .featureTitle {
+    text-align: center;
+    flex-grow: 1;
     font-size: 1.75rem;
     font-weight: bold;
     color: #ffffff;  /* Ensure title is visible */
@@ -160,6 +162,16 @@
     width: 100%;
     max-width: 48rem;
     margin-top: 2rem;
+    position: relative;
+    vertical-align: middle;
+}
+
+.postsHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 1rem;
 }
 
 .postsGrid {

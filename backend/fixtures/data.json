@@ -1,0 +1,36 @@
+[
+{
+  "model": "pages.user",
+  "pk": "eb8a0061-1e7a-43cd-8c93-b2779b0603d3",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$ExvE2aSqFrZM7UrshN8BGF$HvjbQFNVMmmS8s+Z7n+9aM8xyaygAfIr0N0X4xrJHL4=",
+    "last_login": null,
+    "is_superuser": false,
+    "first_name": "",
+    "last_name": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-03-28T07:15:34.246Z",
+    "username": "testuser2",
+    "email": "test2@test.com",
+    "phone": null,
+    "role": "musician",
+    "rating": "0.00",
+    "created_at": "2025-03-28T07:15:34.722Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "pages.musician",
+  "pk": "cf5f89ef-60b3-4308-aace-81df93040168",
+  "fields": {
+    "user": "eb8a0061-1e7a-43cd-8c93-b2779b0603d3",
+    "stage_name": "",
+    "years_played": null,
+    "home_studio": false,
+    "genres": [],
+    "instruments": []
+  }
+}
+]
