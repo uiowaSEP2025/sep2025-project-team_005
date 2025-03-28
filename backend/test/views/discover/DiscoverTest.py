@@ -5,8 +5,8 @@ from pages.models import User, Musician, Genre, Instrument
 from rest_framework.test import APIClient
 
 User = get_user_model()
-DISCOVER_URL = "/discover/"
-
+DISCOVER_URL = "/api/discover/"
+USER_URL = "/api/user/{}/"
 
 @pytest.fixture
 def api_client():
@@ -153,3 +153,27 @@ def test_get_users_instrument_and_genre_filter(api_client, create_users):
     ]
     
     assert all(result in users_with_guitar_or_rock for result in response.data["results"])
+    
+    
+@pytest.mark.django_db
+def test_get_user_by_username(api_client, create_users):
+    """Test fetching a user by username."""
+    # Take the first user from the created users
+    user = create_users[0]
+    url = USER_URL.format(user.username)
+
+    response = api_client.get(url)
+    
+    assert response.status_code == 200
+    assert response.json()["user_id"] == str(user.id)
+
+
+@pytest.mark.django_db
+def test_get_user_by_invalid_username(api_client):
+    """Test fetching a user by username that does not exist."""
+    invalid_username = "nonexistentuser"
+    url = USER_URL.format(invalid_username)
+
+    response = api_client.get(url)
+
+    assert response.status_code == 404

@@ -8,4 +8,4 @@ class Instrument(models.Model):
     class_name = models.CharField(max_length=255, blank=True)
     
     def __str__(self):
-        return f"{self.instrument} - {self.class_name}"
+        return f"{self.instrument}"

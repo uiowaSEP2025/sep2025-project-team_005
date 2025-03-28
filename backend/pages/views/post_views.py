@@ -8,7 +8,7 @@ from pages.models import Post
 class CreatePostView(APIView):
     def post(self, request):
         try:
-            form = PostForm(request.data, request.FILES)  # Use request.data instead of request.POST for DRF
+            form = PostForm(request.data, request.FILES)
             
             if form.is_valid():
                 # Get the cleaned file and caption data
