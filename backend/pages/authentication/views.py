@@ -9,16 +9,9 @@ from django.contrib.auth import authenticate
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import status
 from django.contrib.auth import get_user_model
-from rest_framework import serializers
-from django.contrib.auth.hashers import make_password
 from rest_framework.decorators import api_view
 from settings import EMAIL_HOST_USER
 from pages.models.User import User
-from pages.models.Musician import Musician
-from pages.models.Instrument import Instrument
-from pages.models.MusicianInstrument import MusicianInstrument
-from pages.models.Genre import Genre
-from pages.models.Business import Business
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -94,30 +87,6 @@ class LogoutView(APIView):
         except Exception as e:
             return Response({"error": "An error occurred while logging out", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
-        
-# Class for serialization of data stored in the database
-class UserSignupSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, min_length=8)
-
-    class Meta:
-        model = User
-        fields = ['username', 'email', 'password', 'role']
-
-    def validate(self, data):
-        # Check if username or email already associated with a user in the database
-        if User.objects.filter(username=data['username']).exists():
-            raise serializers.ValidationError({"username": "This username is already taken."})
-        if User.objects.filter(email=data['email']).exists():
-            raise serializers.ValidationError({"email": "An account with this email already exists."})
-        # TODO SN5-81: add regex validation in backend for email. Password should be good
-        validate_password(data['password'])
-        return data
-
-    def create(self, validated_data):
-        # Hash the password before saving the user
-        validated_data['password'] = make_password(validated_data['password'])
-        return User.objects.create(**validated_data)
-
 @api_view(["POST"])
 def forgot_password_email(request):
     email = request.data.get("email")
@@ -208,102 +177,3 @@ def reset_password(request):
     return Response(
         {"message": "Successfully reset the password!"}, status=status.HTTP_200_OK
     )
-
-# API endpoint for signup requests (handles both musicians and business account)
-@api_view(['POST'])
-def signup(request):
-    user_serializer = UserSignupSerializer(data=request.data)
-
-    if user_serializer.is_valid():
-        # Save the User instance (the user object is now fully created)
-        user = user_serializer.save()
-
-        # Automatically create a musician profile if the role is "musician"
-        if request.data.get("role") == "musician":
-            # Create Musician instance without genres field for now
-            musician_data = {
-                "user": user,  # Associate with the User instance
-                "stage_name": request.data.get("stage_name", ""),
-                "years_played": request.data.get("years_played", None),
-                "home_studio": request.data.get("home_studio", False),
-            }
-
-            # Save the Musician instance first
-            musician = Musician.objects.create(**musician_data)
-
-            # Handle instruments by creating MusicianInstrument entries
-            instruments_data = request.data.get("instruments", [])
-            for instrument_data in instruments_data:
-                instrument_id = instrument_data.get("id")  # Extract instrument ID
-                years_played = instrument_data.get("years_played")  # Extract years_played
-
-                if instrument_id and years_played is not None:
-                    try:
-                        instrument = Instrument.objects.get(id=instrument_id)  # Get the instrument object
-                        MusicianInstrument.objects.create(
-                            musician=musician,
-                            instrument=instrument,
-                            years_played=years_played
-                        )
-                    except Instrument.DoesNotExist:
-                        return Response({"error": "Instrument not found."}, status=status.HTTP_400_BAD_REQUEST)
-                else:
-                    return Response({"error": "Instrument ID and years played are required."}, status=status.HTTP_400_BAD_REQUEST)
-
-            # Set genres after Musician instance is created
-            genres_data = request.data.get("genres", [])
-            if genres_data:
-                # Extract ids from the data
-                genre_ids = [genre.get("id") for genre in genres_data if genre.get("id")]
-                musician.genres.set(genre_ids)  # Use set() to assign ManyToMany field
-
-            return Response({"message": "User and musician created successfully", "id": user.id}, status=status.HTTP_201_CREATED)
-        
-        # If not a musician, check if the role is business
-        elif request.data.get("role") == "business":
-            # Create Business instance
-            business_data = {
-                "user": user,  # Associate the business with the User instance
-                "business_name": request.data.get("business_name", ""),
-                "industry": request.data.get("industry", "")
-            }
-
-            # Create and save business in the database
-            business = Business.objects.create(**business_data)
-
-            # Debugging:
-            print("Created business: ", business)
-
-        return Response({"message": "User created successfully", "id": user.id}, status=status.HTTP_201_CREATED)
-    
-    return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# Serializer class for the intermediate model between musicians and instrumens
-class MusicianInstrumentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = MusicianInstrument
-        fields = ['instrument', 'years_played']
-
-
-# Serializer class for musicians
-class MusicianSerializer(serializers.ModelSerializer):
-    instruments = MusicianInstrumentSerializer(many=True, write_only=True)
-    genres = serializers.PrimaryKeyRelatedField(many=True, queryset=Genre.objects.all())
-
-    class Meta:
-        model = Musician
-        fields = ['user', 'stage_name', 'home_studio', 'genres', 'instruments']
-
-    def create(self, validated_data):
-        instruments_data = validated_data.pop('instruments')
-        musician = Musician.objects.create(**validated_data)
-
-        # Create MusicianInstrument entries
-        for instrument_data in instruments_data:
-            MusicianInstrument.objects.create(
-                musician=musician,
-                instrument=instrument_data['instrument'],
-                years_played=instrument_data['years_played']
-            )
-
-        return musician

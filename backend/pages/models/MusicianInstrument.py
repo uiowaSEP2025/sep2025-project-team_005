@@ -12,7 +12,7 @@ class MusicianInstrument(models.Model):
 
     class Meta:
         unique_together = ('musician', 'instrument')  # Ensures a musician can't have duplicate instrument entries
-        db_table = 'pages_musician_instruments'
+        db_table = 'pages_musicianinstrument'
 
     def __str__(self):
         return f"{self.musician.stage_name} - {self.instrument.name} ({self.years_played} years)"
