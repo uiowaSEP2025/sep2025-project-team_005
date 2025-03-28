@@ -9,11 +9,6 @@ from pages.serializers.signup_serializers import UserSignupSerializer
 @api_view(['POST'])
 def signup(request):
 
-
-    # DEBUGGING
-    print("Signup API called")
-
-
     user_serializer = UserSignupSerializer(data=request.data)
 
     if user_serializer.is_valid():
@@ -22,11 +17,6 @@ def signup(request):
 
         # Automatically create a musician profile if the role is "musician"
         if request.data.get("role") == "musician":
-
-
-            # DEBUGGING:
-            print("Sign up request is for a musician")
-
             # Create Musician instance without genres field for now
             musician_data = {
                 "user": user,  # Associate with the User instance
@@ -34,12 +24,6 @@ def signup(request):
                 "years_played": request.data.get("years_played", None),
                 "home_studio": request.data.get("home_studio", False),
             }
-
-
-            # DEBUGGING:
-            print(f"User: {musician_data['user']}, Stage_name: {musician_data['stage_name']}")
-
-
 
             # Save the Musician instance first
             musician = Musician.objects.create(**musician_data)
@@ -61,7 +45,8 @@ def signup(request):
                     except Instrument.DoesNotExist:
                         return Response({"error": "Instrument not found."}, status=status.HTTP_400_BAD_REQUEST)
                 else:
-                    return Response({"error": "Instrument ID and years played are required."}, status=status.HTTP_400_BAD_REQUEST)
+                    # Print to the terminal to indicate no join objects will be made
+                    print("There are no instruments to create musician instruments with")
 
             # Set genres after Musician instance is created
             genres_data = request.data.get("genres", [])

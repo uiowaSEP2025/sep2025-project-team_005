@@ -126,13 +126,12 @@ instruments = [
 # Generate the fixture format
 fixture = [
     {
-        "model": "pages.Instrument",  # Replace with your actual Django app name
+        "model": "pages.Instrument",
         "pk": str(uuid.uuid4()),  # Generate a unique UUID for each entry
         "fields": instrument
     }
     for instrument in instruments
 ]
-
  
 
 # Write to a JSON file

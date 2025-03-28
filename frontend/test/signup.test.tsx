@@ -538,14 +538,12 @@ describe("Business Sign Up Page", () => {
   });
 
   // Preventing submitting if anything is empty
-  it("does not allow submission if any input field is empty", async () => {
+  it("does not allow submission if email, username, or password is empty", async () => {
     // Find all input fields
     const inputs = {
       email: screen.getByLabelText(/Email/i),
       username: screen.getByLabelText(/Username/i),
       password: screen.getByLabelText(/Password/i),
-      businessName: screen.getByLabelText(/Your Business' Name/i),
-      industry: screen.getByLabelText(/Industry Your Business Is In/i),
     };
   
     // Define valid inputs
@@ -553,8 +551,6 @@ describe("Business Sign Up Page", () => {
       email: "test@business.com",
       username: "myBusiness",
       password: "strongPass#789",
-      businessName: "My Business Name",
-      industry: "My Industry",
     };
   
     const submitButton = screen.getByRole("button", { name: /Sign Up/i });
@@ -572,7 +568,7 @@ describe("Business Sign Up Page", () => {
       await user.click(submitButton);
   
       // Expect an error message to be displayed
-      expect(screen.getByText(/All fields are required./i)).toBeInTheDocument();
+      expect(screen.getByText(/Email, username, and password are required./i)).toBeInTheDocument();
   
       // Clear all fields before the next iteration
       for (const input of Object.values(inputs)) {
