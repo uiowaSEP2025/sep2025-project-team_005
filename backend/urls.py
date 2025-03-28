@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.urls import path, include
 from pages.views.discover_views import GetUsersView, InstrumentListView, GenreListView
-from pages.views.post_views import CreatePostView, create_genre, create_instrument, get_instruments, get_genres, get_musician_instruments, get_users, get_musicians, get_businesses
+from pages.views.post_views import CreatePostView
+from pages.views.helper_views import create_genre, create_instrument, get_instruments, get_genres, get_musician_instruments, get_users, get_musicians, get_businesses
 
 from django.http import JsonResponse
 
