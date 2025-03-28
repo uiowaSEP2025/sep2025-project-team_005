@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from pages.models import User
 
+
 # Serializer for users
 class UserSerializer(serializers.ModelSerializer):
     isFollowing = serializers.SerializerMethodField()
@@ -14,4 +15,5 @@ class UserSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return obj.followers.filter(follower=request.user).exists()
+
         return False

@@ -31,4 +31,3 @@ class MusicianSerializer(serializers.ModelSerializer):
             )
 
         return musician
-    

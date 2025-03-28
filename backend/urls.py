@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from pages.views.discover_views import GetUsersView, InstrumentListView, GenreListView, UserByUsernameView
 from pages.views.settings_views import MusicianDetailView, ChangePasswordView
-from pages.views.follow_views import FollowingView
+from pages.views.follow_views import FollowingView, FollowListView
 from pages.views.post_views import CreatePostView, create_genre, create_instrument, get_instruments, get_genres, get_musician_instruments, get_users, get_musicians, get_businesses
 from django.http import JsonResponse
 
@@ -30,5 +30,6 @@ urlpatterns = [
         path('businesses/all/', get_businesses, name="get-businesses"),
         path('add-instrument/', create_instrument, name="add-instrument"),
         path('add-genre/', create_genre, name="add-genre")
+        path('follow-list/<uuid:user_id>/', FollowListView.as_view(), name='follow-list'),
     ])),
 ]
