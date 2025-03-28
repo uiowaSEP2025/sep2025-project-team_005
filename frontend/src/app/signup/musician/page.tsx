@@ -306,17 +306,11 @@ export default function MusicianSignup() {
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault(); // Prevent form from submitting by default
+        e.preventDefault();     // Prevent page reload
 
         // Check that all fields are filled out
-        if (!email || !username || !password || !stageName) {
-            setError("All fields are required.");
-            return;
-        }
-
-        // Check if home studio question was answered
-        if (!homeStudio) {
-            setError('Please select Yes or No for having a home studio.');
+        if (!email || !username || !password) {
+            setError("Email, username, and password are required.");
             return;
         }
 
@@ -337,7 +331,7 @@ export default function MusicianSignup() {
             // Check if the instrument exists in instrumentOptions
             const instrumentExists = instrumentOptions.some((option) => option.instrument.toLowerCase() === instrument.instrument.toLowerCase());
 
-            if (!instrumentExists) {
+            if (!instrumentExists && !(instrument.instrument.trim() === "")) {
                 setError(`"${instrument.instrument}" is not a valid instrument`)
                 return;
             }
@@ -348,7 +342,7 @@ export default function MusicianSignup() {
             // Check if the genre's name exists in the genreOptions
             const genreExists = genreOptions.some((option) => option.genre.toLowerCase() === genre.genre.toLowerCase());
 
-            if (!genreExists) {
+            if (!genreExists && !(genre.genre.trim() === "")) {
                 setError(`"${genre.genre}" is not a valid genre.`);
                 return;
             }
@@ -452,7 +446,6 @@ export default function MusicianSignup() {
                     type="text"
                     id="stageName"
                     name="stageName"
-                    required
                     placeholder="Stage Name"
                     className={styles.inputField}
                     value={stageName}
@@ -497,7 +490,6 @@ export default function MusicianSignup() {
                             <input
                                 type="text"
                                 placeholder="Instrument"
-                                required
                                 className={styles.inputField}
                                 value={instrument.instrument}
                                 onChange={(e) => handleInstrumentChange(index, e.target.value)}
@@ -520,7 +512,6 @@ export default function MusicianSignup() {
                         <input
                             type="number"
                             placeholder="Years played"
-                            required
                             value={instrument.years_played}
                             onChange={(e) => handleYearsChange(index, e.target.value)}
                             className={styles.inputField}
@@ -549,7 +540,6 @@ export default function MusicianSignup() {
                             <input
                                 type="text"
                                 placeholder="Genre"
-                                required
                                 className={styles.inputField}
                                 value={genre.genre}
                                 onChange={(e) => handleGenreChange(index, e.target.value)}

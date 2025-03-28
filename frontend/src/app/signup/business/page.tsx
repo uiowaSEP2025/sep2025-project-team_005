@@ -38,12 +38,12 @@ export default function BusinessSignup() {
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
-        // Prevent form submitting by default
+        // Prevent page reload
         e.preventDefault();
 
         // Check that all fields have been filled out
-        if (!email || !username || !password || !businessName || !industry) {
-            setError("All fields are required.")
+        if (!email || !username || !password) {
+            setError("Email, username, and password are required.")
             return;
         }
 
