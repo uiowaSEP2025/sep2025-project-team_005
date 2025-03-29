@@ -1,9 +1,9 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from pages.forms import PostForm
 from pages.utils.s3_utils import upload_to_s3
-from pages.models import Post
+from pages.forms import PostForm
+
 
 class CreatePostView(APIView):
     def post(self, request):

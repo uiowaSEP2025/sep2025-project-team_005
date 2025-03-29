@@ -29,5 +29,8 @@ backend/.env.prod
 # Selenium temporary user data storage
 selenium_user_data/
 
+# Web driver for selenium (Marissa's computer)
+frontend/google-chrome-stable_current_amd64.deb
+
 # Mac metadata file 
 .DS_Store

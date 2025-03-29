@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from pages.models import Post
 from django.core.files.uploadedfile import SimpleUploadedFile
 
+
 User = get_user_model()
 CREATE_URL = "/api/create-post/"
 
