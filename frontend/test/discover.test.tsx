@@ -41,7 +41,7 @@ describe("Discover Page", () => {
             }
             return Promise.reject(new Error("Unexpected API call"));
         });
-    
+
         render(<Discover />);
     
         expect(screen.getByText("Discover Musicians")).toBeInTheDocument();

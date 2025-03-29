@@ -15,7 +15,7 @@ interface UserID {
     user_id: string;
 }
 
-interface UserProfile {
+interface MusicianProfile {
     stage_name: string;
     years_played: number;
     home_studio: boolean;
@@ -34,7 +34,7 @@ export default function DiscoverProfile() {
     const router = useRouter();
     const { username } = useParams();
     const { profile, isLoading } = useAuth();
-    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+    const [musicianProfile, setMusicianProfile] = useState<MusicianProfile | null>(null);
     const [followCount, setFollowCount] = useState<FollowCount | null>(null);
     const [userId, setUserId] = useState<UserID | null>(null);
     const [isDropdownOpen, setDropdownOpen] = useState(false);
@@ -77,7 +77,7 @@ export default function DiscoverProfile() {
 
                 if (response.ok) {
                     const data = await response.json();
-                    setUserProfile(data);
+                    setMusicianProfile(data);
                 } else {
                     console.error("Failed to fetch musician profile", response.statusText);
                 }
@@ -170,7 +170,11 @@ export default function DiscoverProfile() {
         }
     };
 
-    if (isLoading || !userProfile || !followCount) return <p className="description">Loading...</p>;
+    const handleNavigation = (user_id: string, type: "followers" | "following") => {
+        router.push(`/follow/${user_id}?type=${type}`);
+    };
+
+    if (isLoading || !musicianProfile || !followCount) return <p className="description">Loading...</p>;
 
     return (
         <div className={styles.container}>
@@ -184,7 +188,7 @@ export default function DiscoverProfile() {
                 />
                 <div className={styles.profileInfo}>
                     <div className={styles.headerWithDots}>
-                        <h1 className={styles.title}>{userProfile.stage_name || username}</h1>
+                        <h1 className={styles.title}>{musicianProfile.stage_name || username}</h1>
                         {/* Three-Dot Button */}
                         <div className={styles.threeDotButton} onClick={handleDropdownToggle} data-testid="dropdown-button">
                             <FaEllipsisV size={24} />
@@ -193,11 +197,11 @@ export default function DiscoverProfile() {
 
                     <div className={styles.followStats}>
                         <div className={styles.statCard}>
-                            <p className={styles.statNumber}>{followCount.follower_count}</p>
+                            <button className={styles.statNumber} onClick={() => userId && handleNavigation(userId.user_id, "followers")}>{followCount.follower_count}</button>
                             <p className={styles.statLabel}>Followers</p>
                         </div>
                         <div className={styles.statCard}>
-                            <p className={styles.statNumber}>{followCount.following_count}</p>
+                        <button className={styles.statNumber} onClick={() => userId && handleNavigation(userId.user_id, "following")}>{followCount.following_count}</button>
                             <p className={styles.statLabel}>Following</p>
                         </div>
                     </div>
@@ -213,8 +217,8 @@ export default function DiscoverProfile() {
                 {isDropdownOpen && (
                     profile?.username === username ? (
                         <div>
-                            <button className={styles.dropdownItem} onClick={handleSettings}>Settings</button>
-                            <button className={styles.dropdownItem} onClick={handleLogout}>Logout</button>
+                            <button className={styles.dropdownItem} onClick={handleSettings} data-testid="setting-button">Settings</button>
+                            <button className={styles.dropdownItem} onClick={handleLogout} data-testid="logout-button">Logout</button>
                         </div>
                     ) : (
                         <div className={styles.dropdownMenu}>
@@ -231,10 +235,10 @@ export default function DiscoverProfile() {
                     <button className={styles.editButton} onClick={handleUpdateProfile}>Edit</button>
                 )}
                 <h2 className={styles.bioTitle}>About</h2>
-                <p className={styles.description}><strong>Years Played:</strong> {userProfile.years_played}</p>
-                <p className={styles.description}><strong>Home Studio:</strong> {userProfile.home_studio ? "Yes" : "No"}</p>
-                <p className={styles.description}><strong>Genres:</strong> {userProfile.genres.join(", ")}</p>
-                <p className={styles.description}><strong>Instruments:</strong> {userProfile.instruments.join(", ")}</p>
+                <p className={styles.description}><strong>Years Played:</strong> {musicianProfile.years_played}</p>
+                <p className={styles.description}><strong>Home Studio:</strong> {musicianProfile.home_studio ? "Yes" : "No"}</p>
+                <p className={styles.description}><strong>Genres:</strong> {musicianProfile.genres.join(", ")}</p>
+                <p className={styles.description}><strong>Instruments:</strong> {musicianProfile.instruments.join(", ")}</p>
             </div>
 
             <div className={styles.postsSection}>
