@@ -1,14 +1,14 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .forms import PostForm
-from .utils.s3_utils import upload_to_s3
-from .models import Post
+from pages.forms import PostForm
+from pages.utils.s3_utils import upload_to_s3
+from pages.models import Post
 
 class CreatePostView(APIView):
     def post(self, request):
         try:
-            form = PostForm(request.data, request.FILES)  # Use request.data instead of request.POST for DRF
+            form = PostForm(request.data, request.FILES)
             
             if form.is_valid():
                 # Get the cleaned file and caption data

@@ -6,7 +6,7 @@ from pages.models import Post
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 User = get_user_model()
-CREATE_URL = "/create/"
+CREATE_URL = "/api/create-post/"
 
 @pytest.fixture
 def create_user(db):
@@ -20,7 +20,7 @@ def api_client():
 
 @pytest.fixture
 def mock_upload(mocker):
-    mock = mocker.patch("pages.views.upload_to_s3")
+    mock = mocker.patch("pages.views.post_views.upload_to_s3")
     mock.return_value = ("https://mock_s3_url.com/test.jpg", "user_0000/test.jpg")
     yield mock
 

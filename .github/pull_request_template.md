@@ -8,4 +8,4 @@
 
 ## Dependencies
 
-## Testing Suggestions
+## QA Suggestions

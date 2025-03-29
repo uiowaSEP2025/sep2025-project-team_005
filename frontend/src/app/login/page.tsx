@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import styles from "@/styles/Login.module.css";
+import { useAuth } from "@/context/ProfileContext";
 import Link from "next/link";
 import Image from "next/image";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
 export default function Login() {
+  const { profile, isLoading } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -21,8 +23,15 @@ export default function Login() {
         { username, password },
         { withCredentials: true } // Sends cookies to backend
       );
-      router.push("/profile"); // Redirect to loading page for now
-    } 
+
+      try {
+        if(!isLoading && profile)
+          router.push(`/${username}`);
+      } 
+      catch (error) {
+          console.error(error)
+      }
+    }
     catch (err) {
       setError("Invalid username or password");
     }
@@ -42,7 +51,7 @@ export default function Login() {
         <input type="password" placeholder="Password" className={styles.inputField} value={password} 
           onChange={(e) => setPassword(e.target.value)} required />
         <div className={styles.forgotPasswordContainer}>
-          <Link href="/login" className={styles.link}>Forgot Password?</Link>
+          <Link href="/forgot-password" className={styles.link}>Forgot Password?</Link>
         </div>
         <button type="submit" className={styles.primaryButton}>Login</button>
         {error && <p className={styles.error}>{error}</p>}

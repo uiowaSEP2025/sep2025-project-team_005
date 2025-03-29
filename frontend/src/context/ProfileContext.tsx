@@ -10,6 +10,8 @@ interface UserProfile {
     username: string;
     first_name: string;
     last_name: string;
+    email: string;
+    phone: string;
     role: string;
 }
 
@@ -47,10 +49,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             console.error("Error fetching profile:", error);
         
             if (axios.isAxiosError(error)) {
-                if (error.response?.status === 401) {
-                    router.push("/");
+                if (axios.isAxiosError(error) && error.response?.status === 401) {
+                    setProfile(null);
                 }
-            } 
+            }  
             else {
                 console.error("Unexpected error:", error);
             }
