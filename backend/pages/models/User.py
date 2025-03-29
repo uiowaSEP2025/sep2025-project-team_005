@@ -3,7 +3,6 @@ from django.core.validators import MinLengthValidator
 from django.core.validators import RegexValidator
 from django.db import models
 from pages.models.Follower import Follower
-from pages.models.Follower import Follower
 import uuid
 
 class User(AbstractUser):
