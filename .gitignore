@@ -8,6 +8,7 @@ backend/__pycache__/
 backend/*.pyc
 backend/*.pyo
 backend/*.pyd
+**/node_modules
 
 # Virtual environment
 venv/
