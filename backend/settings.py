@@ -171,6 +171,17 @@ else:
 
 CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]
 
+if django_env == 'production':
+    CORS_ALLOWED_ORIGINS = [
+        "https://your-production-domain.com",  # Add your production domain
+    ]
+else:
+    CORS_ALLOWED_ORIGINS = [
+        "http://localhost:3000",  # Local Next.js frontend for development
+    ]
+
+CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]
+
 # REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

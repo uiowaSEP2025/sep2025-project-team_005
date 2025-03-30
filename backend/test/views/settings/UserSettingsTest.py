@@ -1,16 +1,14 @@
 import pytest
 from rest_framework.test import APIClient
 from django.contrib.auth import get_user_model
-from pages.models import Musician, Instrument, Genre
+from pages.models import Musician, Instrument, Genre, MusicianInstrument
 
 User = get_user_model()
 MUSICIAN_URL = "/api/musician/{}/"
 CHANGE_PASSWORD_URL = "/api/change-password/"
-
 @pytest.fixture
 def api_client():
     return APIClient()
-
 @pytest.fixture
 def create_musician(db):
     """Creates a test user with a musician profile, instruments, and genres."""
@@ -20,8 +18,9 @@ def create_musician(db):
     instrument1 = Instrument.objects.create(instrument="Guitar")
     instrument2 = Instrument.objects.create(instrument="Piano")
     genre = Genre.objects.create(genre="Rock")
-    
-    musician.instruments.add(instrument1, instrument2)
+
+    MusicianInstrument.objects.create(musician=musician, instrument=instrument1, years_played=3)
+    MusicianInstrument.objects.create(musician=musician, instrument=instrument2, years_played=2)
     musician.genres.add(genre)
     musician.save()
     return user, musician
