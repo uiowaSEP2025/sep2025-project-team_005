@@ -4,15 +4,17 @@ from pages.models import Musician, MusicianInstrument, Genre
 
 # Serializer class for the intermediate model between musicians and instrumens
 class MusicianInstrumentSerializer(serializers.ModelSerializer):
+    instrument_name = serializers.CharField(source="instrument.instrument", read_only=True)
+
     class Meta:
         model = MusicianInstrument
-        fields = ['instrument', 'years_played']
+        fields = ['instrument', 'instrument_name', 'years_played']
 
 
 # Serializer class for musicians
 class MusicianSerializer(serializers.ModelSerializer):
-    instruments = MusicianInstrumentSerializer(many=True, write_only=True)
-    genres = serializers.PrimaryKeyRelatedField(many=True, queryset=Genre.objects.all())
+    instruments = MusicianInstrumentSerializer(source="musicianinstrument_set", many=True, read_only=True)
+    genres = serializers.StringRelatedField(many=True)
 
     class Meta:
         model = Musician
