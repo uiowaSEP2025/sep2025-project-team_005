@@ -92,6 +92,7 @@ const EditableList = ({
                   type="button"
                   className={styles.removeButton}
                   onClick={() => onRemove(field, index)}
+                  data-testid={`remove-button-${index}`}
                 >
                   -
                 </button>
@@ -105,6 +106,7 @@ const EditableList = ({
                   type="button"
                   className={styles.removeButton}
                   onClick={() => onRemove(field, index)}
+                  data-testid={`remove-button-${index}`}
                 >
                   -
                 </button>
@@ -122,6 +124,7 @@ const EditableList = ({
             type="button"
             className={styles.primaryButton}
             onClick={() => setShowInput(true)}
+            data-testid={`${field}-add-button`}
           >
             +
           </button>
@@ -134,7 +137,7 @@ const EditableList = ({
               value={instrumentInput} // Separate state for instrument name
               onChange={(e) => setInstrumentInput(e.target.value)}
               className={styles.inputField}
-              placeholder="Instrument name"
+              placeholder="Add instruments"
             />
             <input
               type="number"
@@ -153,6 +156,7 @@ const EditableList = ({
                 setYearsPlayedInput("");
                 setShowInput(false);
               }}
+              data-testid="instruments-confirm-add"
             >
               Add
             </button>
@@ -167,7 +171,7 @@ const EditableList = ({
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               className={styles.inputField}
-              placeholder="Enter Genre"
+              placeholder="Add Genre"
             />
             <button
               type="button"
@@ -178,6 +182,7 @@ const EditableList = ({
                 setInputValue("");
                 setShowInput(false);
               }}
+              data-testid={`genre-confirm-add`}
             >
               Add
             </button>

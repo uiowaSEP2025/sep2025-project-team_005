@@ -55,6 +55,7 @@
 }
 
 .searchInput {
+  margin-bottom: 20px;
   padding: 0.75rem 1.5rem;
   width: 100%;
   border-radius: 9999px;
@@ -101,6 +102,95 @@
 
 .dark .userCard {
   background-color: #1f2937; /* gray-800 */
+}
+
+.instrumentRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.autocompleteWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.autocompleteDropdown {
+  position: absolute;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  max-height: 200px;
+  overflow-y: auto;
+  width: 100%;
+  z-index: 10;
+}
+
+.autocompleteItem {
+  padding: 10px;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #374151;
+  transition: background 0.2s;
+}
+
+.autocompleteItem:hover {
+  background-color: #e0f2fe;
+}
+
+
+.addInstrumentButton:hover {
+  background-color: #005bb5;
+}
+
+.inputField {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+  color: rgb(0, 0, 0);
+}
+
+.inputField:focus {
+  border-color: #2563eb; /* blue-600 */
+  outline: none;
+  box-shadow: 0 0 8px rgba(37, 99, 235, 0.3);
+}
+
+.selectedFilters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.selectedItem {
+  background-color: #2563eb;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.selectedItem button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.selectedItem button:hover {
+  color: #d1d5db;
 }
 
 /* Footer */

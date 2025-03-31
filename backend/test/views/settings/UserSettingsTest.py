@@ -2,13 +2,16 @@ import pytest
 from rest_framework.test import APIClient
 from django.contrib.auth import get_user_model
 from pages.models import Musician, Instrument, Genre, MusicianInstrument
+import json
 
 User = get_user_model()
 MUSICIAN_URL = "/api/musician/{}/"
 CHANGE_PASSWORD_URL = "/api/change-password/"
+
 @pytest.fixture
 def api_client():
     return APIClient()
+
 @pytest.fixture
 def create_musician(db):
     """Creates a test user with a musician profile, instruments, and genres."""
@@ -33,10 +36,10 @@ def test_get_musician_detail(api_client, create_musician):
     response = api_client.get(url)
 
     assert response.status_code == 200
-    assert response.data["instruments"] == ["Guitar", "Piano"]
+    assert [inst["instrument_name"] for inst in response.data["instruments"]] == ["Guitar", "Piano"]
+    assert [inst["years_played"] for inst in response.data["instruments"]] == [3, 2]
     assert response.data["genres"] == ["Rock"]
     assert response.data["stage_name"] == "Test Band"
-    assert response.data["years_played"] == 5
     assert response.data["home_studio"] == True
 
 @pytest.mark.django_db
@@ -58,32 +61,36 @@ def test_get_musician_not_found(api_client, db):
     assert response.status_code == 404
     assert response.data == {"error": "Musician profile not found"}
 
-#@pytest.mark.django_db
-#def test_patch_musician(api_client, create_musician):
-#    """Test updating musician profile with new instruments and genres."""
-#    user, musician = create_musician
-#    url = MUSICIAN_URL.format(user.id)
-#    
-#    Instrument.objects.create(instrument="Drums")
-#    Genre.objects.create(genre="Jazz")
-#    
-#    updated_data = {
-#        "username": "updateduser",
-#        "email": "updated@gmail.com",
-#        "phone": "1234567890",
-#        "instruments": ["Drums"],
-#        "genre": ["Jazz"]
-#    }
-#    
-#    response = api_client.patch(url, updated_data, format="json")
-#    
-#    assert response.status_code == 200
-#    assert response.data == {"message": "Profile updated successfully"}
-#    user.refresh_from_db()
-#    musician.refresh_from_db()
-#    assert user.username == "updateduser"
-#    assert user.email == "updated@gmail.com"
-#    assert list(musician.genres.values_list("genre", flat=True)) == ["Jazz"]
+@pytest.mark.django_db
+def test_patch_musician(api_client, create_musician):
+    """Test updating musician profile with new instruments and genres."""
+    user, musician = create_musician
+    url = MUSICIAN_URL.format(user.id)
+    api_client.force_authenticate(user=user)
+    
+    instrument = Instrument.objects.create(instrument="Drums")
+    MusicianInstrument.objects.create(musician=musician, instrument=instrument, years_played=2)
+
+    Genre.objects.create(genre="Jazz")
+    
+    updated_data = {
+        "username": "updateduser",
+        "email": "updated@gmail.com",
+        "phone": "1234567890",
+        "instruments": [{"instrument_name": "Drums", "years_played": 2}],
+        "genre": ["Jazz"],
+        "home_studio": True
+    }
+    
+    response = api_client.patch(url, json.dumps(updated_data), content_type="application/json")
+    
+    assert response.status_code == 200
+    assert response.data == {"message": "Profile updated successfully"}
+    user.refresh_from_db()
+    musician.refresh_from_db()
+    assert user.username == "updateduser"
+    assert user.email == "updated@gmail.com"
+    assert list(musician.genres.values_list("genre", flat=True)) == ["Jazz"]
 
 @pytest.mark.django_db
 def test_patch_musician_not_found(api_client):
