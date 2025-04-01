@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import { Edit } from 'lucide-react';
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useAuth, useRequireAuth } from "@/context/ProfileContext";
@@ -216,7 +217,12 @@ export default function DiscoverProfile() {
 
             <div className={styles.bioSection}>
                 {profile?.username === username && (
-                    <button className={styles.editButton} onClick={handleUpdateProfile}>Edit</button>
+                    <button 
+                        className={styles.editButton} 
+                        onClick={handleUpdateProfile}
+                        aria-label="Edit profile">
+                        <Edit size={24} />
+                    </button>                
                 )}
                 <h2 className={styles.bioTitle}>About</h2>
                 <p className={styles.description}><strong>Home Studio:</strong> {musicianProfile.home_studio ? "Yes" : "No"}</p>
@@ -237,9 +243,9 @@ export default function DiscoverProfile() {
             <div className={styles.postsSection}>
                 <h2 className={styles.featureTitle}>Posts</h2>
                 <div className={styles.postsGrid}>
-                    <div className={styles.postCard}>🎵 Post 1</div>
-                    <div className={styles.postCard}>🎵 Post 2</div>
-                    <div className={styles.postCard}>🎵 Post 3</div>
+                    <div className={styles.postCard}>Post 1</div>
+                    <div className={styles.postCard}>Post 2</div>
+                    <div className={styles.postCard}>Post 3</div>
                 </div>
             </div>
         </div>

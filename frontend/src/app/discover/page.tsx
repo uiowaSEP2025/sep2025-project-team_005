@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuth, useRequireAuth } from "@/context/ProfileContext";
 import axios from "axios";
 import debounce from "lodash.debounce";
+import Image from "next/image";
 
 interface GenreOption {
     id: string;
@@ -342,14 +343,24 @@ export default function Discover() {
             <ul className={styles.userList}>
                 {users.length > 0 ? (
                     users.map((user, index) => (
-                        <li key={index} className={styles.userCard} onClick={() => handleUserClick(user)}>
-                            {user}
-                        </li>
+                    <li key={index} className={styles.userCard} onClick={() => handleUserClick(user)}>
+                        <div className={styles.profileImageContainer}>
+                            <Image
+                                src={"/savvy.png"}
+                                alt={`${user}'s profile photo`}
+                                width={60}
+                                height={60}
+                                className={styles.profilePhoto}
+                            />
+                        </div>
+                        <span className={styles.username}>{user}</span>
+                    </li>
                     ))
                 ) : (
                     <p>No users found.</p>
                 )}
             </ul>
+
 
             {hasMore && (
                 <button onClick={loadMoreUsers} disabled={loading}>

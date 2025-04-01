@@ -45,10 +45,6 @@
   color: var(--text-muted);
 }
 
-.dark .description {
-  color: #d1d5db; /* gray-300 */
-}
-
 /* Buttons */
 .buttonGroup {
   position: absolute;
@@ -68,6 +64,8 @@
   padding: 0.75rem 1.5rem;
   background-color: var(--primary);
   color: white;
+  font-size: 1.25rem;
+  font-weight: bold;
   border-radius: 9999px;
   transition: background-color 0.3s ease;
   text-decoration: none;
@@ -81,6 +79,8 @@
 .secondaryButton {
   padding: 0.75rem 1.5rem;
   border: 1px solid var(--secondary);
+  font-size: 1.25rem;
+    font-weight: bold;
   border-radius: 9999px;
   text-decoration: none;
   text-align: center;
@@ -88,15 +88,7 @@
 }
 
 .secondaryButton:hover {
-  background-color: var(--text-box);
-}
-
-.dark .secondaryButton {
-  border-color: #4b5563; /* gray-600 */
-}
-
-.dark .secondaryButton:hover {
-  background-color: var(--text-box);
+  background-color: var(--secondary);
 }
 
 /* Features Section */
@@ -131,10 +123,6 @@
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
-.dark .featureCard {
-  background: linear-gradient(135deg, #374151, #6b21a8); /* dark indigo to purple gradient */
-}
-
 .featureTitle {
   font-size: 1.75rem;
   font-weight: 700;
@@ -147,16 +135,28 @@
   color: #ffffff; /* gray-300 */
 }
 
-.dark .featureText {
-  color: #e5e7eb; /* gray-200 */
-}
-
 /* Footer */
 .footer {
   margin-top: 4rem;
   color: var(--text-muted); /* gray-500 */
+}  
+
+.themeToggleButton {
+  bottom: 20px;
+  left: 20px;
+  width: 40px;
+  height: 40px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
 }
 
-.dark .footer {
-  color: #9ca3af; /* gray-400 */
-}  
+.theme-toggle-button:hover {
+  background: var(--secondary);
+}

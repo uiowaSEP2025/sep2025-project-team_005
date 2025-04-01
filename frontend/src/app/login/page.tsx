@@ -14,16 +14,17 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
+  const [loggingIn, setLoggingIn] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoggingIn(true);
     try {
       const response = await axios.post(
         "http://localhost:8000/api/auth/login/",      // Replace with an env variable for both local and Kubernetes deployment
         { username, password },
         { withCredentials: true } // Sends cookies to backend
       );
-
       await fetchProfile();
 
     }
@@ -33,7 +34,8 @@ export default function Login() {
   };
 
   useEffect(() => {
-    if (!isLoading && profile) {
+    if (!isLoading && profile && loggingIn) {
+      setLoggingIn(false);
         router.push(`/${profile.username}`);
     }
   }, [profile, isLoading, router]);

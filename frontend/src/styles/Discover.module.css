@@ -87,11 +87,35 @@
   border-radius: 0.75rem;
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.username {
+  font-weight: bold;
+  color: var(--text-light);
 }
 
 .userCard:hover {
   transform: translateY(-5px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.profileImageContainer {
+  width: 60px;
+  height: 60px;
+  overflow: hidden;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 15px;
+}
+
+.profilePhoto {
+  object-fit: cover;
 }
 
 .instrumentRow {
@@ -174,6 +198,17 @@
   font-weight: bold;
   cursor: pointer;
   transition: color 0.2s;
+}
+
+.selectedItem {
+  background-color: var(--primary);
+  color: white;  /* This ensures the text color of the instrument name is white */
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 1.15rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .selectedItem button:hover {

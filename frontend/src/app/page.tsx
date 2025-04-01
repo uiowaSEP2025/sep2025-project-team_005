@@ -1,16 +1,20 @@
-import { useTheme } from "@/hooks/useTheme";
+"use client";
 
+import { Sun, Moon } from "lucide-react";
+import { useTheme } from "@/context/ThemeContext";
 import Image from "next/image";
 import styles from "@/styles/Home.module.css";
 
-export default function Home() {
+export default function Home() { 
+  const { toggleTheme, theme } = useTheme();
+
   return (
     <div className={styles.container}>
       <header className={styles.header}>
         <Image src="/savvy.png" alt="Platform Logo" width={200} height={200} />
         <h1 className={styles.title}>Connect, Collaborate, and Contract</h1>
         <p className={styles.description}>
-          The ultimate platform for sharing your portfolio, finding gigs, and collaborate with other aspiring artists.
+          The ultimate platform for sharing your portfolio, finding gigs, and collaborating with other aspiring artists.
         </p>
       </header>
 
@@ -47,6 +51,15 @@ export default function Home() {
       <footer className={styles.footer}>
         &copy; {new Date().getFullYear()} SavvyNote. All rights reserved.
       </footer>
+
+      {/* Theme Toggle Button */}
+      <button
+        onClick={toggleTheme}
+        className={styles.themeToggleButton}
+        aria-label="Toggle Theme"
+      >
+        {theme === "light" ? <Moon size={26} /> : <Sun size={26} />}
+      </button>
     </div>
   );
 }
