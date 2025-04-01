@@ -220,7 +220,8 @@ export default function DiscoverProfile() {
                     <button 
                         className={styles.editButton} 
                         onClick={handleUpdateProfile}
-                        aria-label="Edit profile">
+                        aria-label="Edit profile"
+                        data-testid="edit-button">
                         <Edit size={24} />
                     </button>                
                 )}
