@@ -33,6 +33,7 @@ requests
 selenium
 six
 sniffio
+social-auth-app-django
 sortedcontainers
 sqlparse
 trio
