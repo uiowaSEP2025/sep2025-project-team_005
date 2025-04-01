@@ -51,33 +51,6 @@ describe("Discover Page", () => {
         expect(await screen.findByText("user1")).toBeInTheDocument();
         expect(await screen.findByText("user2")).toBeInTheDocument();
     });
-    
-
-    it("renders the Discover page correctly", async () => {
-        // Ensure axios mock resolves with data correctly
-        (axios.get as jest.Mock).mockImplementation((url) => {
-            if (url.includes("instruments")) {
-                return Promise.resolve({ data: ["Guitar", "Piano"] });
-            }
-            if (url.includes("genres")) {
-                return Promise.resolve({ data: ["Jazz", "Rock"] });
-            }
-            if (url.includes("discover")) {
-                return Promise.resolve({ data: { results: ["user1", "user2"], next: null } });
-            }
-            return Promise.reject(new Error("Unexpected API call"));
-        });
-
-        render(<Discover />);
-
-        expect(screen.getByText("Discover Musicians")).toBeInTheDocument();
-        expect(screen.getByPlaceholderText("Search usernames...")).toBeInTheDocument();
-
-        // Using findByText to wait for the users to be rendered
-        expect(await screen.findByText("user1")).toBeInTheDocument();
-        expect(await screen.findByText("user2")).toBeInTheDocument();
-    });
-
 
     it("displays 'No users found' if API returns empty results", async () => {
         (axios.get as jest.Mock).mockResolvedValueOnce({ data: { results: [], next: null } });
@@ -87,5 +60,31 @@ describe("Discover Page", () => {
         await waitFor(() => {
             expect(screen.getByText("No users found.")).toBeInTheDocument();
         });
-    });      
+    });     
+
+    it("loads more users when 'Load More' is clicked", async () => {
+        (axios.get as jest.Mock).mockImplementation((url, { params }) => {
+            if (url.includes("discover") && params.page === 1) {
+                return Promise.resolve({ data: { results: ["user1", "user2"], next: true } });
+            }
+            if (url.includes("discover") && params.page === 2) {
+                return Promise.resolve({ data: { results: ["user3", "user4"], next: null } });
+            }
+            return Promise.reject(new Error("Unexpected API call"));
+        });
+    
+        render(<Discover />);
+    
+        await waitFor(() => {
+            expect(screen.getByText("user1")).toBeInTheDocument();
+            expect(screen.getByText("user2")).toBeInTheDocument();
+        });
+    
+        fireEvent.click(screen.getByText("Load More"));
+    
+        await waitFor(() => {
+            expect(screen.getByText("user3")).toBeInTheDocument();
+            expect(screen.getByText("user4")).toBeInTheDocument();
+        });
+    });    
 });

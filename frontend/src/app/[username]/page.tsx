@@ -1,5 +1,6 @@
 "use client";
 
+import React from 'react';
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useAuth, useRequireAuth } from "@/context/ProfileContext";
@@ -20,7 +21,7 @@ interface MusicianProfile {
     years_played: number;
     home_studio: boolean;
     genres: string[];
-    instruments: string[];
+    instruments: { instrument_name: string; years_played: number }[];
 }
 
 interface FollowCount {
@@ -214,12 +215,21 @@ export default function DiscoverProfile() {
                     <button className={styles.editButton} onClick={handleUpdateProfile}>Edit</button>
                 )}
                 <h2 className={styles.bioTitle}>About</h2>
-                <p className={styles.description}><strong>Years Played:</strong> {musicianProfile.years_played}</p>
                 <p className={styles.description}><strong>Home Studio:</strong> {musicianProfile.home_studio ? "Yes" : "No"}</p>
                 <p className={styles.description}><strong>Genres:</strong> {musicianProfile.genres.join(", ")}</p>
-                <p className={styles.description}><strong>Instruments:</strong> {musicianProfile.instruments.join(", ")}</p>
+                <p className={styles.description}>
+                    <strong>Instruments: </strong>
+                    <span>
+                        {musicianProfile.instruments.map((instr, index) => (
+                            <React.Fragment key={index}>
+                                {instr.instrument_name} - {instr.years_played} years
+                                {index < musicianProfile.instruments.length - 1 && <br />}
+                            </React.Fragment>
+                        ))}
+                    </span>
+                </p>
             </div>
-
+            
             <div className={styles.postsSection}>
                 <h2 className={styles.featureTitle}>Posts</h2>
                 <div className={styles.postsGrid}>
