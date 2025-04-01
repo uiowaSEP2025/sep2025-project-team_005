@@ -14,7 +14,7 @@
     align-items: center;
     gap: 2rem;
     padding-bottom: 2rem;
-    border-bottom: 2px solid #e5e7eb;
+    border-bottom: 2px solid var(--secondary);
     width: 100%;
     max-width: 48rem;
     position: relative;
@@ -43,7 +43,7 @@
     font-size: 2.15rem;
     font-weight: bold;
     margin-top: 1.15rem;
-    color: #3985ff;
+    color: var(--primary);
     position: absolute;
 }
 
@@ -66,7 +66,7 @@
 
 .statLabel {
     font-size: 1.15rem;
-    color: #ffffff;
+    color: var(--text-muted);
 }
 
 /* Buttons */
@@ -93,15 +93,15 @@
 }
 
 .followButton {
-    background-color: #2563eb;
-    color: white;
+    background-color: var(--primary);
+    color: var(--text-dark);
     border: none;
 }
 
 .messageButton {
     background-color: transparent;
-    color: #2563eb;
-    border: 2px solid #2563eb;
+    color: var(--primary);
+    border: 2px solid var(--primary);
 }
 
 .followButton:hover {
@@ -109,8 +109,8 @@
 }
 
 .messageButton:hover {
-    background-color: #2563eb;
-    color: white;
+    background-color: var(--primary);
+    color: var(--text-dark);
 }
 
 .editButton {
@@ -119,6 +119,8 @@
     right: 1rem;
     background-color: #3b82f6;
     color: #ffffff;
+    font-size: 1.5rem;
+    font-weight: bold;
     border: none;
     border-radius: 0.5rem;
     padding: 0.5rem 1rem;
@@ -137,8 +139,8 @@
     margin-top: 2rem;
     padding: 1.5rem;
     border-radius: 1rem;
-    background-color: #1e1e1e;  /* Darker background */
-    color: #ffffff;  /* White text for contrast */
+    background-color: var(--text-box);
+    color: var(--text-light);
     position: relative;
 }
 
@@ -146,13 +148,13 @@
 .bioTitle, .featureTitle {
     font-size: 1.75rem;
     font-weight: bold;
-    color: #ffffff;  /* Ensure title is visible */
+    color: var(--text-light);
 }
 
 .description {
     font-size: 1.15rem;
     padding-top: 0.25rem;
-    color: #d1d5db;  /* Lighter gray text */
+    color: var(--text-muted)
 }
 
 /* Posts Section */
@@ -172,8 +174,8 @@
 .postCard {
     padding: 1rem;
     border-radius: 1rem;
-    background: #3b82f6;
-    color: white;
+    background: var(--primary);
+    color: var(--text-light);
     text-align: center;
 }
 

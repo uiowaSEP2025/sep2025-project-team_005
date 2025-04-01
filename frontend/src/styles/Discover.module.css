@@ -7,6 +7,8 @@
   padding: 2rem;
   text-align: center;
   font-family: var(--font-geist-sans);
+  background-color: var(--background);
+  color: var(--text-light);
 }
 
 @media (min-width: 640px) {
@@ -33,18 +35,14 @@
 }
 
 .title {
-  font-size: 2.25rem;
+  font-size: 2.5rem;
   font-weight: bold;
-  color: #3b82f6; /* indigo-600 */
+  color: var(--primary);
 }
 
 .description {
-  font-size: 1.125rem;
-  color: #4b5563; /* gray-600 */
-}
-
-.dark .description {
-  color: #d1d5db; /* gray-300 */
+  font-size: 1.25rem;
+  color: var(--text-muted);
 }
 
 /* Search Input */
@@ -59,21 +57,16 @@
   padding: 0.75rem 1.5rem;
   width: 100%;
   border-radius: 9999px;
-  border: 1px solid #d1d5db;
-  color: #1f2937;
+  border: 1px solid var(--secondary);
+  background-color: var(--text-box);
+  color: var(--text-light);
   font-size: 1rem;
   transition: border-color 0.3s ease;
 }
 
 .searchInput:focus {
-  border-color: #2563eb; /* blue-600 */
+  border-color: var(--primary);
   outline: none;
-}
-
-@media (min-width: 640px) {
-  .searchContainer {
-    width: 50%;
-  }
 }
 
 /* User List */
@@ -88,20 +81,17 @@
 
 .userCard {
   padding: 1rem;
-  background-color: #f3f4f6;
-  color:#1f2937;
+  background-color: var(--text-box);
+  color: var(--text-light);
+  font-size: 1.15rem;
   border-radius: 0.75rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .userCard:hover {
   transform: translateY(-5px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-}
-
-.dark .userCard {
-  background-color: #1f2937; /* gray-800 */
 }
 
 .instrumentRow {
@@ -119,8 +109,8 @@
 
 .autocompleteDropdown {
   position: absolute;
-  background: white;
-  border: 1px solid #ccc;
+  background: var(--text-box);
+  border: 1px solid var(--secondary);
   border-radius: 8px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   max-height: 200px;
@@ -133,31 +123,27 @@
   padding: 10px;
   cursor: pointer;
   font-size: 1rem;
-  color: #374151;
+  color: var(--text-light);
   transition: background 0.2s;
 }
 
 .autocompleteItem:hover {
-  background-color: #e0f2fe;
-}
-
-
-.addInstrumentButton:hover {
-  background-color: #005bb5;
+  background-color: var(--secondary);
 }
 
 .inputField {
   width: 100%;
   padding: 10px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--secondary);
   border-radius: 8px;
   font-size: 1rem;
   transition: border-color 0.3s ease;
-  color: rgb(0, 0, 0);
+  background-color: var(--text-box);
+  color: var(--text-light);
 }
 
 .inputField:focus {
-  border-color: #2563eb; /* blue-600 */
+  border-color: var(--primary);
   outline: none;
   box-shadow: 0 0 8px rgba(37, 99, 235, 0.3);
 }
@@ -166,15 +152,15 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .selectedItem {
-  background-color: #2563eb;
-  color: white;
+  background-color: var(--primary);
+  color: var(--text-dark);
   padding: 6px 12px;
   border-radius: 20px;
-  font-size: 0.9rem;
+  font-size: 1.15rem;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -184,21 +170,18 @@
   background: none;
   border: none;
   color: white;
-  font-size: 1rem;
+  font-size: 1.15rem;
+  font-weight: bold;
   cursor: pointer;
   transition: color 0.2s;
 }
 
 .selectedItem button:hover {
-  color: #d1d5db;
+  color: var(--text-muted);
 }
 
 /* Footer */
 .footer {
   margin-top: 4rem;
-  color: #6b7280; /* gray-500 */
-}
-
-.dark .footer {
-  color: #9ca3af; /* gray-400 */
+  color: var(--text-muted);
 }

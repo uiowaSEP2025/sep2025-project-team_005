@@ -10,7 +10,7 @@ const SignUpSelection = () => {
   return (
     <div className={styles.container}>
         <header className={styles.header}>
-            <Image src="/savvy.png" alt="Platform Logo" width={200} height={200} />
+            <Image src="/savvy.png" alt="Platform Logo" width={200} height={200} /> 
             <h1 className={styles.title}>Sign Up</h1>
         </header>
 

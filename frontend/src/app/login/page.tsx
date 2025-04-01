@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "@/styles/Login.module.css";
 import { useAuth } from "@/context/ProfileContext";
 import Link from "next/link";
@@ -9,7 +9,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 
 export default function Login() {
-  const { profile, isLoading } = useAuth();
+  const { profile, isLoading, fetchProfile } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -24,18 +24,19 @@ export default function Login() {
         { withCredentials: true } // Sends cookies to backend
       );
 
-      try {
-        if(!isLoading && profile)
-          router.push(`/${username}`);
-      } 
-      catch (error) {
-          console.error(error)
-      }
+      await fetchProfile();
+
     }
     catch (err) {
       setError("Invalid username or password");
     }
   };
+
+  useEffect(() => {
+    if (!isLoading && profile) {
+        router.push(`/${profile.username}`);
+    }
+  }, [profile, isLoading, router]);
 
   return (
     <div className={styles.container}>

@@ -141,7 +141,7 @@ export default function BusinessSignup() {
                 />
                 {passwordError && <p className={styles.error}>{passwordError}</p>}
 
-                <label htmlFor="businessname" className={styles.label}>Your Business' Name:</label>
+                <label htmlFor="businessname" className={styles.label}>Business Name:</label>
                 <input
                     id="businessname"
                     name="businessname"
@@ -152,7 +152,7 @@ export default function BusinessSignup() {
                     onChange={(e) => setBusinessName(e.target.value)}
                 />
 
-                <label htmlFor="industry" className={styles.label}>Industry Your Business Is In:</label>
+                <label htmlFor="industry" className={styles.label}>Business Industry:</label>
                 <input
                     id="industry"
                     name="industry"

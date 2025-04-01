@@ -34,7 +34,7 @@ export default function DiscoverProfile() {
 
     const router = useRouter();
     const { username } = useParams();
-    const { profile, isLoading } = useAuth();
+    const { profile, isLoading, setProfile } = useAuth();
     const [musicianProfile, setMusicianProfile] = useState<MusicianProfile | null>(null);
     const [followCount, setFollowCount] = useState<FollowCount | null>(null);
     const [userId, setUserId] = useState<UserID | null>(null);
@@ -133,6 +133,10 @@ export default function DiscoverProfile() {
             // Clear stored token
             Cookies.remove("access_token");
 
+            // Clear user profile data
+            setProfile(null);
+
+
             // Redirect to login page
             router.push("/login");
         } 
@@ -154,7 +158,7 @@ export default function DiscoverProfile() {
         router.push(`/follow/${user_id}?type=${type}`);
     };
 
-    if (isLoading || !musicianProfile || !followCount) return <p className="description">Loading...</p>;
+    if (isLoading || !musicianProfile || !followCount || !profile) return <p className="description">Loading...</p>;
 
     return (
         <div className={styles.container}>

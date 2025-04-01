@@ -2,20 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Define default (light) theme colors */
+[data-theme="light"] {
+  --background: #ffffff;
+  --foreground: #0a0a0a;
+  --primary: #2563eb;
+  --secondary: #d1d5db;
+  --follow-box: #d1d5db;
+  --text-light: #0a0a0a;
+  --text-dark: #ffffff;
+  --text-muted: #29303c;
+  --text-box: #f1f1f1;
+}
+
+/* Dark mode theme colors */
 :root {
   --background: #0a0a0a;
   --foreground: #ededed;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --primary: #0084ff;
+  --secondary: #818792;
+  --text-light: #ffffff;
+  --follow-box: #1a1d25;
+  --text-dark: #0a0a0a;
+  --text-muted: #d1d5db;
+  --text-box: #1e1e1e;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+  transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
 }

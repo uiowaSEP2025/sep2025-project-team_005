@@ -15,7 +15,7 @@ class GetUsersView(APIView, PageNumberPagination):
         search_query = request.GET.get("search", "").strip()
         instrument_query = request.GET.getlist("instrument")
         genre_query = request.GET.getlist("genre")
-        page = request.GET.get("page", 1)
+        #page = request.GET.get("page", 1)
         
         musicians = Musician.objects.all()
         filter_query = Q()
