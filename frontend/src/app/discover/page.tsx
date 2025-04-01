@@ -343,7 +343,7 @@ export default function Discover() {
             <ul className={styles.userList}>
                 {users.length > 0 ? (
                     users.map((user, index) => (
-                    <li key={index} className={styles.userCard} onClick={() => handleUserClick(user)}>
+                    <li key={index} className={styles.userCard} onClick={() => handleUserClick(user)} data-testid={`user-item-${user}`}>
                         <div className={styles.profileImageContainer}>
                             <Image
                                 src={"/savvy.png"}
@@ -363,7 +363,7 @@ export default function Discover() {
 
 
             {hasMore && (
-                <button onClick={loadMoreUsers} disabled={loading}>
+                <button onClick={loadMoreUsers} disabled={loading} data-testid="load-more-button">
                     Load More
                 </button>
             )}
