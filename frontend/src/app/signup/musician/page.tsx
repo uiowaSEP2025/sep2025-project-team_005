@@ -391,6 +391,10 @@ export default function MusicianSignup() {
     };
 
     return (
+        <>
+        <head>
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+        </head>
         <div className={styles.container}>
             <header className={styles.header}>
                 <Image src="/savvy.png" alt="Platform Logo" width={200} height={200} />
@@ -578,5 +582,6 @@ export default function MusicianSignup() {
             </form>
 
         </div>
+        </>
     );
 }

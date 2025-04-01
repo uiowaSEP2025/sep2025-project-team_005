@@ -246,6 +246,10 @@ export default function Discover() {
     };
 
     return (
+        <>
+        <head>
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+        </head>
         <div className={styles.container}>
             <div className={styles.header}>
                 <h1 className={styles.title}>Discover Musicians</h1>
@@ -358,5 +362,6 @@ export default function Discover() {
             )}
         </div>
     </div>
+    </>
     );
 }

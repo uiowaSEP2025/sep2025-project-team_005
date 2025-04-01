@@ -45,6 +45,10 @@ export default function ForgotPassword() {
     };
 
     return (
+        <>
+        <head>
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+        </head>
         <div className={styles.container}>
             <div className={styles.header}>
                 <Link href="/login">
@@ -71,5 +75,6 @@ export default function ForgotPassword() {
                 <button type="submit" className={styles.submitButton}>Send Reset Password Email</button>
             </form>
         </div>
+        </>
     );
 }

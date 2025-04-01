@@ -86,6 +86,10 @@ function ResetPasswordForm() {
 
 
     return (
+        <>
+        <head>
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+        </head>
         <div className={styles.container}>
             <div className={styles.header}>
                 <Image src="/savvy.png" alt="Platform Logo" width={200} height={200} />
@@ -127,6 +131,7 @@ function ResetPasswordForm() {
                 <button type="submit" className={styles.submitButton}>Reset Password</button>
             </form>
         </div>
+        </>
     );
 }
 

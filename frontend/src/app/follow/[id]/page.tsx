@@ -92,6 +92,10 @@ export default function FollowPage() {
     };
 
     return (
+        <>
+        <head>
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+        </head>
         <div className={styles.container}>
             <h1 className={styles.title}>{type === "following" ? "Following" : "Followers"}</h1>
             
@@ -136,5 +140,6 @@ export default function FollowPage() {
                 </button>
             )}
         </div>
+        </>
     );
 }

@@ -8,6 +8,10 @@ const SignUpSelection = () => {
   const router = useRouter();
 
   return (
+    <>
+    <head>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    </head>
     <div className={styles.container}>
         <header className={styles.header}>
             <Image src="/savvy.png" alt="Platform Logo" width={200} height={200} />
@@ -33,6 +37,7 @@ const SignUpSelection = () => {
             </div>
         </main>
     </div>
+    </>
   );
 };
 

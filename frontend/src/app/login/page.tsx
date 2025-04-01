@@ -38,6 +38,10 @@ export default function Login() {
   };
 
   return (
+    <>
+    <head>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    </head>
     <div className={styles.container}>
       <header className={styles.header}>
         <h1 className={styles.title}>Welcome Back</h1>
@@ -64,5 +68,6 @@ export default function Login() {
         &copy; {new Date().getFullYear()} SavvyNote. All rights reserved.
       </footer>
     </div>
+    </>
   );
 }

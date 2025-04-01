@@ -204,6 +204,10 @@ const PasswordField = ({ field, value, onChange, isEditing }: PasswordFieldProps
 const [showPassword, setShowPassword] = useState(false);
 
   return (
+    <>
+    <head>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    </head>
     <div className={styles.field}>
       <label className={styles.featureTitle} htmlFor={field}>
         {field === "password" ? "Current Password" : "New Password"}
@@ -226,6 +230,7 @@ const [showPassword, setShowPassword] = useState(false);
         </button>
       </div>
     </div>
+    </>
   );
 };
 
@@ -438,6 +443,10 @@ export default function UserSettings() {
   }
 
   return (
+    <>
+    <head>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    </head>
     <div className={styles.container}>
       <div className={styles.header}>
         <h1 className={styles.title}>User Settings</h1>
@@ -546,5 +555,6 @@ export default function UserSettings() {
         </div>
       </form>
     </div>
+    </>
   );
 }
