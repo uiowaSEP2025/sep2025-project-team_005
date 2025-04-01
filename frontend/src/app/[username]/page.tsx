@@ -157,93 +157,92 @@ export default function DiscoverProfile() {
     if (isLoading || !musicianProfile || !followCount) return <p className="description">Loading...</p>;
 
     return (
-    <>
-      <head>
-        <link rel="icon" type="image/png" href="favicon/favicon-96x96.png" sizes="96x96" />
-        <link rel="icon" type="image/svg+xml" href="favicon/favicon.svg" />
-        <link rel="shortcut icon" href="favicon/favicon.ico" />
-        <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png" />
-        <meta name="apple-mobile-web-app-title" content="SavvyNote" />
-        <link rel="manifest" href="favicon/site.webmanifest" />
-      </head>
-      <div className={styles.container}>
-        <div className={styles.profileHeader}>
-          <Image 
-            src="/savvy.png" 
-            alt={`${username}'s profile picture`} 
-            width={120} 
-            height={120} 
-            className={styles.profilePhoto}
-          />
-          <div className={styles.profileInfo}>
-            <div className={styles.headerWithDots}>
-              <h1 className={styles.title}>{musicianProfile.stage_name || username}</h1>
-              <div className={styles.threeDotButton} onClick={handleDropdownToggle} data-testid="dropdown-button">
-                <FaEllipsisV size={24} />
-              </div>
+        <>
+        <head>
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+        </head>
+        <div className={styles.container}>
+            <div className={styles.profileHeader}>
+                <Image 
+                    src="/savvy.png" 
+                    alt={`${username}'s profile picture`} 
+                    width={120} 
+                    height={120} 
+                    className={styles.profilePhoto}
+                />
+                <div className={styles.profileInfo}>
+                    <div className={styles.headerWithDots}>
+                        <h1 className={styles.title}>{musicianProfile.stage_name || username}</h1>
+                        {/* Three-Dot Button */}
+                        <div className={styles.threeDotButton} onClick={handleDropdownToggle} data-testid="dropdown-button">
+                            <FaEllipsisV size={24} />
+                        </div>
+                    </div>
+
+                    <div className={styles.followStats}>
+                        <div className={styles.statCard}>
+                            <button className={styles.statNumber} onClick={() => userId && handleNavigation(userId.user_id, "followers")}>{followCount.follower_count}</button>
+                            <p className={styles.statLabel}>Followers</p>
+                        </div>
+                        <div className={styles.statCard}>
+                        <button className={styles.statNumber} onClick={() => userId && handleNavigation(userId.user_id, "following")}>{followCount.following_count}</button>
+                            <p className={styles.statLabel}>Following</p>
+                        </div>
+                    </div>
+                    {profile?.username !== username && (
+                        <div className={styles.profileActions}>
+                            <button className={styles.followButton}>Follow</button>
+                            <button className={styles.messageButton}>Message</button>
+                        </div>
+                    )}
+                </div>
+
+                {/* Dropdown Menu */}
+                {isDropdownOpen && (
+                    profile?.username === username ? (
+                        <div>
+                            <button className={styles.dropdownItem} onClick={handleSettings} data-testid="setting-button">Settings</button>
+                            <button className={styles.dropdownItem} onClick={handleLogout} data-testid="logout-button">Logout</button>
+                        </div>
+                    ) : (
+                        <div className={styles.dropdownMenu}>
+                            <button className={styles.dropdownItem} onClick={handleBlockUser}>
+                                Block User
+                            </button>
+                        </div>
+                    )
+                )}
             </div>
-            <div className={styles.followStats}>
-              <div className={styles.statCard}>
-                <button className={styles.statNumber} onClick={() => userId && handleNavigation(userId.user_id, "followers")}>
-                  {followCount.follower_count}
-                </button>
-                <p className={styles.statLabel}>Followers</p>
-              </div>
-              <div className={styles.statCard}>
-                <button className={styles.statNumber} onClick={() => userId && handleNavigation(userId.user_id, "following")}>
-                  {followCount.following_count}
-                </button>
-                <p className={styles.statLabel}>Following</p>
-              </div>
+
+            <div className={styles.bioSection}>
+                {profile?.username === username && (
+                    <button className={styles.editButton} onClick={handleUpdateProfile}>Edit</button>
+                )}
+                <h2 className={styles.bioTitle}>About</h2>
+                <p className={styles.description}><strong>Home Studio:</strong> {musicianProfile.home_studio ? "Yes" : "No"}</p>
+                <p className={styles.description}><strong>Genres:</strong> {musicianProfile.genres.join(", ")}</p>
+                <p className={styles.description}>
+                    <strong>Instruments: </strong>
+                    <span>
+                        {musicianProfile.instruments.map((instr, index) => (
+                            <React.Fragment key={index}>
+                                {instr.instrument_name} - {instr.years_played} years
+                                {index < musicianProfile.instruments.length - 1 && <br />}
+                            </React.Fragment>
+                        ))}
+                    </span>
+                </p>
             </div>
-            {profile?.username !== username && (
-              <div className={styles.profileActions}>
-                <button className={styles.followButton}>Follow</button>
-                <button className={styles.messageButton}>Message</button>
-              </div>
-            )}
-          </div>
-          {isDropdownOpen && (
-            profile?.username === username ? (
-              <div>
-                <button className={styles.dropdownItem} onClick={handleSettings} data-testid="setting-button">Settings</button>
-                <button className={styles.dropdownItem} onClick={handleLogout} data-testid="logout-button">Logout</button>
-              </div>
-            ) : (
-              <div className={styles.dropdownMenu}>
-                <button className={styles.dropdownItem} onClick={handleBlockUser}>
-                  Block User
-                </button>
-              </div>
-            )
-          )}
+            
+            <div className={styles.postsSection}>
+                <h2 className={styles.featureTitle}>Posts</h2>
+                <div className={styles.postsGrid}>
+                    <div className={styles.postCard}>🎵 Post 1</div>
+                    <div className={styles.postCard}>🎵 Post 2</div>
+                    <div className={styles.postCard}>🎵 Post 3</div>
+                </div>
+            </div>
         </div>
-        <div className={styles.bioSection}>
-          {profile?.username === username && (
-            <button className={styles.editButton} onClick={handleUpdateProfile}>Edit</button>
-          )}
-          <h2 className={styles.bioTitle}>About</h2>
-          <p className={styles.description}><strong>Home Studio:</strong> {musicianProfile.home_studio ? "Yes" : "No"}</p>
-          <p className={styles.description}><strong>Genres:</strong> {musicianProfile.genres.join(", ")}</p>
-          <p className={styles.description}>
-            <strong>Instruments: </strong>
-            {musicianProfile.instruments.map((instr, index) => (
-              <React.Fragment key={index}>
-                {instr.instrument_name} - {instr.years_played} years
-                {index < musicianProfile.instruments.length - 1 && <br />}
-              </React.Fragment>
-            ))}
-          </p>
-        </div>
-        <div className={styles.postsSection}>
-          <h2 className={styles.featureTitle}>Posts</h2>
-          <div className={styles.postsGrid}>
-            <div className={styles.postCard}>🎵 Post 1</div>
-            <div className={styles.postCard}>🎵 Post 2</div>
-            <div className={styles.postCard}>🎵 Post 3</div>
-          </div>
-        </div>
-      </div>
-    </>
-  );
+        </>
+    );
 }
