@@ -18,13 +18,15 @@ describe("Discover Profile Page", () => {
     beforeEach(() => {
         fetchMock.resetMocks();
         fetchMock.mockResponses(
-            [JSON.stringify({ user_id: "123" }), { status: 200 }], // User ID fetch
+            [JSON.stringify({ user_id: "123" }), { status: 200 }],
             [JSON.stringify({
                 stage_name: "John Doe",
                 years_played: 5,
                 home_studio: true,
                 genres: ["Rock", "Pop"],
-                instruments: ["Guitar", "Drums"],
+                instruments: [{ instrument_name: "Guitar", years_played: 3 },
+                    { instrument_name: "Drums", years_played: 2 }
+                ],
             }), { status: 200 }],
             [JSON.stringify({
                 follower_count: 100,
@@ -48,9 +50,6 @@ describe("Discover Profile Page", () => {
 
         expect(screen.getByText("John Doe")).toBeInTheDocument();
 
-        expect(screen.getByText("Years Played:", { exact: false })).toBeInTheDocument();
-        expect(screen.getByText("5")).toBeInTheDocument();
-
         expect(screen.getByText("Home Studio:", { exact: false })).toBeInTheDocument();
         expect(screen.getByText("Yes")).toBeInTheDocument();
 
@@ -58,7 +57,8 @@ describe("Discover Profile Page", () => {
         expect(screen.getByText("Rock, Pop")).toBeInTheDocument();
 
         expect(screen.getByText("Instruments:", { exact: false })).toBeInTheDocument();
-        expect(screen.getByText("Guitar, Drums")).toBeInTheDocument();
+        expect(screen.getByText(/Guitar - 3 years/)).toBeInTheDocument();
+        expect(screen.getByText(/Drums - 2 years/)).toBeInTheDocument();
     });
 
     it("toggles dropdown menu", async () => {
@@ -144,4 +144,79 @@ describe("Discover Profile Page", () => {
     
         expect(screen.queryByText("Edit")).not.toBeInTheDocument();
     }); 
+
+    it("handles error fetching musician profile", async () => {
+        fetchMock.resetMocks();
+        fetchMock.mockResponses(
+            [JSON.stringify({ user_id: "123" }), { status: 200 }],
+            [JSON.stringify({}), { status: 500 }],
+            [JSON.stringify({ follower_count: 100, following_count: 50 }), { status: 200 }]
+        );
+    
+        const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
+    
+        render(
+            <AuthProvider>
+                <DiscoverProfile />
+            </AuthProvider>
+        );
+    
+        await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
+    
+        expect(consoleErrorSpy).toHaveBeenCalledWith("Failed to fetch musician profile", "Internal Server Error");
+    
+        consoleErrorSpy.mockRestore();
+    });    
+
+    it("shows dropdown options for profile owner", async () => {
+        jest.spyOn(require("@/context/ProfileContext"), "useAuth").mockReturnValue({
+            profile: { username: "johndoe" },
+            isLoading: false,
+        });
+    
+        render(
+            <AuthProvider>
+                <DiscoverProfile />
+            </AuthProvider>
+        );
+    
+        await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
+    
+        // Simulate click on the dropdown button to open it
+        const dropdownButton = screen.getByTestId("dropdown-button");
+        fireEvent.click(dropdownButton);
+    
+        // Check if 'Block User' is not present in dropdown
+        expect(screen.queryByText("Block User")).not.toBeInTheDocument();
+    
+        // Ensure 'Settings' and 'Logout' are present as a profile owner
+        expect(screen.queryByText("Settings")).toBeInTheDocument();
+        expect(screen.queryByText("Logout")).toBeInTheDocument();
+    }); 
+    
+    it("shows different dropdown options based on profile ownership", async () => {
+        jest.spyOn(require("@/context/ProfileContext"), "useAuth").mockReturnValue({
+            profile: { username: "janedoe" },
+            isLoading: false,
+        });
+    
+        render(
+            <AuthProvider>
+                <DiscoverProfile />
+            </AuthProvider>
+        );
+    
+        await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
+    
+        // Simulate click on the dropdown button to open it
+        const dropdownButton = screen.getByTestId("dropdown-button");
+        fireEvent.click(dropdownButton);
+    
+        // Check if 'Block User' is present after the dropdown is opened
+        expect(screen.queryByText("Block User")).toBeInTheDocument();
+    
+        // Ensure 'Settings' and 'Logout' are not present in an alternative user profile
+        expect(screen.queryByText("Settings")).not.toBeInTheDocument();
+        expect(screen.queryByText("Logout")).not.toBeInTheDocument();
+    });        
 });
