@@ -4,6 +4,7 @@ import styles from "@/styles/Signup.module.css";
 import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Head from "next/head";
 
 export default function BusinessSignup() {
     const [error, setError] = useState("");
@@ -95,9 +96,9 @@ export default function BusinessSignup() {
 
     return (
         <>
-        <head>
+        <Head>
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-        </head>
+        </Head>
         <div className={styles.container}>
             <header className={styles.header}>
                 <Image src="/savvy.png" alt="Platform Logo" width={200} height={200} />

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useAuth, useRequireAuth } from "@/context/ProfileContext";
 import { useRouter } from "next/navigation";
+import Head from "next/head";
 import styles from "@/styles/UserSettings.module.css";
 import Cookies from "js-cookie";
 
@@ -444,9 +445,9 @@ export default function UserSettings() {
 
   return (
     <>
-    <head>
+    <Head>
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    </head>
+    </Head>
     <div className={styles.container}>
       <div className={styles.header}>
         <h1 className={styles.title}>User Settings</h1>

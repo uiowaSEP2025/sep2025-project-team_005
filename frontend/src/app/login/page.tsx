@@ -7,6 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import Head from "next/head";
 
 export default function Login() {
   const { profile, isLoading } = useAuth();
@@ -39,9 +40,9 @@ export default function Login() {
 
   return (
     <>
-    <head>
+    <Head>
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    </head>
+    </Head>
     <div className={styles.container}>
       <header className={styles.header}>
         <h1 className={styles.title}>Welcome Back</h1>

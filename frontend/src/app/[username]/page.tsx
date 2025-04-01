@@ -7,6 +7,7 @@ import { useAuth, useRequireAuth } from "@/context/ProfileContext";
 import { useEffect, useState } from "react";
 import { FaEllipsisV } from "react-icons/fa";
 import Image from "next/image";
+import Head from "next/head";
 
 import styles from "@/styles/Profile.module.css";
 import axios from "axios";
@@ -158,9 +159,9 @@ export default function DiscoverProfile() {
 
     return (
         <>
-        <head>
+        <Head>
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-        </head>
+        </Head>
         <div className={styles.container}>
             <div className={styles.profileHeader}>
                 <Image 

@@ -4,6 +4,7 @@ import styles from "@/styles/Signup.module.css";
 import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
+import Head from "next/head";
 import { useState } from "react";
 
 export default function ForgotPassword() {
@@ -46,9 +47,9 @@ export default function ForgotPassword() {
 
     return (
         <>
-        <head>
+        <Head>
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-        </head>
+        </Head>
         <div className={styles.container}>
             <div className={styles.header}>
                 <Link href="/login">

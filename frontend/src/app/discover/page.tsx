@@ -3,6 +3,7 @@
 import styles from "@/styles/Discover.module.css";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Head from "next/head";
 import { useAuth, useRequireAuth } from "@/context/ProfileContext";
 import axios from "axios";
 import debounce from "lodash.debounce";
@@ -247,9 +248,9 @@ export default function Discover() {
 
     return (
         <>
-        <head>
+        <Head>
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-        </head>
+        </Head>
         <div className={styles.container}>
             <div className={styles.header}>
                 <h1 className={styles.title}>Discover Musicians</h1>

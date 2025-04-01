@@ -4,6 +4,7 @@ import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useAuth, useRequireAuth } from "@/context/ProfileContext";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Head from "next/head";
 import styles from "@/styles/FollowList.module.css";
 
 interface User {
@@ -93,9 +94,9 @@ export default function FollowPage() {
 
     return (
         <>
-        <head>
+        <Head>
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-        </head>
+        </Head>
         <div className={styles.container}>
             <h1 className={styles.title}>{type === "following" ? "Following" : "Followers"}</h1>
             

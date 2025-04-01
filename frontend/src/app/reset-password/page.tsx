@@ -4,6 +4,7 @@ import styles from "@/styles/Signup.module.css";
 import Image from "next/image";
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Head from "next/head";
 
 function ResetPasswordForm() {
     const searchParams = useSearchParams();
@@ -87,9 +88,9 @@ function ResetPasswordForm() {
 
     return (
         <>
-        <head>
+        <Head>
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-        </head>
+        </Head>
         <div className={styles.container}>
             <div className={styles.header}>
                 <Image src="/savvy.png" alt="Platform Logo" width={200} height={200} />
