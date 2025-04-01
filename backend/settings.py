@@ -78,11 +78,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites'
     'pages',
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
-    'storages'
+    'storages',
+    'social_django'     # For Google login and 2FA
 ]
 
 MIDDLEWARE = [
@@ -224,3 +226,20 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Google Login Settings
+SITE_ID = 1
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv("GOOGLE_CLIENT_ID")
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email', 'profile',]
+SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_PARAMS = {'access_type': 'online'}
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.google.GoogleOAuth2',  # Add Google OAuth2 backend
+    'django.contrib.auth.backends.ModelBackend',  # Default backend
+)
+
+LOGIN_URL = 'social:begin'
+LOGIN_REDIRECT_URL = "/"  # Redirect after successful login ***NOTE: CHANGE THESE LATER!
+LOGOUT_REDIRECT_URL = "/"  # Redirect after logout
