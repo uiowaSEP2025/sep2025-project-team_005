@@ -159,7 +159,7 @@ export default function DiscoverProfile() {
         router.push(`/follow/${user_id}?type=${type}`);
     };
 
-    if (isLoading || !musicianProfile || !followCount || !profile) return <p className="description">Loading...</p>;
+    if (isLoading || !musicianProfile || !followCount) return <p className="description">Loading...</p>;
 
     return (
         <div className={styles.container}>
@@ -217,13 +217,7 @@ export default function DiscoverProfile() {
 
             <div className={styles.bioSection}>
                 {profile?.username === username && (
-                    <button 
-                        className={styles.editButton} 
-                        onClick={handleUpdateProfile}
-                        aria-label="Edit profile"
-                        data-testid="edit-button">
-                        <Edit size={24} />
-                    </button>                
+                    <button className={styles.editButton} onClick={handleUpdateProfile} data-testid="edit-button"><Edit size={24}/></button>
                 )}
                 <h2 className={styles.bioTitle}>About</h2>
                 <p className={styles.description}><strong>Home Studio:</strong> {musicianProfile.home_studio ? "Yes" : "No"}</p>
@@ -244,9 +238,9 @@ export default function DiscoverProfile() {
             <div className={styles.postsSection}>
                 <h2 className={styles.featureTitle}>Posts</h2>
                 <div className={styles.postsGrid}>
-                    <div className={styles.postCard}>Post 1</div>
-                    <div className={styles.postCard}>Post 2</div>
-                    <div className={styles.postCard}>Post 3</div>
+                    <div className={styles.postCard}>🎵 Post 1</div>
+                    <div className={styles.postCard}>🎵 Post 2</div>
+                    <div className={styles.postCard}>🎵 Post 3</div>
                 </div>
             </div>
         </div>

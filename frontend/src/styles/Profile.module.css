@@ -175,7 +175,7 @@
     padding: 1rem;
     border-radius: 1rem;
     background: var(--primary);
-    color: var(--text-light);
+    color: white;
     font-size: 1.25rem;
     font-weight: bold;
     text-align: center;
@@ -199,12 +199,14 @@
     padding: 0.8rem;
     width: 100%;
     border: none;
-    background-color: white;
-    color: #2563eb;
+    background-color: var(--text-box);
+    color: var(--foreground);
+    font-size: 1.25rem;
+    font-weight: bold;
     text-align: left;
     cursor: pointer;
 }
 
 .dropdownItem:hover {
-    background-color: #f3f4f6;
+    background-color: var(--secondary);
 }
