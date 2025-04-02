@@ -1,9 +1,9 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from pages.forms import PostForm
 from pages.utils.s3_utils import upload_to_s3
-from pages.models import Post
+from pages.forms import PostForm
+
 
 class CreatePostView(APIView):
     def post(self, request):
@@ -14,10 +14,8 @@ class CreatePostView(APIView):
                 # Get the cleaned file and caption data
                 file = form.cleaned_data['file']
                 caption = form.cleaned_data['caption']
-
                 # Call the function to upload the file to S3
                 s3_url, file_key = upload_to_s3(file, request.user.id)
-
                 # Create the Post instance and save it
                 post = form.save(commit=False)
                 post.owner = request.user
@@ -26,7 +24,6 @@ class CreatePostView(APIView):
                 post.file_type = file.content_type
                 post.save()
                 form.save_m2m()
-
                 return Response({"message": "Post created successfully!", "post_id": post.id}, status=status.HTTP_201_CREATED)
             
             return Response({"error": "Invalid form data", "details": form.errors}, status=status.HTTP_400_BAD_REQUEST)

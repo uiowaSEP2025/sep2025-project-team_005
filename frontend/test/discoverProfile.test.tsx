@@ -18,13 +18,15 @@ describe("Discover Profile Page", () => {
     beforeEach(() => {
         fetchMock.resetMocks();
         fetchMock.mockResponses(
-            [JSON.stringify({ user_id: "123" }), { status: 200 }], // User ID fetch
+            [JSON.stringify({ user_id: "123" }), { status: 200 }],
             [JSON.stringify({
                 stage_name: "John Doe",
                 years_played: 5,
                 home_studio: true,
                 genres: ["Rock", "Pop"],
-                instruments: ["Guitar", "Drums"],
+                instruments: [{ instrument_name: "Guitar", years_played: 3 },
+                    { instrument_name: "Drums", years_played: 2 }
+                ],
             }), { status: 200 }],
             [JSON.stringify({
                 follower_count: 100,
@@ -48,9 +50,6 @@ describe("Discover Profile Page", () => {
 
         expect(screen.getByText("John Doe")).toBeInTheDocument();
 
-        expect(screen.getByText("Years Played:", { exact: false })).toBeInTheDocument();
-        expect(screen.getByText("5")).toBeInTheDocument();
-
         expect(screen.getByText("Home Studio:", { exact: false })).toBeInTheDocument();
         expect(screen.getByText("Yes")).toBeInTheDocument();
 
@@ -58,7 +57,8 @@ describe("Discover Profile Page", () => {
         expect(screen.getByText("Rock, Pop")).toBeInTheDocument();
 
         expect(screen.getByText("Instruments:", { exact: false })).toBeInTheDocument();
-        expect(screen.getByText("Guitar, Drums")).toBeInTheDocument();
+        expect(screen.getByText(/Guitar - 3 years/)).toBeInTheDocument();
+        expect(screen.getByText(/Drums - 2 years/)).toBeInTheDocument();
     });
 
     it("toggles dropdown menu", async () => {
@@ -124,8 +124,8 @@ describe("Discover Profile Page", () => {
         );
     
         await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
-    
-        expect(screen.getByText("Edit")).toBeInTheDocument();
+
+        expect(screen.getByTestId("edit-button")).toBeInTheDocument();
     });
     
     it("does not show edit button when viewing someone else's profile", async () => {

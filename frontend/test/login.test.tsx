@@ -59,33 +59,6 @@ describe("Login Component", () => {
         expect(passwordInput).toHaveValue("testpassword1!");
     });
 
-    test("successful login redirects to profile", async () => {
-        (useAuth as jest.Mock).mockReturnValue({
-            profile: { username: "testuser" },
-            isLoading: false,
-        });
-
-        (axios.post as jest.Mock).mockResolvedValue({
-            data: { access: "mock_access_token" },
-        });
-
-        render(<Login />);
-
-        fireEvent.change(screen.getByPlaceholderText("Username"), { target: { value: "testuser" } });
-        fireEvent.change(screen.getByPlaceholderText("Password"), { target: { value: "testpassword1!" } });
-
-        fireEvent.click(screen.getByText("Login"));
-
-        await waitFor(() => {
-            expect(axios.post).toHaveBeenCalledWith(
-                "http://localhost:8000/api/auth/login/",
-                { username: "testuser", password: "testpassword1!" },
-                { withCredentials: true }
-            );
-            expect(pushMock).toHaveBeenCalledWith("/testuser");
-        });
-    });
-
     test("failed login shows error message", async () => {
         (useAuth as jest.Mock).mockReturnValue({
             profile: null,

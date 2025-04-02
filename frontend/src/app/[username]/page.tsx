@@ -1,5 +1,7 @@
 "use client";
 
+import React from 'react';
+import { Edit } from 'lucide-react';
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useAuth, useRequireAuth } from "@/context/ProfileContext";
@@ -20,7 +22,7 @@ interface MusicianProfile {
     years_played: number;
     home_studio: boolean;
     genres: string[];
-    instruments: string[];
+    instruments: { instrument_name: string; years_played: number }[];
 }
 
 interface FollowCount {
@@ -33,7 +35,7 @@ export default function DiscoverProfile() {
 
     const router = useRouter();
     const { username } = useParams();
-    const { profile, isLoading } = useAuth();
+    const { profile, isLoading, setProfile } = useAuth();
     const [musicianProfile, setMusicianProfile] = useState<MusicianProfile | null>(null);
     const [followCount, setFollowCount] = useState<FollowCount | null>(null);
     const [userId, setUserId] = useState<UserID | null>(null);
@@ -134,6 +136,10 @@ export default function DiscoverProfile() {
             // Clear stored token
             Cookies.remove("access_token");
 
+            // Clear user profile data
+            setProfile(null);
+
+
             // Redirect to login page
             router.push("/login");
         } 
@@ -232,15 +238,24 @@ export default function DiscoverProfile() {
 
             <div className={styles.bioSection}>
                 {profile?.username === username && (
-                    <button className={styles.editButton} onClick={handleUpdateProfile}>Edit</button>
+                    <button className={styles.editButton} onClick={handleUpdateProfile} data-testid="edit-button"><Edit size={24}/></button>
                 )}
                 <h2 className={styles.bioTitle}>About</h2>
-                <p className={styles.description}><strong>Years Played:</strong> {musicianProfile.years_played}</p>
                 <p className={styles.description}><strong>Home Studio:</strong> {musicianProfile.home_studio ? "Yes" : "No"}</p>
                 <p className={styles.description}><strong>Genres:</strong> {musicianProfile.genres.join(", ")}</p>
-                <p className={styles.description}><strong>Instruments:</strong> {musicianProfile.instruments.join(", ")}</p>
+                <p className={styles.description}>
+                    <strong>Instruments: </strong>
+                    <span>
+                        {musicianProfile.instruments.map((instr, index) => (
+                            <React.Fragment key={index}>
+                                {instr.instrument_name} - {instr.years_played} years
+                                {index < musicianProfile.instruments.length - 1 && <br />}
+                            </React.Fragment>
+                        ))}
+                    </span>
+                </p>
             </div>
-
+            
             <div className={styles.postsSection}>
                 <div className={styles.postsHeader}>
                     <h2 className={styles.featureTitle}>Posts</h2>

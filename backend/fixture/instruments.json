@@ -1,0 +1,922 @@
+[
+    {
+        "model": "pages.Instrument",
+        "pk": "bace4567-7699-4141-a6c9-71e2651d3233",
+        "fields": {
+            "instrument": "Violin",
+            "class_name": "String"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "beeab26c-e456-4904-8612-a6f37c8c9c73",
+        "fields": {
+            "instrument": "Viola",
+            "class_name": "String"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "e0becd4a-3164-4b12-af9a-9c7367ed9a14",
+        "fields": {
+            "instrument": "Cello",
+            "class_name": "String"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "4c253c92-ff42-4e18-ab23-609df59dea16",
+        "fields": {
+            "instrument": "Double Bass",
+            "class_name": "String"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "0ca3a6ca-3881-44c7-8922-98d91debeb8e",
+        "fields": {
+            "instrument": "Harp",
+            "class_name": "String"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "9f3f0072-9937-4de8-83f0-cd88129b4c39",
+        "fields": {
+            "instrument": "Classical Guitar",
+            "class_name": "String"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "f1c35e77-6508-4cd8-ad7e-433702b78724",
+        "fields": {
+            "instrument": "Acoustic Guitar",
+            "class_name": "String"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "220be4ce-0309-4cda-85f6-336752b9e03a",
+        "fields": {
+            "instrument": "Ukulele",
+            "class_name": "String"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "a4b1ccd6-5b92-415c-9255-316a1da3647c",
+        "fields": {
+            "instrument": "Mandolin",
+            "class_name": "String"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "6542a158-c771-49f1-9510-f97aa5988b9e",
+        "fields": {
+            "instrument": "Banjo",
+            "class_name": "String"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "8c02b5bf-8a38-4edb-8326-7433faa2863b",
+        "fields": {
+            "instrument": "Zither",
+            "class_name": "String"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "3b555517-9708-42bd-b07f-683a17eefc3c",
+        "fields": {
+            "instrument": "Dulcimer",
+            "class_name": "String"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "37563320-5d3f-48d5-8422-aeba3e6c5610",
+        "fields": {
+            "instrument": "Sitar",
+            "class_name": "String"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "992868a6-5020-4fe2-8e39-f7928620a45a",
+        "fields": {
+            "instrument": "Sarod",
+            "class_name": "String"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "7f0345c7-4667-461f-97da-7ed9e32fceac",
+        "fields": {
+            "instrument": "Veena",
+            "class_name": "String"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "563ace77-29e5-4f71-8b52-76a5892d4125",
+        "fields": {
+            "instrument": "Erhu",
+            "class_name": "String"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "7c812428-aff2-4278-aa36-c79771ee7fd5",
+        "fields": {
+            "instrument": "Koto",
+            "class_name": "String"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "5ed18f0c-4276-4d07-bb37-b186e5d17269",
+        "fields": {
+            "instrument": "Guzheng",
+            "class_name": "String"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "f14d81f7-fe88-4a0f-813f-f05bc3d3b5ae",
+        "fields": {
+            "instrument": "Pipa",
+            "class_name": "String"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "66188322-3936-44cb-bc9f-233df51f426f",
+        "fields": {
+            "instrument": "Lute",
+            "class_name": "String"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "e9630433-3bd3-41fd-852d-7f9c4225645c",
+        "fields": {
+            "instrument": "Balalaika",
+            "class_name": "String"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "6adc8062-330b-4426-b214-ab81147ceaeb",
+        "fields": {
+            "instrument": "Bouzouki",
+            "class_name": "String"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "5391ac75-ea76-4833-bde9-5d76b14ceace",
+        "fields": {
+            "instrument": "Rebab",
+            "class_name": "String"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "46123e09-8ffe-4b5b-a3de-7a3bb32b8064",
+        "fields": {
+            "instrument": "Hardanger Fiddle",
+            "class_name": "String"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "cc8ad4c4-a86c-495b-b40f-d0b214a43544",
+        "fields": {
+            "instrument": "Nyckelharpa",
+            "class_name": "String"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "e0e41293-3091-41fb-a526-e1662c2e7b41",
+        "fields": {
+            "instrument": "Hurdy Gurdy",
+            "class_name": "String"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "1a86dd6f-012d-43f8-be95-6cc79aea6e3a",
+        "fields": {
+            "instrument": "Tar",
+            "class_name": "String"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "46f4bb74-4a22-4eda-bf4a-eb97593deaa2",
+        "fields": {
+            "instrument": "Domra",
+            "class_name": "String"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "749de2bf-a7cc-4517-be00-0860aa963d2a",
+        "fields": {
+            "instrument": "Cavaquinho",
+            "class_name": "String"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "eb55f06a-2c63-44dd-915e-e5ebfa5c3b90",
+        "fields": {
+            "instrument": "Flute",
+            "class_name": "Woodwind"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "0d1e6f62-415c-42a6-9148-e5667ee38ae1",
+        "fields": {
+            "instrument": "Piccolo",
+            "class_name": "Woodwind"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "30e0c19b-a81b-4f8f-8629-0a1d0382125f",
+        "fields": {
+            "instrument": "Clarinet",
+            "class_name": "Woodwind"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "1a08971f-86c5-4c91-82ff-a24ba0fec70f",
+        "fields": {
+            "instrument": "Bass Clarinet",
+            "class_name": "Woodwind"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "b125675f-f3ca-410c-a047-03b2bd185e6b",
+        "fields": {
+            "instrument": "Oboe",
+            "class_name": "Woodwind"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "0830ba08-b884-4e38-8088-88e3456a188a",
+        "fields": {
+            "instrument": "English Horn",
+            "class_name": "Woodwind"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "70f27b3b-64b0-4b12-a242-5a2cbe659572",
+        "fields": {
+            "instrument": "Bassoon",
+            "class_name": "Woodwind"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "2d92d6a3-964a-40ff-9f60-8f54c09aa112",
+        "fields": {
+            "instrument": "Contrabassoon",
+            "class_name": "Woodwind"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "65269cb9-48db-4dad-8e9a-7f71815f4182",
+        "fields": {
+            "instrument": "Alto Saxophone",
+            "class_name": "Woodwind"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "8f9cf605-81f4-49a2-bea6-29e741068cb2",
+        "fields": {
+            "instrument": "Tenor Saxophone",
+            "class_name": "Woodwind"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "42472d88-7dbc-4a72-a474-ef58c7647cf2",
+        "fields": {
+            "instrument": "Baritone Saxophone",
+            "class_name": "Woodwind"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "8a3a4e37-2911-455a-bde2-055818bcb683",
+        "fields": {
+            "instrument": "Soprano Saxophone",
+            "class_name": "Woodwind"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "e5b9d57a-3038-42b5-8a2b-d38bd2634012",
+        "fields": {
+            "instrument": "Recorder",
+            "class_name": "Woodwind"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "1419c0b1-3a95-4c50-b40e-57572c725234",
+        "fields": {
+            "instrument": "Bass Recorder",
+            "class_name": "Woodwind"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "3076ad12-e048-4dbb-8f1d-279a23b09342",
+        "fields": {
+            "instrument": "Pan Flute",
+            "class_name": "Woodwind"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "34b3b329-5356-435e-a6ac-16e27ac6d63f",
+        "fields": {
+            "instrument": "Harmonica",
+            "class_name": "Woodwind"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "00198103-a81e-4f16-adc8-23c8839dc141",
+        "fields": {
+            "instrument": "Bagpipes",
+            "class_name": "Woodwind"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "f40b57cd-67b3-4762-b4d3-bb660961ae6e",
+        "fields": {
+            "instrument": "Shakuhachi",
+            "class_name": "Woodwind"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "8adb4c90-4eb9-4cc4-9e25-5c07ff1408a3",
+        "fields": {
+            "instrument": "Didgeridoo",
+            "class_name": "Woodwind"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "32233275-6319-4012-ac4c-c199ea94aadb",
+        "fields": {
+            "instrument": "Melodica",
+            "class_name": "Woodwind"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "d2697252-2d98-40b4-8ac4-f7f9ba25f488",
+        "fields": {
+            "instrument": "Bass Flute",
+            "class_name": "Woodwind"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "4388069f-0b8a-4858-a531-31712e637722",
+        "fields": {
+            "instrument": "Contrabass Clarinet",
+            "class_name": "Woodwind"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "8848e86b-ef3c-4711-ba4d-55ee7c34e9b6",
+        "fields": {
+            "instrument": "Bass Oboe",
+            "class_name": "Woodwind"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "b2e24fb6-faa0-4b91-ac14-641ff17574d2",
+        "fields": {
+            "instrument": "Dizi",
+            "class_name": "Woodwind"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "416d91c6-fa0e-469d-b5a3-7e52e997d00a",
+        "fields": {
+            "instrument": "Bansuri",
+            "class_name": "Woodwind"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "bc3fdfd6-fd79-4ea5-9183-9d6ff50e172e",
+        "fields": {
+            "instrument": "Kaval",
+            "class_name": "Woodwind"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "866a2249-1385-45d8-951e-671aac7b755e",
+        "fields": {
+            "instrument": "Ocarina",
+            "class_name": "Woodwind"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "6abf157f-880d-4e8b-8b6d-1ef49945a639",
+        "fields": {
+            "instrument": "Trumpet",
+            "class_name": "Brass"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "57e5bf27-dd50-41fa-9827-4feb52531371",
+        "fields": {
+            "instrument": "Cornet",
+            "class_name": "Brass"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "e003477a-c434-49c4-811a-4b92bb50fee1",
+        "fields": {
+            "instrument": "Flugelhorn",
+            "class_name": "Brass"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "3b4d7dfd-8775-4125-9918-4c2f312e632c",
+        "fields": {
+            "instrument": "French Horn",
+            "class_name": "Brass"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "3f418d55-1cc7-4e82-8086-b78cff7eddb6",
+        "fields": {
+            "instrument": "Mellophone",
+            "class_name": "Brass"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "882f3d05-54d7-4368-873c-44f1fe6eabcb",
+        "fields": {
+            "instrument": "Trombone",
+            "class_name": "Brass"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "df78518a-c201-4a15-b859-12e16b24761a",
+        "fields": {
+            "instrument": "Bass Trombone",
+            "class_name": "Brass"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "019da4b4-9d03-4a8e-ab62-01904551ac57",
+        "fields": {
+            "instrument": "Tenor Trombone",
+            "class_name": "Brass"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "8804ec3f-c97f-40f0-b63d-c3d665276752",
+        "fields": {
+            "instrument": "Baritone Horn",
+            "class_name": "Brass"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "caae26fd-b296-408f-ab39-c160cb8831e6",
+        "fields": {
+            "instrument": "Euphonium",
+            "class_name": "Brass"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "7c57917d-a294-4ecd-9450-c2fab2f2e7a1",
+        "fields": {
+            "instrument": "Tuba",
+            "class_name": "Brass"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "fdc48aff-7582-4a39-8e6f-0d972b15c151",
+        "fields": {
+            "instrument": "Sousaphone",
+            "class_name": "Brass"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "73df060a-ca82-4556-8e00-6eac97c3441c",
+        "fields": {
+            "instrument": "Wagner Tuba",
+            "class_name": "Brass"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "5f2f884f-becf-47a9-b425-9499a341a462",
+        "fields": {
+            "instrument": "Cimbasso",
+            "class_name": "Brass"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "2a809f98-9812-4ad1-983d-b620bd3b27ac",
+        "fields": {
+            "instrument": "Bugle",
+            "class_name": "Brass"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "960b610a-e431-4f3f-b802-62b71f8b1599",
+        "fields": {
+            "instrument": "Alto Horn",
+            "class_name": "Brass"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "a29d5993-e6a2-4fda-a70c-a0753f9de407",
+        "fields": {
+            "instrument": "Snare Drum",
+            "class_name": "Percussion"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "b24f0712-8cfc-4111-879d-3e5fa68acea9",
+        "fields": {
+            "instrument": "Bass Drum",
+            "class_name": "Percussion"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "7e86f525-6b1f-4876-a84e-bfb5dad67ba4",
+        "fields": {
+            "instrument": "Tom-Toms",
+            "class_name": "Percussion"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "87df230a-75b0-40f8-8106-04189e6785a8",
+        "fields": {
+            "instrument": "Cymbals",
+            "class_name": "Percussion"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "c0f610e9-495c-4372-b38d-5d89c35b6558",
+        "fields": {
+            "instrument": "Hi-Hat",
+            "class_name": "Percussion"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "487322db-ccbb-46fa-b778-51d90908a76d",
+        "fields": {
+            "instrument": "Triangle",
+            "class_name": "Percussion"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "1bd69313-10c8-47dc-a0bb-d607632cfe20",
+        "fields": {
+            "instrument": "Tambourine",
+            "class_name": "Percussion"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "f1e25602-c958-4d8c-a909-a13e3729b64b",
+        "fields": {
+            "instrument": "Maracas",
+            "class_name": "Percussion"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "3ddc4194-0264-4b7e-ae54-540022f28d7d",
+        "fields": {
+            "instrument": "Glockenspiel",
+            "class_name": "Percussion"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "ca103318-5531-49d7-921d-b909158a761d",
+        "fields": {
+            "instrument": "Xylophone",
+            "class_name": "Percussion"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "a20b8149-700d-463d-8df1-2de9065f4d4a",
+        "fields": {
+            "instrument": "Vibraphone",
+            "class_name": "Percussion"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "c39fbd97-c9ae-4ec6-a01f-95d1ef3c76bc",
+        "fields": {
+            "instrument": "Marimba",
+            "class_name": "Percussion"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "6affccc5-9e45-4f33-b4a4-eb595bbc6938",
+        "fields": {
+            "instrument": "Timpani",
+            "class_name": "Percussion"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "15369489-1114-4bfc-8862-0e936a334459",
+        "fields": {
+            "instrument": "Caj\u00f3n",
+            "class_name": "Percussion"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "9192539b-938a-48d4-ac81-9f8b146aff6f",
+        "fields": {
+            "instrument": "Bongos",
+            "class_name": "Percussion"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "2857d479-27b1-4f4c-9275-415de53f8426",
+        "fields": {
+            "instrument": "Congas",
+            "class_name": "Percussion"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "6b0f4a55-98c7-464a-a361-3c09c35dd5a2",
+        "fields": {
+            "instrument": "Djembe",
+            "class_name": "Percussion"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "492c7356-2cdf-4e8c-88a9-266a42510a00",
+        "fields": {
+            "instrument": "Claves",
+            "class_name": "Percussion"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "11265033-ce99-4f69-add6-0e1e5806e5d4",
+        "fields": {
+            "instrument": "Castanets",
+            "class_name": "Percussion"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "17ad66fb-de6f-4f79-862a-e0f7a62ba2d7",
+        "fields": {
+            "instrument": "Agogo Bells",
+            "class_name": "Percussion"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "cc9e2a58-ebec-4083-98a0-f4b38984a908",
+        "fields": {
+            "instrument": "Piano",
+            "class_name": "Keyboard"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "781ff287-f4e2-4f03-ba07-62f3d99c7282",
+        "fields": {
+            "instrument": "Grand Piano",
+            "class_name": "Keyboard"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "b4d9c511-c952-4dcd-bede-5306809eea5d",
+        "fields": {
+            "instrument": "Upright Piano",
+            "class_name": "Keyboard"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "d3d85cfd-0f3b-41cf-8e1d-5c92e499dd05",
+        "fields": {
+            "instrument": "Electric Piano",
+            "class_name": "Keyboard"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "a881d96d-2569-43cb-8cdb-20e5564044e5",
+        "fields": {
+            "instrument": "Organ",
+            "class_name": "Keyboard"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "a141a860-ffbc-421d-9a9f-6f3bd139cebb",
+        "fields": {
+            "instrument": "Pipe Organ",
+            "class_name": "Keyboard"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "a692085d-b458-4640-aadd-f5ad96555386",
+        "fields": {
+            "instrument": "Harmonium",
+            "class_name": "Keyboard"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "404fbd7c-5a3e-424c-9403-2f44598e852c",
+        "fields": {
+            "instrument": "Harpsichord",
+            "class_name": "Keyboard"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "35e84995-c4b5-404d-ac3f-04cbd054ca2a",
+        "fields": {
+            "instrument": "Celesta",
+            "class_name": "Keyboard"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "fce71b68-2148-4981-a194-7e9a63737452",
+        "fields": {
+            "instrument": "Keytar",
+            "class_name": "Keyboard"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "b54d9c70-de5a-4ecd-88c1-e2eeec1916d4",
+        "fields": {
+            "instrument": "Clavichord",
+            "class_name": "Keyboard"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "380a56ba-45d0-4293-9bbd-991d11c9607c",
+        "fields": {
+            "instrument": "Theremin",
+            "class_name": "Electronic"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "398279c5-ec84-4d04-824b-4803bd6eef88",
+        "fields": {
+            "instrument": "Synthesizer",
+            "class_name": "Electronic"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "95015547-968e-40ac-9ee8-18efedc516de",
+        "fields": {
+            "instrument": "Drum Machine",
+            "class_name": "Electronic"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "d51d861d-13ec-4fba-8355-4757823204f2",
+        "fields": {
+            "instrument": "Electric Guitar",
+            "class_name": "Electronic"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "f70481f3-b434-457d-aa36-07672eb8c391",
+        "fields": {
+            "instrument": "Bass Guitar",
+            "class_name": "Electronic"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "01c1a3e7-c6f3-43f8-b13d-3c05d42fe41f",
+        "fields": {
+            "instrument": "Turntable",
+            "class_name": "Electronic"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "e89d4096-6d2a-44c1-bd57-204285c3d21b",
+        "fields": {
+            "instrument": "Sampler",
+            "class_name": "Electronic"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "c4c9210b-98c4-4b15-9785-dd49823b6216",
+        "fields": {
+            "instrument": "Digital Piano",
+            "class_name": "Electronic"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "ebd84a64-52d4-4187-b9f6-58fcc3e4184f",
+        "fields": {
+            "instrument": "Electronic Drum Kit",
+            "class_name": "Electronic"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "277f09a1-d532-40bc-b6d7-cfec98026009",
+        "fields": {
+            "instrument": "Modular Synthesizer",
+            "class_name": "Electronic"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "ef091da4-3280-4626-abc7-6560da85edd5",
+        "fields": {
+            "instrument": "MIDI Controller",
+            "class_name": "Electronic"
+        }
+    },
+    {
+        "model": "pages.Instrument",
+        "pk": "f6ab425e-9316-448c-afd8-d85b44604a78",
+        "fields": {
+            "instrument": "EWI (Electronic Wind Instrument)",
+            "class_name": "Electronic"
+        }
+    }
+]

@@ -7,6 +7,8 @@
     padding: 2rem;
     text-align: center;
     font-family: var(--font-geist-sans);
+    background-color: var(--background);
+    color: var(--text-light);
 }
 
 .header {
@@ -20,14 +22,14 @@
 
 .title {
     margin-top: 70px;
-    font-size: 2.25rem;
+    font-size: 2.5rem;
     font-weight: bold;
-    color: #3b82f6;
+    color: var(--primary);
 }
 
 .description {
-    font-size: 1.125rem;
-    color: #4b5563;
+    font-size: 1.25rem;
+    color: var(--text-muted);
 }
 
 .loginForm {
@@ -41,16 +43,19 @@
 
 .inputField {
     padding: 0.75rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--secondary);
     border-radius: 0.5rem;
     font-size: 1rem;
-    color: black;
+    background-color: var(--text-box);
+    color: var(--text-light);
 }
 
 .primaryButton {
     padding: 0.75rem 1.5rem;
-    background-color: #2563eb;
+    background-color: var(--primary);
     color: white;
+    font-size: 1.25rem;
+    font-weight: bold;
     border-radius: 9999px;
     transition: background-color 0.3s ease;
     text-decoration: none;
@@ -64,8 +69,8 @@
 
 .altOption {
     margin-top: 1rem;
-    font-size: 0.875rem;
-    color: #4b5563;
+    font-size: 1rem;
+    color: var(--text-muted);
 }
 
 .forgotPasswordContainer {
@@ -75,7 +80,8 @@
 }
 
 .link {
-    color: #2563eb;
+    color: var(--primary);
+    font-size: 1.15rem;
     text-decoration: none;
     font-weight: bold;
 }
@@ -86,5 +92,5 @@
 
 .footer {
     margin-top: 4rem;
-    color: #6b7280;
+    color: var(--text-muted);
 }
