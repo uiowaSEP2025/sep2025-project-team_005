@@ -1,29 +1,34 @@
+/* Signup Page Styles */
 .container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     margin-top: 50px;
+    background-color: var(--background);
+    color: var(--text-light);
 }
+
 .header {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 1rem;
     margin-bottom: 30px;
 }
+
 .title {
-    font-size: 2.25rem;
+    font-size: 2.5rem;
     font-weight: bold;
-    color: #3b82f6;
+    color: var(--primary);
     white-space: nowrap;
 }
 
 .subtitle {
-    font-size: 2.25rem;
+    font-size: 2.15rem;
     font-weight: bold;
-    color: white;
+    color: var(--text-light);
     white-space: nowrap;
 }
 
@@ -34,49 +39,53 @@
     max-width: 400px;
     gap: 1rem;
 }
+
 .inputGroup {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
 }
-.label {  
+
+.label {
     font-weight: bold;
-    font-size: 1.125rem;
-    color: #9ca3af; /* gray-400 */
+    font-size: 1.25rem;
+    color: var(--text-muted);
 }
 
 .input {
     padding: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--secondary);
     border-radius: 5px;
     font-size: 1rem;
+    background-color: var(--text-box);
+    color: var(--text-light);
 }
+
 .submitButton {
-    background-color: #3b82f6; /* indigo-600 */
+    background-color: var(--primary);
     color: white;
     padding: 10px;
     border: none;
     border-radius: 5px;
-    font-size: 1rem;
+    font-size: 1.25rem;
+    font-weight: bold;
     cursor: pointer;
     transition: background-color 0.2s;
     margin-bottom: 50px;
 }
 
 .submitButton:hover {
-    background-color: #2563eb; /* indigo-700 */
+    background-color: #1d4ed8;
 }
 
-/* For some reason the Business signup button does not look
-    the same as the Musician one under the same CSS styling, so
-    made a separate style for Business button */
 .businessSubmit {
-    background-color: #3b82f6; /* indigo-600 */
+    background-color: var(--primary);
     color: white;
     padding: 10px;
     border: none;
     border-radius: 5px;
-    font-size: 1rem;
+    font-size: 1.25rem;
+    font-weight: bold;
     cursor: pointer;
     transition: background-color 0.2s;
     margin-bottom: 50px;
@@ -86,73 +95,66 @@
 
 .select {
     padding: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--secondary);
     border-radius: 5px;
     font-size: 1rem;
-    background-color: white;
+    background-color: var(--text-box);
     cursor: pointer;
+    color: var(--text-light);
 }
+
 .select:focus {
-    border-color: #3b82f6; /* Highlighting the dropdown when focused */
+    border-color: var(--primary);
     outline: none;
 }
+
 .error {
     color: red;
     font-size: 0.875rem;
     margin-top: 5px;
 }
+
 .inputField {
     padding: 0.75rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--secondary);
     border-radius: 0.5rem;
     font-size: 1rem;
-    color: black;
-
+    background-color: var(--text-box);
+    color: var(--text-light);
 }
 
 .selectField {
     padding: 0.75rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--secondary);
     border-radius: 0.5rem;
     font-size: 1rem;
-    background-color: white;
-    appearance: none; /* Removes default browser styles */
+    background-color: var(--text-box);
+    appearance: none;
     cursor: pointer;
-    color: black;
+    color: var(--text-light);
 }
 
-/* Add a small arrow icon for better UI */
-.selectField::after {
-    content: "▼";
-    font-size: 0.8rem;
-    color: #6b7280;
-    position: absolute;
-    right: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    pointer-events: none;
-}
 /* Improve focus styles */
 .selectField:focus {
-    border-color: #4f46e5; /* Change to a blueish color when focused */
+    border-color: var(--primary);
     outline: none;
     box-shadow: 0 0 4px rgba(79, 70, 229, 0.5);
 }
 
-/* Features Section (same as styling in Home.module.css) */
+/* Features Section */
 .features {
     width: 100%;
     max-width: 64rem;
-    margin-top: 4rem;
+    margin-top: 2rem;
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 2rem; 
+    gap: 2rem;
 }
 
 @media (min-width: 640px) {
     .features {
-      grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(3, 1fr);
     }
 }
 
@@ -160,8 +162,8 @@
     padding: 2rem;
     border-radius: 1rem;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    background: linear-gradient(135deg, #4f46e5, #9333ea); /* indigo and purple gradient */
-    color: white;
+    background: linear-gradient(135deg, var(--primary), #9333ea);
+    color: var(--text-dark);
     border: none;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -172,23 +174,24 @@
 }
 
 .dark .featureCard {
-    background: linear-gradient(135deg, #374151, #6b21a8); /* dark indigo to purple gradient */
+    background: linear-gradient(135deg, #374151, #6b21a8);
 }
 
 .featureTitle {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
     font-weight: 700;
-    margin-bottom: 0.75rem;
+    margin-bottom: 1.25rem;
+    color: white;
 }
 
 .featureText {
-    font-size: 1rem;
+    font-size: 1.25rem;
     line-height: 1.5;
-    color: #d1d5db; /* gray-300 */
+    color: white;
 }
 
 .dark .featureText {
-    color: #e5e7eb; /* gray-200 */
+    color: var(--foreground);
 }
 
 .instrumentRow {
@@ -206,8 +209,8 @@
 
 .autocompleteDropdown {
     position: absolute;
-    background: white;
-    border: 1px solid #ccc;
+    background: var(--text-box);
+    border: 1px solid var(--secondary);
     border-radius: 5px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     max-height: 150px;
@@ -219,21 +222,20 @@
 .autocompleteItem {
     padding: 8px;
     cursor: pointer;
-    color: #4B5563;
+    color: var(--text-light);
 }
 
 .autocompleteItem:hover {
-    background-color: #f0f0f0;
+    background-color: var(--secondary);
 }
 
-
 .addInstrumentButton:hover {
-    background-color: #005bb5;
+    background-color: var(--primary);
 }
 
 .removeInstrumentButton {
-    background: white;
-    color: white;
+    background: var(--text-box);
+    color: var(--text-light);
     border: none;
     padding: 5px 10px;
     margin-left: 10px;
@@ -247,7 +249,7 @@
 }
 
 .inputField::placeholder {
-    color: #4B5563;
+    color: var(--text-muted);
     opacity: 1;
 }
 

@@ -124,8 +124,8 @@ describe("Discover Profile Page", () => {
         );
     
         await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
-    
-        expect(screen.getByText("Edit")).toBeInTheDocument();
+
+        expect(screen.getByTestId("edit-button")).toBeInTheDocument();
     });
     
     it("does not show edit button when viewing someone else's profile", async () => {
