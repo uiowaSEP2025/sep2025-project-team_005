@@ -12,6 +12,7 @@ import Image from "next/image";
 import styles from "@/styles/Profile.module.css";
 import axios from "axios";
 import Cookies from "js-cookie";
+import debounce from "lodash.debounce";
 
 interface UserID {
     user_id: string;
@@ -40,8 +41,10 @@ export default function DiscoverProfile() {
     const [followCount, setFollowCount] = useState<FollowCount | null>(null);
     const [userId, setUserId] = useState<UserID | null>(null);
     const [isDropdownOpen, setDropdownOpen] = useState(false);
-    const [caption, setCaption] = useState("");
-    const [file, setFile] = useState("");
+    const [posts, setPosts] = useState<string[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
 
     useEffect(() => {
         const fetchUserId = async () => {
@@ -168,9 +171,17 @@ export default function DiscoverProfile() {
             const response = await axios.post("http://localhost:8000/api/create-post/", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
+                    "Authorization": `Bearer ${Cookies.get("access_token")}`
                 },
                 withCredentials: true
             });
+            if (response.status >= 200 && response.status < 300) {
+                alert("Post created!");
+                console.log("Request successful:", response.data);
+            } else {
+                alert("Post creation failed. Please refresh the page and try again.");
+                console.error("Request failed:", response.status, response.statusText);
+            }
         } catch (error) {
             console.error(error)
         }
@@ -178,6 +189,61 @@ export default function DiscoverProfile() {
 
     const handleNavigation = (user_id: string, type: "followers" | "following") => {
         router.push(`/follow/${user_id}?type=${type}`);
+    };
+
+    const fetchPosts = async (username: string, pageNum = 1) => {
+        setLoading(true);
+        try {
+            const response = await axios.get('http://localhost:8000/api/fetch-posts/', {
+                params: {
+                    username: username,
+                    page: pageNum
+                },
+                paramsSerializer: params => {
+                    const searchParams = new URLSearchParams();
+                    Object.keys(params).forEach(key => {
+                        if (Array.isArray(params[key])) {
+                            params[key].forEach(val => searchParams.append(key, val));
+                        } else {
+                            searchParams.append(key, params[key]);
+                        }
+                    });
+                    return searchParams.toString();
+                }
+            });
+
+            if (pageNum === 1) {
+                setPosts(response.data.results);
+            } else {
+                setPosts((prevPosts) => [...prevPosts, ...response.data.results]);
+            }
+
+            setHasMore(response.data.next !== null);
+        } catch (error) {
+            console.error("Error fetching posts:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handlePostClick = async (post: string) => {
+        router.push("") // TODO: replace with route to individual post view
+    }
+
+    const debouncedFetchPosts = debounce(() => {
+        setPage(1);
+        fetchPosts(String(username),1);
+    }, 300);
+
+    useEffect(() => {
+        debouncedFetchPosts();
+    }, [username]);
+
+    const loadMorePosts = () => {
+        if (hasMore && !loading) {
+            fetchPosts(String(username), page + 1);
+            setPage((prevPage) => prevPage + 1);
+        }
     };
 
     if (isLoading || !musicianProfile || !followCount) return <p className="description">Loading...</p>;
@@ -263,11 +329,23 @@ export default function DiscoverProfile() {
                         <button className={styles.editButton} onClick={handlePost}>Post</button>
                     )}
                 </div>
-                <div className={styles.postsGrid}>
-                    <div className={styles.postCard}>🎵 Post 1</div>
-                    <div className={styles.postCard}>🎵 Post 2</div>
-                    <div className={styles.postCard}>🎵 Post 3</div>
-                </div>
+                {loading && <p>Loading posts...</p>}
+                {posts.length > 0 ? (
+                    <div className={styles.postsGrid}>
+                        {posts.map((post, index) => (
+                            <li key={index} className={styles.postCard} onClick={() => handlePostClick(post)}>
+                                To do
+                            </li>
+                        ))}
+                    </div>
+                ) : (
+                    <p>No posts found.</p>
+                )}
+                {hasMore && (
+                    <button onClick={loadMorePosts} disabled={loading}>
+                        Load More
+                    </button>
+                )}
             </div>
         </div>
     );
