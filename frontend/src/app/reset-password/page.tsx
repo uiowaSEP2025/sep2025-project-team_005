@@ -88,50 +88,50 @@ function ResetPasswordForm() {
 
     return (
         <>
-        <Head>
-        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-        </Head>
-        <div className={styles.container}>
-            <div className={styles.header}>
-                <Image src="/savvy.png" alt="Platform Logo" width={200} height={200} />
-                <h1 className={styles.title}>Reset Password</h1>
+            <Head>
+                <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+            </Head>
+            <div className={styles.container}>
+                <div className={styles.header}>
+                    <Image src="/savvy.png" alt="Platform Logo" width={200} height={200} />
+                    <h1 className={styles.title}>Reset Password</h1>
+                </div>
+
+                <form className={styles.form} onSubmit={handleSubmit}>
+                    <label htmlFor="password" className={styles.label}>Password:</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        required
+                        placeholder="Create a strong password"
+                        className={styles.inputField}
+                        value={password}
+                        onChange={(e) => {
+                            setPassword(e.target.value);
+                        }}
+                        // TODO SN5-81: Add UI for password strength
+                    />
+
+                    <label htmlFor="confirm password" className={styles.label}>Confirm Password:</label>
+                    <input
+                        type="password"
+                        id="password-confirmation"
+                        name="confirm password"
+                        required
+                        placeholder="Retype your new password"
+                        className={styles.inputField}
+                        value={confirmedPassword}
+                        onChange={(e) => {
+                            const confirmedPassword = e.target.value;
+                            setConfirmedPassword(confirmedPassword);
+                        }}
+                    />
+                    {passwordError && <p className={styles.error}>{passwordError}</p>}
+
+                    <button type="submit" className={styles.submitButton}>Reset Password</button>
+                </form>
             </div>
-
-            <form className={styles.form} onSubmit={handleSubmit}>
-                <label htmlFor="password" className={styles.label}>Password:</label>
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    required
-                    placeholder="Create a strong password"
-                    className={styles.inputField}
-                    value={password}
-                    onChange={(e) => {
-                        setPassword(e.target.value);
-                    }}
-                    // TODO SN5-81: Add UI for password strength
-                />
-
-                <label htmlFor="confirm password" className={styles.label}>Confirm Password:</label>
-                <input
-                    type="password"
-                    id="password-confirmation"
-                    name="confirm password"
-                    required
-                    placeholder="Retype your new password"
-                    className={styles.inputField}
-                    value={confirmedPassword}
-                    onChange={(e) => {
-                        const confirmedPassword = e.target.value;
-                        setConfirmedPassword(confirmedPassword);
-                    }}
-                />
-                {passwordError && <p className={styles.error}>{passwordError}</p>}
-
-                <button type="submit" className={styles.submitButton}>Reset Password</button>
-            </form>
-        </div>
         </>
     );
 }

@@ -206,31 +206,31 @@ const [showPassword, setShowPassword] = useState(false);
 
   return (
     <>
-    <head>
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    </head>
-    <div className={styles.field}>
-      <label className={styles.featureTitle} htmlFor={field}>
-        {field === "password" ? "Current Password" : "New Password"}
-      </label>
-      <div className={styles.passwordContainer}>
-        <input
-          id={field}
-          type={showPassword ? "text" : "password"}
-          value={value}
-          onChange={(e) => onChange(field, e.target.value)}
-          className={styles.inputField}
-          disabled={!isEditing}
-        />
-        <button
-          type="button"
-          className={styles.eyeButton}
-          onClick={() => setShowPassword((prev) => !prev)}
-        >
-          {showPassword ? <EyeOff size={30} /> : <Eye size={30} />}
-        </button>
+      <Head>
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+      </Head>
+      <div className={styles.field}>
+        <label className={styles.featureTitle} htmlFor={field}>
+          {field === "password" ? "Current Password" : "New Password"}
+        </label>
+        <div className={styles.passwordContainer}>
+          <input
+            id={field}
+            type={showPassword ? "text" : "password"}
+            value={value}
+            onChange={(e) => onChange(field, e.target.value)}
+            className={styles.inputField}
+            disabled={!isEditing}
+          />
+          <button
+            type="button"
+            className={styles.eyeButton}
+            onClick={() => setShowPassword((prev) => !prev)}
+          >
+            {showPassword ? <EyeOff size={30} /> : <Eye size={30} />}
+          </button>
+        </div>
       </div>
-    </div>
     </>
   );
 };
@@ -445,117 +445,117 @@ export default function UserSettings() {
 
   return (
     <>
-    <Head>
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    </Head>
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>User Settings</h1>
-        <p className={styles.description}>Update your profile information below.</p>
-      </div>
-      
-      {/* Personal Information Form */}
-      <form className={styles.features}>
-        <div className={styles.featureCard}>
-          <h2 className={styles.cardTitle}>Personal Information</h2>
-          {["username", "email", "phone"].map((field) => (
-            <EditableInput
-              key={field}
-              label={field.charAt(0).toUpperCase() + field.slice(1)}
-              field={field as keyof UserData}
-              value={userData[field as keyof UserData] as string}
-              onChange={handleChange}
-              isEditing={isEditing}
-            />
-          ))}
-          <button type="button" className={styles.secondaryButton} onClick={toggleEdit}>
-            {isEditing ? "Done" : "Edit"}
-          </button>
+      <Head>
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+      </Head>
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>User Settings</h1>
+          <p className={styles.description}>Update your profile information below.</p>
         </div>
-      </form>
-      
-      {/* Experience Information Form */}
-      <form className={styles.features}>
-        <div className={styles.featureCard}>
-            <h2 className={styles.cardTitle}>Experience Information</h2>
-            
-            <EditableList
-              label="Instruments"
-              field="instruments"
-              values={userData.instruments}
-              showInput={showInputField === "instruments"}
-              inputValue={instrumentInput}
-              setInputValue={setInstrumentInput}
-              onAdd={handleAddToList}
-              onRemove={handleRemoveFromList}
-              setShowInput={(show) => setShowInputField(show ? "instruments" : null)}
-              isEditing={editExperience}
-              instrumentInput= {instrumentInput}
-              setInstrumentInput= {setInstrumentInput}
-              yearsPlayedInput= {yearsPlayedInput}
-              setYearsPlayedInput= {setYearsPlayedInput}
-            />
-
-            <EditableList
-              label="Genre"
-              field="genre"
-              values={userData.genre}
-              showInput={showInputField === "genre"}
-              inputValue={genreInput}
-              setInputValue={setGenreInput}
-              onAdd={handleAddToList}
-              onRemove={handleRemoveFromList}
-              setShowInput={(show) => setShowInputField(show ? "genre" : null)}
-              isEditing={editExperience}
-              instrumentInput= {instrumentInput}
-              setInstrumentInput= {setInstrumentInput}
-              yearsPlayedInput= {yearsPlayedInput}
-              setYearsPlayedInput= {setYearsPlayedInput}
-            />
-            
-            <button
-                type="button"
-                className={styles.secondaryButton}
-                onClick={toggleEditExperience}
-            >
-                {editExperience ? "Done" : "Edit"}
+        
+        {/* Personal Information Form */}
+        <form className={styles.features}>
+          <div className={styles.featureCard}>
+            <h2 className={styles.cardTitle}>Personal Information</h2>
+            {["username", "email", "phone"].map((field) => (
+              <EditableInput
+                key={field}
+                label={field.charAt(0).toUpperCase() + field.slice(1)}
+                field={field as keyof UserData}
+                value={userData[field as keyof UserData] as string}
+                onChange={handleChange}
+                isEditing={isEditing}
+              />
+            ))}
+            <button type="button" className={styles.secondaryButton} onClick={toggleEdit}>
+              {isEditing ? "Done" : "Edit"}
             </button>
-        </div>
-      </form>
+          </div>
+        </form>
+        
+        {/* Experience Information Form */}
+        <form className={styles.features}>
+          <div className={styles.featureCard}>
+              <h2 className={styles.cardTitle}>Experience Information</h2>
+              
+              <EditableList
+                label="Instruments"
+                field="instruments"
+                values={userData.instruments}
+                showInput={showInputField === "instruments"}
+                inputValue={instrumentInput}
+                setInputValue={setInstrumentInput}
+                onAdd={handleAddToList}
+                onRemove={handleRemoveFromList}
+                setShowInput={(show) => setShowInputField(show ? "instruments" : null)}
+                isEditing={editExperience}
+                instrumentInput= {instrumentInput}
+                setInstrumentInput= {setInstrumentInput}
+                yearsPlayedInput= {yearsPlayedInput}
+                setYearsPlayedInput= {setYearsPlayedInput}
+              />
 
-      
-      {/* Security Information Form */}
-      <form className={styles.features}>
-        <div className={styles.featureCard}>
-          <h2 className={styles.cardTitle}>Security Information</h2>
+              <EditableList
+                label="Genre"
+                field="genre"
+                values={userData.genre}
+                showInput={showInputField === "genre"}
+                inputValue={genreInput}
+                setInputValue={setGenreInput}
+                onAdd={handleAddToList}
+                onRemove={handleRemoveFromList}
+                setShowInput={(show) => setShowInputField(show ? "genre" : null)}
+                isEditing={editExperience}
+                instrumentInput= {instrumentInput}
+                setInstrumentInput= {setInstrumentInput}
+                yearsPlayedInput= {yearsPlayedInput}
+                setYearsPlayedInput= {setYearsPlayedInput}
+              />
+              
+              <button
+                  type="button"
+                  className={styles.secondaryButton}
+                  onClick={toggleEditExperience}
+              >
+                  {editExperience ? "Done" : "Edit"}
+              </button>
+          </div>
+        </form>
 
-          {/* Password Field */}
-          <PasswordField
-            field="password"
-            value={userData.password}
-            onChange={handleChange}
-            isEditing={editSecurity}
-          />
+        
+        {/* Security Information Form */}
+        <form className={styles.features}>
+          <div className={styles.featureCard}>
+            <h2 className={styles.cardTitle}>Security Information</h2>
 
-          {/* New Password Field */}
-          <PasswordField
-            field="new_password"
-            value={userData.new_password}
-            onChange={handleChange}
-            isEditing={editSecurity}
-          />
+            {/* Password Field */}
+            <PasswordField
+              field="password"
+              value={userData.password}
+              onChange={handleChange}
+              isEditing={editSecurity}
+            />
 
-          {/* Edit/Done Button */}
-          <button
-            type="button"
-            className={styles.secondaryButton}
-            onClick={toggleEditSecurity}
-          >
-            {editSecurity ? "Done" : "Edit"}
-          </button>
-        </div>
-      </form>
-    </div>
+            {/* New Password Field */}
+            <PasswordField
+              field="new_password"
+              value={userData.new_password}
+              onChange={handleChange}
+              isEditing={editSecurity}
+            />
+
+            {/* Edit/Done Button */}
+            <button
+              type="button"
+              className={styles.secondaryButton}
+              onClick={toggleEditSecurity}
+            >
+              {editSecurity ? "Done" : "Edit"}
+            </button>
+          </div>
+        </form>
+      </div>
     </>
   );
 }

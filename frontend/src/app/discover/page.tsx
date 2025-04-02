@@ -248,121 +248,121 @@ export default function Discover() {
 
     return (
         <>
-        <Head>
-        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-        </Head>
-        <div className={styles.container}>
-            <div className={styles.header}>
-                <h1 className={styles.title}>Discover Musicians</h1>
-                <p className={styles.description}>Search for musicians and connect with them.</p>
-            </div>
+            <Head>
+                <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+            </Head>
+            <div className={styles.container}>
+                <div className={styles.header}>
+                    <h1 className={styles.title}>Discover Musicians</h1>
+                    <p className={styles.description}>Search for musicians and connect with them.</p>
+                </div>
 
-            <div className={styles.searchContainer}>
-                <input
-                    type="text"
-                    className={styles.searchInput}
-                    placeholder="Search usernames..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
+                <div className={styles.searchContainer}>
+                    <input
+                        type="text"
+                        className={styles.searchInput}
+                        placeholder="Search usernames..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
 
-                {/* Instrument Search Dropdown */}
-                {instruments.map((instrument, index) => (
-                    <div key={index} className={styles.instrumentRow}>
-                        <div className={styles.autocompleteWrapper}>
-                            <input
-                                type="text"
-                                placeholder="Instrument"
-                                className={styles.inputField}
-                                value={instrument.instrument}
-                                onChange={(e) => handleInstrumentChange(index, e.target.value)}
-                            />
-                            {autocompleteResultsInstruments[index] && autocompleteResultsInstruments[index].length > 0 && (
-                                <div className={styles.autocompleteDropdown}>
-                                    {autocompleteResultsInstruments[index].map((option, i) => (
-                                        <div
-                                            key={i}
-                                            className={styles.autocompleteItem}
-                                            data-testid={`instrument-option-${option.instrument}`}
-                                            onClick={() => handleInstrumentDropdownItemClick(option.instrument)}
-                                        >
-                                            {option.instrument}
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
+                    {/* Instrument Search Dropdown */}
+                    {instruments.map((instrument, index) => (
+                        <div key={index} className={styles.instrumentRow}>
+                            <div className={styles.autocompleteWrapper}>
+                                <input
+                                    type="text"
+                                    placeholder="Instrument"
+                                    className={styles.inputField}
+                                    value={instrument.instrument}
+                                    onChange={(e) => handleInstrumentChange(index, e.target.value)}
+                                />
+                                {autocompleteResultsInstruments[index] && autocompleteResultsInstruments[index].length > 0 && (
+                                    <div className={styles.autocompleteDropdown}>
+                                        {autocompleteResultsInstruments[index].map((option, i) => (
+                                            <div
+                                                key={i}
+                                                className={styles.autocompleteItem}
+                                                data-testid={`instrument-option-${option.instrument}`}
+                                                onClick={() => handleInstrumentDropdownItemClick(option.instrument)}
+                                            >
+                                                {option.instrument}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    ))}
 
-                {/* Display selected instruments below the search input */}
+                    {/* Display selected instruments below the search input */}
+                    <div className={styles.selectedFilters}>
+                        {selectedInstruments.map((instrument, index) => (
+                            <span key={index} className={styles.selectedItem}>
+                                {instrument} 
+                                <button onClick={() => removeInstrument(instrument)}> X </button>
+                            </span>
+                        ))}
+                    </div>
+
+                    {/* Genre Search Dropdown */}
+                    {genres.map((genre, index) => (
+                        <div key={index} className={styles.instrumentRow}>
+                            <div className={styles.autocompleteWrapper}>
+                                <input
+                                    type="text"
+                                    placeholder="Genre"
+                                    className={styles.inputField}
+                                    value={genre.genre}
+                                    onChange={(e) => handleGenreChange(index, e.target.value)}
+                                />
+                                {autocompleteResultsGenre[index] && autocompleteResultsGenre[index].length > 0 && (
+                                    <div className={styles.autocompleteDropdown}>
+                                        {autocompleteResultsGenre[index].map((option, i) => (
+                                            <div
+                                                key={i}
+                                                className={styles.autocompleteItem}
+                                                onClick={() => handleGenreDropdownItemClick(option.genre)}
+                                            >
+                                                {option.genre}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )
+                )}
+
                 <div className={styles.selectedFilters}>
-                    {selectedInstruments.map((instrument, index) => (
+                    {selectedGenres.map((genre, index) => (
                         <span key={index} className={styles.selectedItem}>
-                            {instrument} 
-                            <button onClick={() => removeInstrument(instrument)}> X </button>
+                            {genre} 
+                            <button onClick={() => removeGenre(genre)}> X </button>
                         </span>
                     ))}
                 </div>
+                
+                {/* User List */}
+                <ul className={styles.userList}>
+                    {users.length > 0 ? (
+                        users.map((user, index) => (
+                            <li key={index} className={styles.userCard} onClick={() => handleUserClick(user)}>
+                                {user}
+                            </li>
+                        ))
+                    ) : (
+                        <p>No users found.</p>
+                    )}
+                </ul>
 
-                {/* Genre Search Dropdown */}
-                {genres.map((genre, index) => (
-                    <div key={index} className={styles.instrumentRow}>
-                        <div className={styles.autocompleteWrapper}>
-                            <input
-                                type="text"
-                                placeholder="Genre"
-                                className={styles.inputField}
-                                value={genre.genre}
-                                onChange={(e) => handleGenreChange(index, e.target.value)}
-                            />
-                            {autocompleteResultsGenre[index] && autocompleteResultsGenre[index].length > 0 && (
-                                <div className={styles.autocompleteDropdown}>
-                                    {autocompleteResultsGenre[index].map((option, i) => (
-                                        <div
-                                            key={i}
-                                            className={styles.autocompleteItem}
-                                            onClick={() => handleGenreDropdownItemClick(option.genre)}
-                                        >
-                                            {option.genre}
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                )
-            )}
-
-            <div className={styles.selectedFilters}>
-                {selectedGenres.map((genre, index) => (
-                    <span key={index} className={styles.selectedItem}>
-                        {genre} 
-                        <button onClick={() => removeGenre(genre)}> X </button>
-                    </span>
-                ))}
-            </div>
-            
-            {/* User List */}
-            <ul className={styles.userList}>
-                {users.length > 0 ? (
-                    users.map((user, index) => (
-                        <li key={index} className={styles.userCard} onClick={() => handleUserClick(user)}>
-                            {user}
-                        </li>
-                    ))
-                ) : (
-                    <p>No users found.</p>
+                {hasMore && (
+                    <button onClick={loadMoreUsers} disabled={loading}>
+                        Load More
+                    </button>
                 )}
-            </ul>
-
-            {hasMore && (
-                <button onClick={loadMoreUsers} disabled={loading}>
-                    Load More
-                </button>
-            )}
+            </div>
         </div>
-    </div>
     </>
     );
 }
