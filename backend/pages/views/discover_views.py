@@ -1,6 +1,5 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from django.core.paginator import Paginator
 from rest_framework.pagination import PageNumberPagination
 from pages.models import User, Musician, Instrument, Genre, MusicianInstrument
 from django.db.models import Q
@@ -15,10 +14,8 @@ class GetUsersView(APIView, PageNumberPagination):
         search_query = request.GET.get("search", "").strip()
         instrument_query = request.GET.getlist("instrument")
         genre_query = request.GET.getlist("genre")
-        #page = request.GET.get("page", 1)
         
         musicians = Musician.objects.all()
-        filter_query = Q()
 
         # Filtering by instruments
         if instrument_query:

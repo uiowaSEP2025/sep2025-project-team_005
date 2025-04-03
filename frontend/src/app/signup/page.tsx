@@ -17,15 +17,15 @@ const SignUpSelection = () => {
         <p className={styles.subtitle}>Select your role:</p>
 
         <main className={styles.features}>
-            <div className={styles.featureCard}>
-                <h2 className={styles.featureTitle} onClick={() => router.push('/signup/musician')} >Musician</h2>
+            <div className={styles.featureCard} onClick={() => router.push('/signup/musician')}>
+                <h2 className={styles.featureTitle}>Musician</h2>
                 <p className={styles.featureText}>
-                Promote your music, find gigs, and connect with industry professionals. Post updates, engage with 
-                the community, and build your brand—your next opportunity is just a post away.
+                    Promote your music, find gigs, and connect with industry professionals. Post updates, engage with 
+                    the community, and build your brand—your next opportunity is just a post away.
                 </p>
             </div>
-            <div className={styles.featureCard}>
-                <h2 className={styles.featureTitle} onClick={() => router.push('/signup/business')}>Business</h2>
+            <div className={styles.featureCard} onClick={() => router.push('/signup/business')}>
+                <h2 className={styles.featureTitle}>Business</h2>
                 <p className={styles.featureText}>
                     Connect with talented musicians and grow your business. Whether you're a venue, recording studio, 
                     or talent agency, post opportunities and streamline hiring with our contract and escrow tools.
