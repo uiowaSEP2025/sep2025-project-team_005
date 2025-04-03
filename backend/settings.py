@@ -44,6 +44,7 @@ SECRET_KEY = env("SECRET_KEY")
 AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")            ## Will have to change for production
 AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
 AWS_REGION = env("AWS_REGION")
+AWS_S3_SESSION_PROFILE = env("AWS_PROFILE")
 AWS_IMAGE_BUCKET_NAME="savvy-note-images"
 AWS_VIDEO_BUCKET_NAME="savvy-note-videos"
 AWS_METADATA_BUCKET_NAME="savvy-note-metadata"

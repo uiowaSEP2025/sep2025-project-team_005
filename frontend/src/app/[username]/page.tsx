@@ -31,6 +31,10 @@ interface FollowCount {
     following_count: number;
 }
 
+interface Post {
+    [key: string]: string;
+}
+
 export default function DiscoverProfile() {
     useRequireAuth();
 
@@ -41,10 +45,12 @@ export default function DiscoverProfile() {
     const [followCount, setFollowCount] = useState<FollowCount | null>(null);
     const [userId, setUserId] = useState<UserID | null>(null);
     const [isDropdownOpen, setDropdownOpen] = useState(false);
-    const [posts, setPosts] = useState<string[]>([]);
+    const [posts, setPosts] = useState<Post[]>([]);
+    const [file, setFile] = useState<File>();
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
+    const [s3_url, setS3Url] = useState(false);
 
     useEffect(() => {
         const fetchUserId = async () => {
@@ -162,10 +168,12 @@ export default function DiscoverProfile() {
 
     const handlePost = async () => {
         try {
-            const fileContent = new Blob(["This is a test file."], { type: "image/png" });
-            const testFile = new File([fileContent], "test.png", { type: "image/png" });
             const formData = new FormData();
-            formData.append("file", testFile);
+            if (!file) {
+                console.error("Please upload a file");
+                return;
+            }
+            formData.append("file", file);
             formData.append("caption", "Test");
     
             const response = await axios.post("http://localhost:8000/api/create-post/", formData, {
@@ -177,6 +185,7 @@ export default function DiscoverProfile() {
             });
             if (response.status >= 200 && response.status < 300) {
                 alert("Post created!");
+                setS3Url(response.data.s3_url)
                 console.log("Request successful:", response.data);
             } else {
                 alert("Post creation failed. Please refresh the page and try again.");
@@ -226,7 +235,7 @@ export default function DiscoverProfile() {
         }
     };
 
-    const handlePostClick = async (post: string) => {
+    const handlePostClick = async (post: Post) => {
         router.push("") // TODO: replace with route to individual post view
     }
 
@@ -243,6 +252,12 @@ export default function DiscoverProfile() {
         if (hasMore && !loading) {
             fetchPosts(String(username), page + 1);
             setPage((prevPage) => prevPage + 1);
+        }
+    };
+
+    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.files && event.target.files.length > 0) {
+            setFile(event.target.files?.[0]);
         }
     };
 
@@ -328,14 +343,21 @@ export default function DiscoverProfile() {
                     {profile?.username === username && (
                         <button className={styles.editButton} onClick={handlePost}>Post</button>
                     )}
+                    <input type="file" onChange={handleFileUpload} />
                 </div>
                 {loading && <p>Loading posts...</p>}
                 {posts.length > 0 ? (
                     <div className={styles.postsGrid}>
                         {posts.map((post, index) => (
-                            <li key={index} className={styles.postCard} onClick={() => handlePostClick(post)}>
-                                To do
-                            </li>
+                            <div key={index} className={styles.postCard} onClick={() => handlePostClick(post)}>
+                                <h3>{post.caption}</h3>
+                                <Image 
+                                    src={post.s3_url} 
+                                    alt={`${username}'s post`} 
+                                    width={300}
+                                    height={300} 
+                                />
+                            </div>
                         ))}
                     </div>
                 ) : (

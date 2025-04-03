@@ -1,7 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from pages.utils.s3_utils import upload_to_s3
+from pages.serializers.post_serializers import PostSerializer
+from pages.utils.s3_utils import upload_to_s3, generate_s3_url
 from pages.forms import PostForm
 from pages.models import Post
 from rest_framework.pagination import PageNumberPagination
@@ -19,12 +20,11 @@ class CreatePostView(APIView):
             if form.is_valid():
                 # Get the cleaned file and caption data
                 file = form.cleaned_data['file']
-                # Call the function to upload the file to S3
-                s3_url, file_key = upload_to_s3(file, request.user.id)
+                # Call the function to upload the file to S3                
+                file_key = upload_to_s3(file, request.user.id)
                 # Create the Post instance and save it
                 post = form.save(commit=False)
                 post.owner = request.user
-                post.s3_url = s3_url
                 post.file_key = file_key
                 post.file_type = file.content_type
                 post.save()
@@ -41,8 +41,9 @@ class GetPostsView(APIView, PageNumberPagination):
     def get(self, request):
         username = request.GET.get("username")
 
-        posts = Post.objects.filter(owner__username=username).distinct().order_by("created_at")
-        
+        posts = Post.objects.filter(owner__username=username).distinct().order_by("-created_at")
+
         paginated_posts = self.paginate_queryset(posts, request)
 
-        return self.get_paginated_response([post.caption for post in paginated_posts])
+        serialized_posts = PostSerializer(paginated_posts, many=True).data
+        return self.get_paginated_response(serialized_posts)
