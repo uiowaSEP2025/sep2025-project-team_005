@@ -25,7 +25,6 @@ class PostTest:
     def create_post(db, create_owner, create_tagged_users):
         post = Post.objects.create(
             owner=create_owner,
-            s3_url="https://s3-bucket-url.com/sample.png",
             file_key="image/sample.png",
             file_type="image/png",
             caption="Test caption"
@@ -43,7 +42,6 @@ class PostTest:
         assert post.id is not None
         assert post.caption == "Test caption"
         assert post.tagged_users.count() == 2
-        assert post.s3_url == "https://s3-bucket-url.com/sample.png"
         assert post.file_key == "image/sample.png"
         assert post.file_type == "image/png"
 
@@ -57,7 +55,6 @@ class PostTest:
     def test_no_tagged_users(self, create_owner):
         post = Post.objects.create(
             owner=create_owner,
-            s3_url="https://s3-bucket-url.com/sample.png",
             file_key="image/sample.png",
             file_type="image/png",
             caption="Valid caption"
@@ -103,22 +100,9 @@ class PostTest:
     def test_blank_caption(self, create_owner):
         post = Post.objects.create(
             owner=create_owner,
-            s3_url="https://s3-bucket-url.com/sample.png",
             file_key="image/sample.png",
             file_type="image/png",
             caption=""
         )
         assert post.caption == ""
-        
-    def test_invalid_s3_url(self, create_owner):
-        post = Post(
-        owner=create_owner,
-        s3_url="invalid-url",
-        file_key="image/sample.png",
-        file_type="image/png",
-        caption="Valid caption"
-        )
-        
-        with pytest.raises(ValidationError):
-            post.full_clean()
 

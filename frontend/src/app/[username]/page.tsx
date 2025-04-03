@@ -294,8 +294,8 @@ export default function DiscoverProfile() {
                     </div>
                     {profile?.username !== username && (
                         <div className={styles.profileActions}>
-                            <button className={styles.followButton}>Follow</button>
-                            <button className={styles.messageButton}>Message</button>
+                            <button className={styles.followButton} data-testid="follow-button">Follow</button>
+                            <button className={styles.messageButton} data-testid="message-button">Message</button>
                         </div>
                     )}
                 </div>
@@ -341,22 +341,18 @@ export default function DiscoverProfile() {
                 <div className={styles.postsHeader}>
                     <h2 className={styles.featureTitle}>Posts</h2>
                     {profile?.username === username && (
-                        <button className={styles.editButton} onClick={handlePost}>Post</button>
+                        <div>
+                            <button className={styles.editButton} onClick={handlePost} data-testid="post-button">Post</button>
+                            <input type="file" onChange={handleFileUpload} />
+                        </div>
                     )}
-                    <input type="file" onChange={handleFileUpload} />
                 </div>
                 {loading && <p>Loading posts...</p>}
                 {posts.length > 0 ? (
                     <div className={styles.postsGrid}>
                         {posts.map((post, index) => (
-                            <div key={index} className={styles.postCard} onClick={() => handlePostClick(post)}>
-                                <h3>{post.caption}</h3>
-                                <Image 
-                                    src={post.s3_url} 
-                                    alt={`${username}'s post`} 
-                                    width={300}
-                                    height={300} 
-                                />
+                            <div key={index} className={styles.imageContainer} onClick={() => handlePostClick(post)}>
+                                <img src={post.s3_url} alt={post.caption}/>
                             </div>
                         ))}
                     </div>

@@ -111,7 +111,7 @@ describe("Discover Profile Page", () => {
         consoleErrorSpy.mockRestore();
     });
 
-    it("shows edit button when viewing own profile", async () => {
+    it("shows appropriate buttons when viewing own profile", async () => {
         jest.spyOn(require("@/context/ProfileContext"), "useAuth").mockReturnValue({
             profile: { username: "johndoe" },
             isLoading: false,
@@ -126,9 +126,10 @@ describe("Discover Profile Page", () => {
         await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
 
         expect(screen.getByTestId("edit-button")).toBeInTheDocument();
+        expect(screen.getByTestId("post-button")).toBeInTheDocument();
     });
     
-    it("does not show edit button when viewing someone else's profile", async () => {
+    it("does not show inappropriate buttons when viewing someone else's profile", async () => {
         jest.spyOn(require("@/context/ProfileContext"), "useAuth").mockReturnValue({
             profile: { username: "janedoe" },
             isLoading: false,
@@ -142,7 +143,8 @@ describe("Discover Profile Page", () => {
     
         await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
     
-        expect(screen.queryByText("Edit")).not.toBeInTheDocument();
+        expect(screen.queryByTestId("edit-button")).toBeNull();
+        expect(screen.queryByTestId("post-button")).toBeNull();
     }); 
 
     it("handles error fetching musician profile", async () => {
@@ -218,5 +220,41 @@ describe("Discover Profile Page", () => {
         // Ensure 'Settings' and 'Logout' are not present in an alternative user profile
         expect(screen.queryByText("Settings")).not.toBeInTheDocument();
         expect(screen.queryByText("Logout")).not.toBeInTheDocument();
-    });        
+    });
+
+    it("shows appropriate buttons when visiting other profile", async () => {
+        jest.spyOn(require("@/context/ProfileContext"), "useAuth").mockReturnValue({
+            profile: { username: "janedoe" },
+            isLoading: false,
+        });
+    
+        render(
+            <AuthProvider>
+                <DiscoverProfile />
+            </AuthProvider>
+        );
+    
+        await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
+
+        expect(screen.getByTestId("message-button")).toBeInTheDocument();
+        expect(screen.getByTestId("follow-button")).toBeInTheDocument();        
+    });
+
+    it("does not show inappropriate buttons when visiting own profile", async () => {
+        jest.spyOn(require("@/context/ProfileContext"), "useAuth").mockReturnValue({
+            profile: { username: "johndoe" },
+            isLoading: false,
+        });
+    
+        render(
+            <AuthProvider>
+                <DiscoverProfile />
+            </AuthProvider>
+        );
+    
+        await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
+
+        expect(screen.queryByTestId("message-button")).toBeNull();
+        expect(screen.queryByTestId("follow-button")).toBeNull();
+    });
 });
