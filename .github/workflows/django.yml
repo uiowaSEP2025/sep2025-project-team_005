@@ -43,7 +43,7 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y chromium-browser chromedriver
+        sudo apt-get install -y chromium-browser chromium-chromedriver
     - name: Install Backend Dependencies
       run: |
         cd backend
