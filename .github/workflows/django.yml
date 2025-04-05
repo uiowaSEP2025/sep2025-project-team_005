@@ -56,15 +56,40 @@ jobs:
         npm audit fix
         npm run build
 
+    - name: Run Docker Compose
+      run: docker compose up -d
+
+    - name: Wait for Services to be Ready
+      run: |
+        cd frontend
+        npm run dev
+        for i in {1..300}; do
+          if curl -s http://localhost:3000 > /dev/null then
+            echo "Services are up!"
+            break
+          fi
+          echo "Waiting for frontend..."
+          sleep 2
+        done
+
+        cd backend
+        python manage.py runserver
+        for i in {1..300}; do
+          if curl -s http://localhost:8000 > /dev/null then
+            echo "Services are up!"
+            break
+          fi
+          echo "Waiting for backend..."
+          sleep 2
+        done
+
     - name: Run Backend Tests
       run: |
-        docker compose up -d
         cd backend
         pytest
         behave test/features/
     - name: Run Frontend Tests
       run: |
-        docker compose up -d
         cd frontend
         npm run test
         
