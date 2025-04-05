@@ -71,7 +71,8 @@ jobs:
           echo "Waiting for frontend..."
           sleep 2
         done
-
+        
+        cd ..
         cd backend
         python manage.py runserver &
         for i in {1..300}; do
