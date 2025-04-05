@@ -71,7 +71,7 @@ jobs:
           echo "Waiting for frontend..."
           sleep 2
         done
-        
+
         cd ..
         cd backend
         python manage.py runserver &
@@ -83,12 +83,12 @@ jobs:
           echo "Waiting for backend..."
           sleep 2
         done
+        pytest
+        behave test/features/
 
     - name: Run Backend Tests
       run: |
         cd backend
-        pytest
-        behave test/features/
     - name: Run Frontend Tests
       run: |
         cd frontend
