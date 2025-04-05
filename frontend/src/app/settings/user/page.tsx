@@ -7,13 +7,12 @@ import { useRouter } from "next/navigation";
 import styles from "@/styles/UserSettings.module.css";
 import Cookies from "js-cookie";
 
-
 type UserData = {
   id: string;
   username: string;
   email: string;
   phone: string;
-  instruments: string[];
+  instruments: { instrument_name: string; years_played: number }[];
   genre: string[];
   password: string;
   new_password: string;
@@ -60,62 +59,134 @@ const EditableList = ({
   onRemove,
   setShowInput,
   isEditing,
-} : {
+  instrumentInput,
+  setInstrumentInput,
+  yearsPlayedInput,
+  setYearsPlayedInput,
+}: {
   label: string;
   field: "instruments" | "genre";
-  values: string[];
+  values: { instrument_name: string; years_played: number }[] | string[];
   showInput: boolean;
   inputValue: string;
   setInputValue: (value: string) => void;
-  onAdd: (field: "instruments" | "genre", value: string) => void;
+  onAdd: (field: "instruments" | "genre", value: string | { instrument_name: string; years_played: number }) => void;
   onRemove: (field: "instruments" | "genre", index: number) => void;
   setShowInput: (show: boolean) => void;
   isEditing: boolean;
+  instrumentInput: string;
+  setInstrumentInput: (value: string) => void;
+  yearsPlayedInput: string;
+  setYearsPlayedInput: (value: string) => void;
 }) => (
   <div className={styles.field}>
     <label className={styles.featureTitle}>{label}</label>
-    <ul data-testid={field === "instruments" ? "instruments-list" : "genres-list"}>
+    <ul>
       {values.map((item, index) => (
-        <li key={index} className={styles.listItem} data-testid={`${field}-item`}>
-          {item}
-          {isEditing && (
-            <button type="button" className={styles.removeButton} data-testid={`remove-button-${index}`} onClick={() => onRemove(field, index)}>
-              -
-            </button>
-          )}
+        <li key={index} className={styles.listItem}>
+          {field === "instruments" && typeof item !== "string" ? (
+            <span>
+              {item.instrument_name} - {item.years_played} years
+              {isEditing && (
+                <button
+                  type="button"
+                  className={styles.removeButton}
+                  onClick={() => onRemove(field, index)}
+                  data-testid={`remove-button-${index}`}
+                >
+                  -
+                </button>
+              )}
+            </span>
+          ) : field === "genre" ? (
+            <span>
+              {String(item)}
+              {isEditing && (
+                <button
+                  type="button"
+                  className={styles.removeButton}
+                  onClick={() => onRemove(field, index)}
+                  data-testid={`remove-button-${index}`}
+                >
+                  -
+                </button>
+              )}
+            </span>
+          ) : null}
         </li>
       ))}
     </ul>
+
     {isEditing && (
       <>
         {!showInput && (
-          <button type="button" className={styles.primaryButton} onClick={() => setShowInput(true)} data-testid={`${field}-add-button`}>
+          <button
+            type="button"
+            className={styles.primaryButton}
+            onClick={() => setShowInput(true)}
+            data-testid={`${field}-add-button`}
+          >
             +
           </button>
         )}
 
-        {showInput && (
-          <>
+        {showInput && field === "instruments" && (
+          <div className={styles.instrumentInputContainer}>
             <input
               type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
+              value={instrumentInput} // Separate state for instrument name
+              onChange={(e) => setInstrumentInput(e.target.value)}
               className={styles.inputField}
-              placeholder={`Add ${label.toLowerCase()}`}
-              data-testid={`${field}-input`}
+              placeholder="Add instruments"
+            />
+            <input
+              type="number"
+              value={yearsPlayedInput} // Separate state for years played
+              onChange={(e) => setYearsPlayedInput(e.target.value)}
+              className={styles.inputField}
+              placeholder="Years played"
             />
             <button
               type="button"
               className={styles.primaryButton}
               onClick={() => {
-                onAdd(field, inputValue);
+                if (!instrumentInput || !yearsPlayedInput) return;
+                onAdd(field, { instrument_name: instrumentInput, years_played: Number(yearsPlayedInput) });
+                setInstrumentInput(""); // Clear input after adding
+                setYearsPlayedInput("");
                 setShowInput(false);
               }}
-              data-testid={`${field}-confirm-add`}
+              data-testid="instruments-confirm-add"
             >
               Add
             </button>
-          </>
+          </div>
+        )}
+
+
+        {showInput && field === "genre" && (
+          <div className={styles.instrumentInputContainer}>
+            <input
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              className={styles.inputField}
+              placeholder="Add Genre"
+            />
+            <button
+              type="button"
+              className={styles.primaryButton}
+              onClick={() => {
+                if (!inputValue) return;
+                onAdd(field, inputValue);
+                setInputValue("");
+                setShowInput(false);
+              }}
+              data-testid={`genre-confirm-add`}
+            >
+              Add
+            </button>
+          </div>
         )}
       </>
     )}
@@ -130,7 +201,7 @@ type PasswordFieldProps = {
 };
 
 const PasswordField = ({ field, value, onChange, isEditing }: PasswordFieldProps) => {
-  const [showPassword, setShowPassword] = useState(false);
+const [showPassword, setShowPassword] = useState(false);
 
   return (
     <div className={styles.field}>
@@ -150,6 +221,7 @@ const PasswordField = ({ field, value, onChange, isEditing }: PasswordFieldProps
           type="button"
           className={styles.eyeButton}
           onClick={() => setShowPassword((prev) => !prev)}
+          aria-label="Show Password"
         >
           {showPassword ? <EyeOff size={30} /> : <Eye size={30} />}
         </button>
@@ -168,6 +240,7 @@ export default function UserSettings() {
   const [isEditing, setIsEditing] = useState(false);
   const [showInputField, setShowInputField] = useState<"instruments" | "genre" | null>(null);
   const [instrumentInput, setInstrumentInput] = useState("");
+  const [yearsPlayedInput, setYearsPlayedInput] = useState("");
   const [genreInput, setGenreInput] = useState("");
 
   const [userData, setUserData] = useState<UserData>({
@@ -310,16 +383,22 @@ export default function UserSettings() {
     setUserData((prev) => ({ ...prev, [field]: newValue }));
   };
 
-  const handleAddToList = (field: "instruments" | "genre", value: string) => {
-    if (value.trim() !== "") {
+  const handleAddToList = (field: "instruments" | "genre", value: string | { instrument_name: string; years_played: number }) => {
+    if (field === "instruments" && typeof value !== "string") {
+      setUserData((prev) => ({
+        ...prev,
+        instruments: [...prev.instruments, value], // Directly add the object
+      }));
+    } else if (typeof value === "string") {
       setUserData((prev) => ({
         ...prev,
         [field]: [...prev[field], value],
       }));
     }
+  
     if (field === "instruments") setInstrumentInput("");
     if (field === "genre") setGenreInput("");
-  };
+  };  
 
   const handleRemoveFromList = (field: "instruments" | "genre", index: number) => {
     setUserData((prev) => ({
@@ -392,29 +471,37 @@ export default function UserSettings() {
             <h2 className={styles.cardTitle}>Experience Information</h2>
             
             <EditableList
-                label="Instruments"
-                field="instruments"
-                values={userData.instruments}
-                showInput={showInputField === "instruments"}
-                inputValue={instrumentInput}
-                setInputValue={setInstrumentInput}
-                onAdd={handleAddToList}
-                onRemove={handleRemoveFromList}
-                setShowInput={(show) => setShowInputField(show ? "instruments" : null)}
-                isEditing={editExperience}
+              label="Instruments"
+              field="instruments"
+              values={userData.instruments}
+              showInput={showInputField === "instruments"}
+              inputValue={instrumentInput}
+              setInputValue={setInstrumentInput}
+              onAdd={handleAddToList}
+              onRemove={handleRemoveFromList}
+              setShowInput={(show) => setShowInputField(show ? "instruments" : null)}
+              isEditing={editExperience}
+              instrumentInput= {instrumentInput}
+              setInstrumentInput= {setInstrumentInput}
+              yearsPlayedInput= {yearsPlayedInput}
+              setYearsPlayedInput= {setYearsPlayedInput}
             />
-            
+
             <EditableList
-                label="Genre"
-                field="genre"
-                values={userData.genre}
-                showInput={showInputField === "genre"}
-                inputValue={genreInput}
-                setInputValue={setGenreInput}
-                onAdd={handleAddToList}
-                onRemove={handleRemoveFromList}
-                setShowInput={(show) => setShowInputField(show ? "genre" : null)}
-                isEditing={editExperience}
+              label="Genre"
+              field="genre"
+              values={userData.genre}
+              showInput={showInputField === "genre"}
+              inputValue={genreInput}
+              setInputValue={setGenreInput}
+              onAdd={handleAddToList}
+              onRemove={handleRemoveFromList}
+              setShowInput={(show) => setShowInputField(show ? "genre" : null)}
+              isEditing={editExperience}
+              instrumentInput= {instrumentInput}
+              setInstrumentInput= {setInstrumentInput}
+              yearsPlayedInput= {yearsPlayedInput}
+              setYearsPlayedInput= {setYearsPlayedInput}
             />
             
             <button

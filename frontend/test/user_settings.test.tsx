@@ -132,11 +132,15 @@ describe("User Settings Page", () => {
     
         const instrumentInput = screen.getByPlaceholderText(/Add instruments/i);
         fireEvent.change(instrumentInput, { target: { value: "Drums" } });
+
+        const yearsPlayedInput = screen.getByPlaceholderText(/Years played/i);
+        fireEvent.change(yearsPlayedInput, { target: { value: "5" } });
     
         const addConfirmButton = await screen.findByTestId("instruments-confirm-add");
         fireEvent.click(addConfirmButton);
     
-        expect(screen.getByText("Drums")).toBeInTheDocument();
+        const instrumentText = await screen.findByText("Drums - 5 years");
+        expect(instrumentText).toBeInTheDocument();
     });
 
     it("removes an instrument from the list", async () => {
