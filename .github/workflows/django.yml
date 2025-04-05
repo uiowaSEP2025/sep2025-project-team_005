@@ -1,6 +1,7 @@
 name: Django CI
 
 on:
+  workflow_dispatch: {}
   push:
     branches: [ "main" ]
   pull_request:
@@ -25,6 +26,8 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
+      CHROMIUM_BROWSER_PATH: "/usr/bin/chromium-browser"
+      CHROME_DRIVER_PATH: '/usr/bin/chromedriver'
     strategy:
       max-parallel: 4
       matrix:
@@ -36,13 +39,58 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install Dependencies
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y chromium-browser chromium-chromedriver
+    - name: Install Backend Dependencies
       run: |
         cd backend
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-    - name: Run Tests
+    - name: Install Frontend Dependencies
       run: |
-        docker compose up -d
+        cd frontend
+        npm install
+        npm audit fix
+        npm run build
+
+    - name: Run Docker Compose
+      run: docker compose up -d
+
+    - name: Wait for Services to be Ready
+      run: |
+        cd frontend
+        npm run dev &
+        for i in {1..300}; do
+          if curl -s http://localhost:3000 > /dev/null; then
+            echo "Services are up!"
+            break
+          fi
+          echo "Waiting for frontend..."
+          sleep 2
+        done
+
+        cd ..
         cd backend
+        python manage.py runserver &
+        for i in {1..300}; do
+          if curl -s http://localhost:8000 > /dev/null; then
+            echo "Services are up!"
+            break
+          fi
+          echo "Waiting for backend..."
+          sleep 2
+        done
         pytest
+        behave test/features/
+
+    - name: Run Backend Tests
+      run: |
+        cd backend
+    - name: Run Frontend Tests
+      run: |
+        cd frontend
+        npm run test
+        
