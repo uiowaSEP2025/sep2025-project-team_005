@@ -62,9 +62,9 @@ jobs:
     - name: Wait for Services to be Ready
       run: |
         cd frontend
-        npm run dev
+        npm run dev &
         for i in {1..300}; do
-          if curl -s http://localhost:3000 > /dev/null then
+          if curl -s http://localhost:3000 > /dev/null; then
             echo "Services are up!"
             break
           fi
@@ -73,9 +73,9 @@ jobs:
         done
 
         cd backend
-        python manage.py runserver
+        python manage.py runserver &
         for i in {1..300}; do
-          if curl -s http://localhost:8000 > /dev/null then
+          if curl -s http://localhost:8000 > /dev/null; then
             echo "Services are up!"
             break
           fi
