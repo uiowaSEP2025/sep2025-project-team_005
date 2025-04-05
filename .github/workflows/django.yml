@@ -1,6 +1,7 @@
 name: Django CI
 
 on:
+  workflow_dispatch: {}
   push:
     branches: [ "main" ]
   pull_request:
@@ -25,6 +26,8 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
+      CHROMIUM_BROWSER_PATH: "/usr/bin/chromium-browser"
+      CHROME_DRIVER_PATH: '/usr/bin/chromedriver'
     strategy:
       max-parallel: 4
       matrix:
@@ -36,7 +39,11 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
-        
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y chromium-browser chromedriver
     - name: Install Backend Dependencies
       run: |
         cd backend
@@ -54,9 +61,17 @@ jobs:
         docker compose up -d
         cd backend
         pytest
+
+        cd ..
+        cd frontend
+        npm run dev
+        cd ..
+        cd backend
+        python manage.py runserver
         behave test/features/
     - name: Run Frontend Tests
       run: |
         docker compose up -d
         cd frontend
-        npm run test --coverage
+        npm run test
+        
