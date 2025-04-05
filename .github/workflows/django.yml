@@ -61,13 +61,6 @@ jobs:
         docker compose up -d
         cd backend
         pytest
-
-        cd ..
-        cd frontend
-        npm run dev
-        cd ..
-        cd backend
-        python manage.py runserver
         behave test/features/
     - name: Run Frontend Tests
       run: |
