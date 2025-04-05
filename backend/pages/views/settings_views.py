@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from pages.models import Musician, User, Genre, Instrument
+from pages.models import Musician, User, Genre, Instrument, MusicianInstrument
 from pages.serializers.musician_serializers import MusicianSerializer
 from django.contrib.auth.hashers import check_password
 from rest_framework.permissions import IsAuthenticated
@@ -43,33 +43,49 @@ class MusicianDetailView(APIView):
             musician.stage_name = request.data.get("stage_name", musician.stage_name)
             musician.years_played = request.data.get("years_played", musician.years_played)
             musician.home_studio = request.data.get("home_studio", musician.stage_name)
-            musician.instruments.clear()
-            musician.genres.clear()
-
+            musician.save()
+            
             instruments = request.data.get("instruments", [])
             genres = request.data.get("genre", [])
 
+            # Update instruments with years_played
             if 'instruments' in request.data:
                 musician.instruments.clear()
-                instruments = request.data.get("instruments", [])
-                for instrument_name in instruments:
+                for instrument_data in instruments:
+                    instrument_name = instrument_data.get('instrument_name')
+                    years_played = instrument_data.get('years_played', 0)
+
                     try:
                         instrument = Instrument.objects.get(instrument=instrument_name)
-                        musician.instruments.add(instrument)
+                        musician_instrument, created = MusicianInstrument.objects.update_or_create(
+                            musician=musician,
+                            instrument=instrument,
+                            defaults={'years_played': years_played}
+                        )
+                        if created:
+                            musician.instruments.add(instrument)
                     except Instrument.DoesNotExist:
                         print(f"Instrument '{instrument_name}' not found")
 
             if 'genre' in request.data:
-                musician.genres.clear()
-                genres = request.data.get("genre", [])
+                musician.genres.clear()  # Clear existing genres
+
+                missing_genres = []  # Track genres that were not found in the database
                 for genre_name in genres:
                     try:
                         genre = Genre.objects.get(genre=genre_name)
                         musician.genres.add(genre)
+                    
                     except Genre.DoesNotExist:
-                        print(f"Genre '{genre_name}' not found")
+                        missing_genres.append(genre_name)
 
-            musician.save()
+                # Return a response indicating which genres weren't found in the database
+                if missing_genres:
+                    return Response(
+                        {"error": f"Genre(s) not found: {', '.join(missing_genres)}"},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
 
             return Response({"message": "Profile updated successfully"}, status=status.HTTP_200_OK)
         except User.DoesNotExist:
