@@ -52,8 +52,8 @@ jobs:
     - name: Install Frontend Dependencies
       run: |
         cd frontend
-        npm audit fix
         npm install
+        npm audit fix
         npm run build
 
     - name: Run Backend Tests
