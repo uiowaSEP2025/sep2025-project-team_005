@@ -24,9 +24,7 @@ def mock_s3_client(monkeypatch):
     return mock
 
 def test_generate_s3_url(file_key, file_type, mock_get_bucket_name, mock_s3_client):
-    print("Starting the test...")
     s3_url = generate_s3_url(file_key, file_type)
-    print(f"Generated URL: {s3_url}")
 
     assert s3_url == "https://mock-presigned-url.com"
     mock_get_bucket_name.assert_called_once_with(file_type)
