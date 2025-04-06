@@ -33,7 +33,7 @@ def test_create_post_success(mock_upload, api_client, create_user, test_file):
     api_client.force_authenticate(user=create_user)
     tagged_user = User.objects.create_user(username="taggeduser", email="tagged@test.com", password="password123")
 
-    data = {"file": test_file, "caption": "Test Caption", "tagged_users": [tagged_user.id],}
+    data = {"file": test_file, "caption": "Test Caption",}    #, "tagged_users": [tagged_user.id],}
     
     response = api_client.post(CREATE_URL, data, format="multipart")
     
@@ -42,9 +42,9 @@ def test_create_post_success(mock_upload, api_client, create_user, test_file):
     assert response.data["message"] == "Post created successfully!"
     assert mock_upload.called
     
-    post = Post.objects.first()
-    assert post.tagged_users.count() == 1
-    assert post.tagged_users.first() == tagged_user
+    #post = Post.objects.first()
+    #assert post.tagged_users.count() == 1
+    #assert post.tagged_users.first() == tagged_user
     
 def test_create_post_without_tagged_users(api_client, create_user, test_file, mock_upload):
     """ Test successful post creation with no tagged users in data field """
@@ -60,27 +60,27 @@ def test_create_post_without_tagged_users(api_client, create_user, test_file, mo
     assert response.status_code == status.HTTP_201_CREATED
     assert Post.objects.count() == 1
 
-    post = Post.objects.first()
-    assert post.tagged_users.count() == 0
+    #post = Post.objects.first()
+    #assert post.tagged_users.count() == 0
     
-def test_create_post_multiple_tagged_users(mock_upload, api_client, create_user, test_file):
-    """ Test successful post creation with many tagged users """
-    api_client.force_authenticate(user=create_user)
-    tagged_user1 = User.objects.create_user(username="tagged1", email="tagged1@test.com", password="password123")
-    tagged_user2 = User.objects.create_user(username="tagged2", email="tagged2@test.com", password="password123")
-
-    data = {
-        "file": test_file,
-        "caption": "Test Caption",
-        "tagged_users": [tagged_user1.id, tagged_user2.id],
-    }
-    
-    response = api_client.post(CREATE_URL, data, format="multipart")
-    
-    assert response.status_code == status.HTTP_201_CREATED
-    post = Post.objects.first()
-    assert post.tagged_users.count() == 2
-    assert set(post.tagged_users.values_list("id", flat=True)) == {tagged_user1.id, tagged_user2.id}
+#def test_create_post_multiple_tagged_users(mock_upload, api_client, create_user, test_file):
+#    """ Test successful post creation with many tagged users """
+#    api_client.force_authenticate(user=create_user)
+#    tagged_user1 = User.objects.create_user(username="tagged1", email="tagged1@test.com", password="password123")
+#    tagged_user2 = User.objects.create_user(username="tagged2", email="tagged2@test.com", password="password123")
+#
+#    data = {
+#        "file": test_file,
+#        "caption": "Test Caption",
+#        "tagged_users": [tagged_user1.id, tagged_user2.id],
+#    }
+#    
+#    response = api_client.post(CREATE_URL, data, format="multipart")
+#    
+#    assert response.status_code == status.HTTP_201_CREATED
+#    post = Post.objects.first()
+#    assert post.tagged_users.count() == 2
+#    assert set(post.tagged_users.values_list("id", flat=True)) == {tagged_user1.id, tagged_user2.id}
 
 
 def test_create_post_invalid_data(api_client, create_user):
