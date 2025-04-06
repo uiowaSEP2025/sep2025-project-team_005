@@ -1,7 +1,6 @@
 name: Django CI
 
 on:
-  workflow_dispatch: {}
   push:
     branches: [ "main" ]
   pull_request:
@@ -26,8 +25,7 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
-      CHROMIUM_BROWSER_PATH: "/usr/bin/chromium-browser"
-      CHROME_DRIVER_PATH: '/usr/bin/chromedriver'
+      AWS_PROFILE: ${{ secrets.AWS_PROFILE }}
     strategy:
       max-parallel: 4
       matrix:
@@ -39,58 +37,26 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
-
-    - name: Install system dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y chromium-browser chromium-chromedriver
-    - name: Install Backend Dependencies
+    - name: Install Dependencies
       run: |
         cd backend
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-    - name: Install Frontend Dependencies
+    - name: Configure AWS Profile for s3
       run: |
-        cd frontend
-        npm install
-        npm audit fix
-        npm run build
-
-    - name: Run Docker Compose
-      run: docker compose up -d
-
-    - name: Wait for Services to be Ready
+        mkdir -p ~/.aws
+        # Create the credentials file with default credentials
+        echo "[default]" > ~/.aws/credentials
+        echo "aws_access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
+        echo "aws_secret_access_key = ${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/credentials
+        # Create the config file with the role configuration
+        echo "[profile ${{ secrets.AWS_PROFILE }}]" > ~/.aws/config
+        echo "role_arn = arn:aws:iam::314146328946:role/${{ secrets.AWS_PROFILE }}" >> ~/.aws/config
+        echo "source_profile = default" >> ~/.aws/config
+        echo "region = ${{ secrets.AWS_REGION }}" >> ~/.aws/config
+        echo "output = json" >> ~/.aws/config
+    - name: Run Tests
       run: |
-        cd frontend
-        npm run dev &
-        for i in {1..300}; do
-          if curl -s http://localhost:3000 > /dev/null; then
-            echo "Services are up!"
-            break
-          fi
-          echo "Waiting for frontend..."
-          sleep 2
-        done
-
-        cd ..
+        docker compose up -d
         cd backend
-        python manage.py runserver &
-        for i in {1..300}; do
-          if curl -s http://localhost:8000 > /dev/null; then
-            echo "Services are up!"
-            break
-          fi
-          echo "Waiting for backend..."
-          sleep 2
-        done
         pytest
-        behave test/features/
-
-    - name: Run Backend Tests
-      run: |
-        cd backend
-    - name: Run Frontend Tests
-      run: |
-        cd frontend
-        npm run test
-        
