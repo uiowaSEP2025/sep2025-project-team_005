@@ -14,7 +14,7 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     caption = models.TextField(validators=[MaxLengthValidator(500)], blank=True)
     
-    tagged_users = models.ManyToManyField(User, related_name="tagged_users")
+    #tagged_users = models.ManyToManyField(User, related_name="tagged_users")
     likes = models.ManyToManyField(User, related_name="liked_posts", blank=True)
     
     def like_count(self):
