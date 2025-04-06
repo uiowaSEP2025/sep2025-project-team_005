@@ -1,4 +1,3 @@
-from unittest.mock import patch
 import pytest
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -18,13 +17,12 @@ def create_user(db):
     return user
 
 @pytest.fixture
-def create_posts(db):
+def create_post(db, create_user):
     post = Post.objects.create(
         owner=create_user,
         file_key="user_0001/test.png",
         file_type="image/png",
         caption="Test",
-        created_at=now()
     )
     return post
 
@@ -33,17 +31,16 @@ def api_client():
     return APIClient()
 
 @pytest.fixture
-def mock_upload(mocker):
-    mock = mocker.patch("pages.views.post_views.upload_to_s3")
-    mock.return_value = ("https://mock_s3_url.com/test.jpg", "user_0000/test.jpg")
-    yield mock
-
-@pytest.fixture
 def test_file():
     return SimpleUploadedFile("test.jpg", b"file_content", content_type="image/jpeg")
 
+@pytest.fixture
+def mock_generate_s3_url(mocker):
+    mock = mocker.patch("pages.serializers.post_serializers.generate_s3_url")
+    mock.return_value = "https://mock-s3-url.com/user_0000/test.jpg"
+    yield mock
 
-def test_fetch_posts(api_client, create_user, create_posts):
+def test_fetch_posts(api_client, create_user, create_post, mock_generate_s3_url):
     api_client.force_authenticate(user=create_user)
 
     response = api_client.get(f"/api/fetch-posts/?username={create_user.username}")
@@ -54,14 +51,16 @@ def test_fetch_posts(api_client, create_user, create_posts):
     assert response.data["results"][0]["file_type"] == "image/png"
     assert response.data["results"][0]["caption"] == "Test"
 
-def test_fetch_posts_order(api_client, create_user, db):
+def test_fetch_posts_order(api_client, create_user, create_post, db, mock_generate_s3_url):
     post2 = Post.objects.create(
         owner=create_user,
         file_key="user_0001/test2.jpg",
         file_type="image/jpeg",
-        created_at=now() - timedelta(days=1),
         caption="Test2"
     )
+
+    post2.created_at = now() - timedelta(days=1)
+    post2.save()
 
     response = api_client.get(f"/api/fetch-posts/?username={create_user.username}")
 
@@ -69,10 +68,7 @@ def test_fetch_posts_order(api_client, create_user, db):
     assert response.data["results"][0]["caption"] == "Test"
     assert response.data["results"][1]["caption"] == "Test2"
 
-@patch("pages.serializers.generate_s3_url")
-def test_post_serializer(mock_generate_s3_url, create_post):    
-    mock_generate_s3_url.return_value = "https://mock-s3-url.com/user_0000/test.jpg"
-    
+def test_post_serializer(mocker, create_post, mock_generate_s3_url):
     serializer = PostSerializer(create_post)
     data = serializer.data
 

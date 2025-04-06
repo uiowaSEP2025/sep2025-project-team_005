@@ -2,6 +2,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import DiscoverProfile from "@/app/[username]/page";
 import { AuthProvider } from "@/context/ProfileContext";
 import fetchMock from "jest-fetch-mock";
+import React from "react";
 
 fetchMock.enableMocks();
 
@@ -15,36 +16,48 @@ jest.mock("next/navigation", () => ({
 }));
 
 describe("Discover Profile Page", () => {
+    let consoleErrorSpy: any;
+
+    const musicianProfile = {
+        stage_name: "John Doe",
+        years_played: 5,
+        home_studio: true,
+        genres: ["Rock", "Pop"],
+        instruments: [
+          { instrument_name: "Guitar", years_played: 3 },
+          { instrument_name: "Drums", years_played: 2 },
+        ],
+    };
+
+    const followCount = {
+        follower_count: 100,
+        following_count: 50,
+    }
+
     beforeEach(() => {
         fetchMock.resetMocks();
         fetchMock.mockResponses(
             [JSON.stringify({ user_id: "123" }), { status: 200 }],
-            [JSON.stringify({
-                stage_name: "John Doe",
-                years_played: 5,
-                home_studio: true,
-                genres: ["Rock", "Pop"],
-                instruments: [{ instrument_name: "Guitar", years_played: 3 },
-                    { instrument_name: "Drums", years_played: 2 }
-                ],
-            }), { status: 200 }],
-            [JSON.stringify({
-                follower_count: 100,
-                following_count: 50,
-            }), { status: 200 }]
+            [JSON.stringify(musicianProfile), { status: 200 }],
+            [JSON.stringify(followCount), { status: 200 }]
         );
+        consoleErrorSpy = jest.spyOn(console, "error").mockImplementationOnce(() => {});
     });
+
+    const renderProfile = () => {
+        render(
+            <AuthProvider>
+                <DiscoverProfile />
+            </AuthProvider>
+        );
+    };
 
     afterEach(() => {
         jest.restoreAllMocks();
     });
 
     it("renders user profile correctly", async () => {
-        render(
-            <AuthProvider>
-                <DiscoverProfile />
-            </AuthProvider>
-        );
+        renderProfile();
 
         await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
 
@@ -62,11 +75,7 @@ describe("Discover Profile Page", () => {
     });
 
     it("toggles dropdown menu", async () => {
-        render(
-            <AuthProvider>
-                <DiscoverProfile />
-            </AuthProvider>
-        );
+        renderProfile();;
 
         const dropdownButton = await screen.findByTestId("dropdown-button");
         
@@ -81,13 +90,7 @@ describe("Discover Profile Page", () => {
     });
 
     it("shows loading state when data is still loading", async () => {
-        fetchMock.resetMocks();
-
-        render(
-            <AuthProvider>
-                <DiscoverProfile />
-            </AuthProvider>
-        );
+        renderProfile();
 
         expect(screen.getByText("Loading...")).toBeInTheDocument();
     });
@@ -96,20 +99,26 @@ describe("Discover Profile Page", () => {
         fetchMock.resetMocks();
         fetchMock.mockReject(new Error("Failed to fetch"));
     
-        const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
-    
-        render(
-            <AuthProvider>
-                <DiscoverProfile />
-            </AuthProvider>
-        );
-    
-        await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
-    
-        expect(consoleErrorSpy).toHaveBeenCalledWith("Error fetching user ID:", expect.any(Error));
-    
+        renderProfile();
+        
+        await waitFor(() => {
+            expect(consoleErrorSpy).toHaveBeenCalledWith("Error fetching user ID:", expect.any(Error));
+        });
         consoleErrorSpy.mockRestore();
     });
+
+    
+    it("logs error on failed response for user id", async () => {
+        fetchMock.resetMocks();
+        fetchMock.mockResponseOnce(JSON.stringify({}), { status: 500 });
+
+        renderProfile();
+
+        await waitFor(() => {
+            expect(consoleErrorSpy).toHaveBeenCalledWith("Failed to fetch user ID", "Internal Server Error");
+        });
+    });
+
 
     it("shows appropriate buttons when viewing own profile", async () => {
         jest.spyOn(require("@/context/ProfileContext"), "useAuth").mockReturnValue({
@@ -117,11 +126,7 @@ describe("Discover Profile Page", () => {
             isLoading: false,
         });
     
-        render(
-            <AuthProvider>
-                <DiscoverProfile />
-            </AuthProvider>
-        );
+        renderProfile();
     
         await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
 
@@ -135,11 +140,7 @@ describe("Discover Profile Page", () => {
             isLoading: false,
         });
     
-        render(
-            <AuthProvider>
-                <DiscoverProfile />
-            </AuthProvider>
-        );
+        renderProfile();
     
         await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
     
@@ -154,14 +155,8 @@ describe("Discover Profile Page", () => {
             [JSON.stringify({}), { status: 500 }],
             [JSON.stringify({ follower_count: 100, following_count: 50 }), { status: 200 }]
         );
-    
-        const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
-    
-        render(
-            <AuthProvider>
-                <DiscoverProfile />
-            </AuthProvider>
-        );
+        
+        renderProfile();
     
         await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
     
@@ -176,11 +171,7 @@ describe("Discover Profile Page", () => {
             isLoading: false,
         });
     
-        render(
-            <AuthProvider>
-                <DiscoverProfile />
-            </AuthProvider>
-        );
+        renderProfile();
     
         await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
     
@@ -202,11 +193,7 @@ describe("Discover Profile Page", () => {
             isLoading: false,
         });
     
-        render(
-            <AuthProvider>
-                <DiscoverProfile />
-            </AuthProvider>
-        );
+        renderProfile();
     
         await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
     
@@ -228,11 +215,7 @@ describe("Discover Profile Page", () => {
             isLoading: false,
         });
     
-        render(
-            <AuthProvider>
-                <DiscoverProfile />
-            </AuthProvider>
-        );
+        renderProfile();
     
         await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
 
@@ -246,11 +229,7 @@ describe("Discover Profile Page", () => {
             isLoading: false,
         });
     
-        render(
-            <AuthProvider>
-                <DiscoverProfile />
-            </AuthProvider>
-        );
+        renderProfile();
     
         await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
 

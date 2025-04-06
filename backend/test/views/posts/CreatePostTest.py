@@ -21,7 +21,7 @@ def api_client():
 @pytest.fixture
 def mock_upload(mocker):
     mock = mocker.patch("pages.views.post_views.upload_to_s3")
-    mock.return_value = ("https://mock_s3_url.com/test.jpg", "user_0000/test.jpg")
+    mock.return_value = ("user_0000/test.jpg")
     yield mock
 
 @pytest.fixture
@@ -46,7 +46,7 @@ def test_create_post_success(mock_upload, api_client, create_user, test_file):
     assert post.tagged_users.count() == 1
     assert post.tagged_users.first() == tagged_user
     
-def test_create_post_without_tagged_users(api_client, create_user, test_file):
+def test_create_post_without_tagged_users(api_client, create_user, test_file, mock_upload):
     """ Test successful post creation with no tagged users in data field """
     api_client.force_authenticate(user=create_user)
 
@@ -56,7 +56,7 @@ def test_create_post_without_tagged_users(api_client, create_user, test_file):
     }
     
     response = api_client.post(CREATE_URL, data, format="multipart")
-    
+
     assert response.status_code == status.HTTP_201_CREATED
     assert Post.objects.count() == 1
 
