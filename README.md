@@ -160,9 +160,15 @@ cd backend
 pytest test/path/to/test.py -v
 ```
 #### All Frontend Tests
-TODO
+```sh
+cd frontend
+npm test
+```
 #### Single File Frontend Tests
-TODO
+```sh
+cd frontend
+npm test path/to/test.tsx
+```
 
 ### Functional Tests
 #### All Backend Tests
@@ -175,12 +181,6 @@ cd frontend
 npm run dev
 
 pytest
-```
-#### Single File Frontend Jest Tests
-```sh
-cd frontend
-npm run test
-
 ```
 
 ### Integration Tests

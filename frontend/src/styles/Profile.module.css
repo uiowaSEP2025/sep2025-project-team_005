@@ -119,7 +119,6 @@
     right: 1rem;
     background-color: #3b82f6;
     color: #ffffff;
-    font-size: 1.5rem;
     font-weight: bold;
     border: none;
     border-radius: 0.5rem;
@@ -146,6 +145,8 @@
 
 /* Improve Readability */
 .bioTitle, .featureTitle {
+    text-align: center;
+    flex-grow: 1;
     font-size: 1.75rem;
     font-weight: bold;
     color: var(--text-light);
@@ -162,11 +163,21 @@
     width: 100%;
     max-width: 48rem;
     margin-top: 2rem;
+    position: relative;
+    vertical-align: middle;
+}
+
+.postsHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 1rem;
 }
 
 .postsGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
     margin-top: 1rem;
 }
@@ -179,6 +190,27 @@
     font-size: 1.25rem;
     font-weight: bold;
     text-align: center;
+}
+
+.imageContainer {
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+    border-radius: 20px;
+    border-color: var(--secondary);
+    border-width: 1px;
+}
+
+.imageContainer img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 20px;
+}
+
+.imageContainer:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 /* Dropdown Menu */
