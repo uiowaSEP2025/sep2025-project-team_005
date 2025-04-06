@@ -17,7 +17,7 @@ def create_user(db):
     return user
 
 @pytest.fixture
-def create_posts(db, create_user):
+def create_post(db, create_user):
     post = Post.objects.create(
         owner=create_user,
         file_key="user_0001/test.png",
@@ -40,8 +40,13 @@ def mock_upload(mocker):
 def test_file():
     return SimpleUploadedFile("test.jpg", b"file_content", content_type="image/jpeg")
 
+@pytest.fixture
+def mock_generate_s3_url(mocker):
+    mock = mocker.patch("pages.serializers.post_serializers.generate_s3_url")
+    mock.return_value = "https://mock-s3-url.com/user_0000/test.jpg"
+    yield mock
 
-def test_fetch_posts(api_client, create_user, create_posts):
+def test_fetch_posts(api_client, create_user, create_post, mock_generate_s3_url):
     api_client.force_authenticate(user=create_user)
 
     response = api_client.get(f"/api/fetch-posts/?username={create_user.username}")
@@ -52,7 +57,7 @@ def test_fetch_posts(api_client, create_user, create_posts):
     assert response.data["results"][0]["file_type"] == "image/png"
     assert response.data["results"][0]["caption"] == "Test"
 
-def test_fetch_posts_order(api_client, create_user, create_posts, db):
+def test_fetch_posts_order(api_client, create_user, create_post, db, mock_generate_s3_url):
     post2 = Post.objects.create(
         owner=create_user,
         file_key="user_0001/test2.jpg",
@@ -69,15 +74,12 @@ def test_fetch_posts_order(api_client, create_user, create_posts, db):
     assert response.data["results"][0]["caption"] == "Test"
     assert response.data["results"][1]["caption"] == "Test2"
 
-def test_post_serializer(mocker, create_posts):
-    mock_generate_s3_url = mocker.patch("pages.serializers.post_serializers.generate_s3_url")
-    mock_generate_s3_url.return_value = "https://mock-s3-url.com/user_0000/test.jpg"
-    
-    serializer = PostSerializer(create_posts)
+def test_post_serializer(mocker, create_post, mock_generate_s3_url):
+    serializer = PostSerializer(create_post)
     data = serializer.data
 
-    assert data["id"] == str(create_posts.id)
-    assert data["owner"] == create_posts.owner.id
+    assert data["id"] == str(create_post.id)
+    assert data["owner"] == create_post.owner.id
     assert data["file_key"] == "user_0001/test.png"
     assert data["file_type"] == "image/png"
     assert data["caption"] == "Test"
