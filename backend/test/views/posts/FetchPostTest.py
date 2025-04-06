@@ -31,12 +31,6 @@ def api_client():
     return APIClient()
 
 @pytest.fixture
-def mock_upload(mocker):
-    mock = mocker.patch("pages.utils.s3_utils.upload_to_s3")
-    mock.return_value = "user_0000/test.jpg"
-    yield mock
-
-@pytest.fixture
 def test_file():
     return SimpleUploadedFile("test.jpg", b"file_content", content_type="image/jpeg")
 
