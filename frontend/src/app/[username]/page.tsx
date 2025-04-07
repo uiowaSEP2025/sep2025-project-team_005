@@ -318,55 +318,56 @@ export default function DiscoverProfile() {
                         </div>
                     )
                 )}
-            </div>
+                </div>
 
-            <div className={styles.bioSection}>
-                {profile?.username === username && (
-                    <button className={styles.editButton} onClick={handleUpdateProfile} data-testid="edit-button"><Edit size={24}/></button>
-                )}
-                <h2 className={styles.bioTitle}>About</h2>
-                <p className={styles.description}><strong>Home Studio:</strong> {musicianProfile.home_studio ? "Yes" : "No"}</p>
-                <p className={styles.description}><strong>Genres:</strong> {musicianProfile.genres.join(", ")}</p>
-                <p className={styles.description}>
-                    <strong>Instruments: </strong>
-                    <span>
-                        {musicianProfile.instruments.map((instr, index) => (
-                            <React.Fragment key={index}>
-                                {instr.instrument_name} - {instr.years_played} years
-                                {index < musicianProfile.instruments.length - 1 && <br />}
-                            </React.Fragment>
-                        ))}
-                    </span>
-                </p>
-            </div>
-            
-            <div className={styles.postsSection}>
-                <div className={styles.postsHeader}>
-                    <h2 className={styles.featureTitle}>Posts</h2>
+                <div className={styles.bioSection}>
                     {profile?.username === username && (
-                        <div>
-                            <button className={styles.editButton} onClick={handlePost} data-testid="post-button">Post</button>
-                            <input type="file" onChange={handleFileUpload} />
+                        <button className={styles.editButton} onClick={handleUpdateProfile} data-testid="edit-button"><Edit size={24}/></button>
+                    )}
+                    <h2 className={styles.bioTitle}>About</h2>
+                    <p className={styles.description}><strong>Home Studio:</strong> {musicianProfile.home_studio ? "Yes" : "No"}</p>
+                    <p className={styles.description}><strong>Genres:</strong> {musicianProfile.genres.join(", ")}</p>
+                    <p className={styles.description}>
+                        <strong>Instruments: </strong>
+                        <span>
+                            {musicianProfile.instruments.map((instr, index) => (
+                                <React.Fragment key={index}>
+                                    {instr.instrument_name} - {instr.years_played} years
+                                    {index < musicianProfile.instruments.length - 1 && <br />}
+                                </React.Fragment>
+                            ))}
+                        </span>
+                    </p>
+                </div>
+                
+                <div className={styles.postsSection}>
+                    <div className={styles.postsHeader}>
+                        <h2 className={styles.featureTitle}>Posts</h2>
+                        {profile?.username === username && (
+                            <div>
+                                <button className={styles.editButton} onClick={handlePost} data-testid="post-button">Post</button>
+                                <input type="file" onChange={handleFileUpload} />
+                            </div>
+                        )}
+                    </div>
+                    {loading && <p>Loading posts...</p>}
+                    {posts.length > 0 ? (
+                        <div className={styles.postsGrid}>
+                            {posts.map((post, index) => (
+                                <div key={index} className={styles.imageContainer} onClick={() => handlePostClick(post)}>
+                                    <img src={post.s3_url} alt={post.caption}/>
+                                </div>
+                            ))}
                         </div>
+                    ) : (
+                        <p>No posts found.</p>
+                    )}
+                    {hasMore && (
+                        <button onClick={loadMorePosts} disabled={loading}>
+                            Load More
+                        </button>
                     )}
                 </div>
-                {loading && <p>Loading posts...</p>}
-                {posts.length > 0 ? (
-                    <div className={styles.postsGrid}>
-                        {posts.map((post, index) => (
-                            <div key={index} className={styles.imageContainer} onClick={() => handlePostClick(post)}>
-                                <img src={post.s3_url} alt={post.caption}/>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <p>No posts found.</p>
-                )}
-                {hasMore && (
-                    <button onClick={loadMorePosts} disabled={loading}>
-                        Load More
-                    </button>
-                )}
             </div>
         </>
     );
