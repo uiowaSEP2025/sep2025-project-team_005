@@ -82,3 +82,15 @@ class FollowToggleView(APIView):
             return Response({"message": "Unfollowed"}, status=status.HTTP_204_NO_CONTENT)
         except Follower.DoesNotExist:
             return Response({"error": "You are not following this user"}, status=status.HTTP_400_BAD_REQUEST)
+        
+class IsFollowingView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, user_id):
+        try:
+            target_user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        is_following = Follower.objects.filter(follower=request.user, following=target_user).exists()
+        return Response({"is_following": is_following})
