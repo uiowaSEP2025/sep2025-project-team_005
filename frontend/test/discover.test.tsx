@@ -91,5 +91,5 @@ describe("Discover Page", () => {
         await waitFor(() => {
             expect(screen.getByText("No users found.")).toBeInTheDocument();
         });
-    });      
+    });   
 });

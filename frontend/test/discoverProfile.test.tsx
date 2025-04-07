@@ -2,6 +2,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import DiscoverProfile from "@/app/[username]/page";
 import { AuthProvider } from "@/context/ProfileContext";
 import fetchMock from "jest-fetch-mock";
+import React from "react";
 
 fetchMock.enableMocks();
 
@@ -15,41 +16,52 @@ jest.mock("next/navigation", () => ({
 }));
 
 describe("Discover Profile Page", () => {
+    let consoleErrorSpy: any;
+
+    const musicianProfile = {
+        stage_name: "John Doe",
+        years_played: 5,
+        home_studio: true,
+        genres: ["Rock", "Pop"],
+        instruments: [
+          { instrument_name: "Guitar", years_played: 3 },
+          { instrument_name: "Drums", years_played: 2 },
+        ],
+    };
+
+    const followCount = {
+        follower_count: 100,
+        following_count: 50,
+    }
+
     beforeEach(() => {
         fetchMock.resetMocks();
         fetchMock.mockResponses(
-            [JSON.stringify({ user_id: "123" }), { status: 200 }], // User ID fetch
-            [JSON.stringify({
-                stage_name: "John Doe",
-                years_played: 5,
-                home_studio: true,
-                genres: ["Rock", "Pop"],
-                instruments: ["Guitar", "Drums"],
-            }), { status: 200 }],
-            [JSON.stringify({
-                follower_count: 100,
-                following_count: 50,
-            }), { status: 200 }]
+            [JSON.stringify({ user_id: "123" }), { status: 200 }],
+            [JSON.stringify(musicianProfile), { status: 200 }],
+            [JSON.stringify(followCount), { status: 200 }]
         );
+        consoleErrorSpy = jest.spyOn(console, "error").mockImplementationOnce(() => {});
     });
+
+    const renderProfile = () => {
+        render(
+            <AuthProvider>
+                <DiscoverProfile />
+            </AuthProvider>
+        );
+    };
 
     afterEach(() => {
         jest.restoreAllMocks();
     });
 
     it("renders user profile correctly", async () => {
-        render(
-            <AuthProvider>
-                <DiscoverProfile />
-            </AuthProvider>
-        );
+        renderProfile();
 
         await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
 
         expect(screen.getByText("John Doe")).toBeInTheDocument();
-
-        expect(screen.getByText("Years Played:", { exact: false })).toBeInTheDocument();
-        expect(screen.getByText("5")).toBeInTheDocument();
 
         expect(screen.getByText("Home Studio:", { exact: false })).toBeInTheDocument();
         expect(screen.getByText("Yes")).toBeInTheDocument();
@@ -58,15 +70,12 @@ describe("Discover Profile Page", () => {
         expect(screen.getByText("Rock, Pop")).toBeInTheDocument();
 
         expect(screen.getByText("Instruments:", { exact: false })).toBeInTheDocument();
-        expect(screen.getByText("Guitar, Drums")).toBeInTheDocument();
+        expect(screen.getByText(/Guitar - 3 years/)).toBeInTheDocument();
+        expect(screen.getByText(/Drums - 2 years/)).toBeInTheDocument();
     });
 
     it("toggles dropdown menu", async () => {
-        render(
-            <AuthProvider>
-                <DiscoverProfile />
-            </AuthProvider>
-        );
+        renderProfile();;
 
         const dropdownButton = await screen.findByTestId("dropdown-button");
         
@@ -81,13 +90,7 @@ describe("Discover Profile Page", () => {
     });
 
     it("shows loading state when data is still loading", async () => {
-        fetchMock.resetMocks();
-
-        render(
-            <AuthProvider>
-                <DiscoverProfile />
-            </AuthProvider>
-        );
+        renderProfile();
 
         expect(screen.getByText("Loading...")).toBeInTheDocument();
     });
@@ -96,53 +99,53 @@ describe("Discover Profile Page", () => {
         fetchMock.resetMocks();
         fetchMock.mockReject(new Error("Failed to fetch"));
     
-        const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
-    
-        render(
-            <AuthProvider>
-                <DiscoverProfile />
-            </AuthProvider>
-        );
-    
-        await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
-    
-        expect(consoleErrorSpy).toHaveBeenCalledWith("Error fetching user ID:", expect.any(Error));
-    
+        renderProfile();
+        
+        await waitFor(() => {
+            expect(consoleErrorSpy).toHaveBeenCalledWith("Error fetching user ID:", expect.any(Error));
+        });
         consoleErrorSpy.mockRestore();
     });
 
-    it("shows edit button when viewing own profile", async () => {
+    
+    it("logs error on failed response for user id", async () => {
+        fetchMock.resetMocks();
+        fetchMock.mockResponseOnce(JSON.stringify({}), { status: 500 });
+
+        renderProfile();
+
+        await waitFor(() => {
+            expect(consoleErrorSpy).toHaveBeenCalledWith("Failed to fetch user ID", "Internal Server Error");
+        });
+    });
+
+
+    it("shows appropriate buttons when viewing own profile", async () => {
         jest.spyOn(require("@/context/ProfileContext"), "useAuth").mockReturnValue({
             profile: { username: "johndoe" },
             isLoading: false,
         });
     
-        render(
-            <AuthProvider>
-                <DiscoverProfile />
-            </AuthProvider>
-        );
+        renderProfile();
     
         await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
-    
-        expect(screen.getByText("Edit")).toBeInTheDocument();
+
+        expect(screen.getByTestId("edit-button")).toBeInTheDocument();
+        expect(screen.getByTestId("post-button")).toBeInTheDocument();
     });
     
-    it("does not show edit button when viewing someone else's profile", async () => {
+    it("does not show inappropriate buttons when viewing someone else's profile", async () => {
         jest.spyOn(require("@/context/ProfileContext"), "useAuth").mockReturnValue({
             profile: { username: "janedoe" },
             isLoading: false,
         });
     
-        render(
-            <AuthProvider>
-                <DiscoverProfile />
-            </AuthProvider>
-        );
+        renderProfile();
     
         await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
     
-        expect(screen.queryByText("Edit")).not.toBeInTheDocument();
+        expect(screen.queryByTestId("edit-button")).toBeNull();
+        expect(screen.queryByTestId("post-button")).toBeNull();
     }); 
 
     it("handles error fetching musician profile", async () => {
@@ -152,14 +155,8 @@ describe("Discover Profile Page", () => {
             [JSON.stringify({}), { status: 500 }],
             [JSON.stringify({ follower_count: 100, following_count: 50 }), { status: 200 }]
         );
-    
-        const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
-    
-        render(
-            <AuthProvider>
-                <DiscoverProfile />
-            </AuthProvider>
-        );
+        
+        renderProfile();
     
         await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
     
@@ -174,11 +171,7 @@ describe("Discover Profile Page", () => {
             isLoading: false,
         });
     
-        render(
-            <AuthProvider>
-                <DiscoverProfile />
-            </AuthProvider>
-        );
+        renderProfile();
     
         await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
     
@@ -200,11 +193,7 @@ describe("Discover Profile Page", () => {
             isLoading: false,
         });
     
-        render(
-            <AuthProvider>
-                <DiscoverProfile />
-            </AuthProvider>
-        );
+        renderProfile();
     
         await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
     
@@ -218,5 +207,33 @@ describe("Discover Profile Page", () => {
         // Ensure 'Settings' and 'Logout' are not present in an alternative user profile
         expect(screen.queryByText("Settings")).not.toBeInTheDocument();
         expect(screen.queryByText("Logout")).not.toBeInTheDocument();
-    });        
+    });
+
+    it("shows appropriate buttons when visiting other profile", async () => {
+        jest.spyOn(require("@/context/ProfileContext"), "useAuth").mockReturnValue({
+            profile: { username: "janedoe" },
+            isLoading: false,
+        });
+    
+        renderProfile();
+    
+        await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
+
+        expect(screen.getByTestId("message-button")).toBeInTheDocument();
+        expect(screen.getByTestId("follow-button")).toBeInTheDocument();        
+    });
+
+    it("does not show inappropriate buttons when visiting own profile", async () => {
+        jest.spyOn(require("@/context/ProfileContext"), "useAuth").mockReturnValue({
+            profile: { username: "johndoe" },
+            isLoading: false,
+        });
+    
+        renderProfile();
+    
+        await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
+
+        expect(screen.queryByTestId("message-button")).toBeNull();
+        expect(screen.queryByTestId("follow-button")).toBeNull();
+    });
 });

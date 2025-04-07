@@ -1,5 +1,7 @@
 "use client";
 
+import React from 'react';
+import { Edit } from 'lucide-react';
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useAuth, useRequireAuth } from "@/context/ProfileContext";
@@ -10,6 +12,7 @@ import Image from "next/image";
 import styles from "@/styles/Profile.module.css";
 import axios from "axios";
 import Cookies from "js-cookie";
+import debounce from "lodash.debounce";
 
 interface UserID {
     user_id: string;
@@ -20,7 +23,7 @@ interface MusicianProfile {
     years_played: number;
     home_studio: boolean;
     genres: string[];
-    instruments: string[];
+    instruments: { instrument_name: string; years_played: number }[];
 }
 
 interface FollowCount {
@@ -28,16 +31,25 @@ interface FollowCount {
     following_count: number;
 }
 
+interface Post {
+    [key: string]: string;
+}
+
 export default function DiscoverProfile() {
     useRequireAuth();
 
     const router = useRouter();
     const { username } = useParams();
-    const { profile, isLoading } = useAuth();
+    const { profile, isLoading, setProfile } = useAuth();
     const [musicianProfile, setMusicianProfile] = useState<MusicianProfile | null>(null);
     const [followCount, setFollowCount] = useState<FollowCount | null>(null);
     const [userId, setUserId] = useState<UserID | null>(null);
     const [isDropdownOpen, setDropdownOpen] = useState(false);
+    const [posts, setPosts] = useState<Post[]>([]);
+    const [file, setFile] = useState<File>();
+    const [loading, setLoading] = useState(false);
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
 
     useEffect(() => {
         const fetchUserId = async () => {
@@ -132,6 +144,10 @@ export default function DiscoverProfile() {
             // Clear stored token
             Cookies.remove("access_token");
 
+            // Clear user profile data
+            setProfile(null);
+
+
             // Redirect to login page
             router.push("/login");
         } 
@@ -149,8 +165,98 @@ export default function DiscoverProfile() {
         //console.log("User blocked");
     };
 
+    const handlePost = async () => {
+        try {
+            const formData = new FormData();
+            if (!file) {
+                console.error("Please upload a file");
+                return;
+            }
+            formData.append("file", file);
+            formData.append("caption", "Test");
+    
+            const response = await axios.post("http://localhost:8000/api/create-post/", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                    "Authorization": `Bearer ${Cookies.get("access_token")}`
+                },
+                withCredentials: true
+            });
+            if (response.status >= 200 && response.status < 300) {
+                alert("Post created!");
+                console.log("Request successful:", response.data);
+            } else {
+                alert("Post creation failed. Please refresh the page and try again.");
+                console.error("Request failed:", response.status, response.statusText);
+            }
+        } catch (error) {
+            console.error(error)
+        }
+    };
+
     const handleNavigation = (user_id: string, type: "followers" | "following") => {
         router.push(`/follow/${user_id}?type=${type}`);
+    };
+
+    const fetchPosts = async (username: string, pageNum = 1) => {
+        setLoading(true);
+        try {
+            const response = await axios.get('http://localhost:8000/api/fetch-posts/', {
+                params: {
+                    username: username,
+                    page: pageNum
+                },
+                paramsSerializer: params => {
+                    const searchParams = new URLSearchParams();
+                    Object.keys(params).forEach(key => {
+                        if (Array.isArray(params[key])) {
+                            params[key].forEach(val => searchParams.append(key, val));
+                        } else {
+                            searchParams.append(key, params[key]);
+                        }
+                    });
+                    return searchParams.toString();
+                }
+            });
+
+            if (pageNum === 1) {
+                setPosts(response.data.results);
+            } else {
+                setPosts((prevPosts) => [...prevPosts, ...response.data.results]);
+            }
+
+            setHasMore(response.data.next !== null);
+        } catch (error) {
+            console.error("Error fetching posts:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handlePostClick = async (post: Post) => {
+        router.push("") // TODO: replace with route to individual post view
+    }
+
+    const debouncedFetchPosts = debounce(() => {
+        setPage(1);
+        fetchPosts(String(username),1);
+    }, 300);
+
+    useEffect(() => {
+        debouncedFetchPosts();
+    }, [username]);
+
+    const loadMorePosts = () => {
+        if (hasMore && !loading) {
+            fetchPosts(String(username), page + 1);
+            setPage((prevPage) => prevPage + 1);
+        }
+    };
+
+    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.files && event.target.files.length > 0) {
+            setFile(event.target.files?.[0]);
+        }
     };
 
     if (isLoading || !musicianProfile || !followCount) return <p className="description">Loading...</p>;
@@ -186,8 +292,8 @@ export default function DiscoverProfile() {
                     </div>
                     {profile?.username !== username && (
                         <div className={styles.profileActions}>
-                            <button className={styles.followButton}>Follow</button>
-                            <button className={styles.messageButton}>Message</button>
+                            <button className={styles.followButton} data-testid="follow-button">Follow</button>
+                            <button className={styles.messageButton} data-testid="message-button">Message</button>
                         </div>
                     )}
                 </div>
@@ -211,22 +317,51 @@ export default function DiscoverProfile() {
 
             <div className={styles.bioSection}>
                 {profile?.username === username && (
-                    <button className={styles.editButton} onClick={handleUpdateProfile}>Edit</button>
+                    <button className={styles.editButton} onClick={handleUpdateProfile} data-testid="edit-button"><Edit size={24}/></button>
                 )}
                 <h2 className={styles.bioTitle}>About</h2>
-                <p className={styles.description}><strong>Years Played:</strong> {musicianProfile.years_played}</p>
                 <p className={styles.description}><strong>Home Studio:</strong> {musicianProfile.home_studio ? "Yes" : "No"}</p>
                 <p className={styles.description}><strong>Genres:</strong> {musicianProfile.genres.join(", ")}</p>
-                <p className={styles.description}><strong>Instruments:</strong> {musicianProfile.instruments.join(", ")}</p>
+                <p className={styles.description}>
+                    <strong>Instruments: </strong>
+                    <span>
+                        {musicianProfile.instruments.map((instr, index) => (
+                            <React.Fragment key={index}>
+                                {instr.instrument_name} - {instr.years_played} years
+                                {index < musicianProfile.instruments.length - 1 && <br />}
+                            </React.Fragment>
+                        ))}
+                    </span>
+                </p>
             </div>
-
+            
             <div className={styles.postsSection}>
-                <h2 className={styles.featureTitle}>Posts</h2>
-                <div className={styles.postsGrid}>
-                    <div className={styles.postCard}>🎵 Post 1</div>
-                    <div className={styles.postCard}>🎵 Post 2</div>
-                    <div className={styles.postCard}>🎵 Post 3</div>
+                <div className={styles.postsHeader}>
+                    <h2 className={styles.featureTitle}>Posts</h2>
+                    {profile?.username === username && (
+                        <div>
+                            <button className={styles.editButton} onClick={handlePost} data-testid="post-button">Post</button>
+                            <input type="file" onChange={handleFileUpload} />
+                        </div>
+                    )}
                 </div>
+                {loading && <p>Loading posts...</p>}
+                {posts.length > 0 ? (
+                    <div className={styles.postsGrid}>
+                        {posts.map((post, index) => (
+                            <div key={index} className={styles.imageContainer} onClick={() => handlePostClick(post)}>
+                                <img src={post.s3_url} alt={post.caption}/>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p>No posts found.</p>
+                )}
+                {hasMore && (
+                    <button onClick={loadMorePosts} disabled={loading}>
+                        Load More
+                    </button>
+                )}
             </div>
         </div>
     );

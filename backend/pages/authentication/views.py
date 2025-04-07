@@ -9,8 +9,6 @@ from django.contrib.auth import authenticate
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import status
 from django.contrib.auth import get_user_model
-from rest_framework import serializers
-from django.contrib.auth.hashers import make_password
 from rest_framework.decorators import api_view
 from settings import EMAIL_HOST_USER
 from pages.models.User import User
@@ -93,29 +91,6 @@ class LogoutView(APIView):
         except Exception as e:
             return Response({"error": "An error occurred while logging out", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
-        
-# Class for serialization of data stored in the database
-class UserSignupSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, min_length=8)
-
-    class Meta:
-        model = User
-        fields = ['username', 'email', 'password', 'role']
-
-    def validate(self, data):
-        # Check if username or email already associated with a user in the database
-        if User.objects.filter(username=data['username']).exists():
-            raise serializers.ValidationError({"username": "This username is already taken."})
-        if User.objects.filter(email=data['email']).exists():
-            raise serializers.ValidationError({"email": "An account with this email already exists."})
-        # TODO SN5-81: add regex validation in backend for email. Password should be good
-        validate_password(data['password'])
-        return data
-
-    def create(self, validated_data):
-        # Hash the password before saving the user
-        validated_data['password'] = make_password(validated_data['password'])
-        return User.objects.create(**validated_data)
 
 @api_view(["POST"])
 def forgot_password_email(request):
@@ -207,14 +182,3 @@ def reset_password(request):
     return Response(
         {"message": "Successfully reset the password!"}, status=status.HTTP_200_OK
     )
-
-# API endpoint for signup requests
-@api_view(['POST'])
-def signup(request):
-    serializer = UserSignupSerializer(data=request.data)
-    
-    if serializer.is_valid():
-        user = serializer.save()
-        return Response({"message": "User created successfully", "id": user.id}, status=status.HTTP_201_CREATED)
-    
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
