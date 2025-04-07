@@ -53,7 +53,7 @@ driver = webdriver.Chrome(service=service, options=options)
 try:
     print("Testing initial sign up page: ")
     # Open the sign up page where you select your role
-    driver.get("http://localhost:3000/signup")
+    driver.get("https://savvy-note.com/signup")
 
     # Find and click the "Musician" role option
     musician_button = driver.find_element(By.XPATH, "//h2[text()='Musician']")
@@ -65,7 +65,7 @@ try:
     )
 
     # Check that the page has successfully rerouted
-    assert driver.current_url == "http://localhost:3000/signup/musician"
+    assert driver.current_url == "https://savvy-note.com/signup/musician"
 
     # If the above test passes, then we will reach this print statement:
     print("Test 1 passed: clicking on musician role reroutes to the appropriate page")
@@ -84,7 +84,7 @@ try:
        EC.presence_of_element_located((By.CSS_SELECTOR, "button[class*='businessSubmit']"))
     )
 
-    assert driver.current_url == "http://localhost:3000/signup/business"
+    assert driver.current_url == "https://savvy-note.com/signup/business"
     print("Test 2 passed: clicking on business role reroutes to the appropriate page")
 
     # Now need to test each signup page: business and musician

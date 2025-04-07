@@ -55,7 +55,7 @@ export default function Discover() {
     useEffect(() => {
         const fetchInstruments = async () => {
             try {
-                const response = await fetch('http://localhost:8000/api/instruments/all/', {
+                const response = await fetch('https://savvy-note.com/api/instruments/all/', {
                     method: 'GET',
                     headers: {
                       'Content-Type': 'application/json',
@@ -77,7 +77,7 @@ export default function Discover() {
 
         const fetchGenres = async () => {
             try {
-                const response = await fetch('http://localhost:8000/api/genres/all/', {
+                const response = await fetch('https://savvy-note.com/api/genres/all/', {
                     method: 'GET',
                     headers: {
                       'Content-Type': 'application/json',

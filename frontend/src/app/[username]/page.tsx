@@ -175,7 +175,7 @@ export default function DiscoverProfile() {
             formData.append("file", file);
             formData.append("caption", "Test");
     
-            const response = await axios.post("http://localhost:8000/api/create-post/", formData, {
+            const response = await axios.post("https://savvy-note.com/api/create-post/", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                     "Authorization": `Bearer ${Cookies.get("access_token")}`
@@ -201,7 +201,7 @@ export default function DiscoverProfile() {
     const fetchPosts = async (username: string, pageNum = 1) => {
         setLoading(true);
         try {
-            const response = await axios.get('http://localhost:8000/api/fetch-posts/', {
+            const response = await axios.get('https://savvy-note.com/api/fetch-posts/', {
                 params: {
                     username: username,
                     page: pageNum
