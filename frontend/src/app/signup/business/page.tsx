@@ -96,83 +96,83 @@ export default function BusinessSignup() {
 
     return (
         <>
-            <Head>
-                <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-            </Head>
-            <div className={styles.container}>
-                <header className={styles.header}>
-                    <Image src="/savvy.png" alt="Platform Logo" width={200} height={200} />
-                    <h1 className={styles.title}>Sign Up: Business</h1>
-                </header>
+          <Head>
+              <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+          </Head>
+          <div className={styles.container}>
+              <header className={styles.header}>
+                  <Image src="/savvy.png" alt="Platform Logo" width={200} height={200} />
+                  <h1 className={styles.title}>Sign Up: Business</h1>
+              </header>
 
-                <form className={styles.form} onSubmit={handleSubmit}>
-                <label htmlFor="email" className={styles.label}>Email:</label>
-                    <input
-                        type="email"    // HTML5 pre-enforced validation for email
-                        id="email"
-                        name="email"
-                        required 
-                        placeholder="Enter your email"
-                        className={styles.inputField}
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                    />
+              <form className={styles.form} onSubmit={handleSubmit}>
+              <label htmlFor="email" className={styles.label}>Email:</label>
+                  <input
+                      type="email"    // HTML5 pre-enforced validation for email
+                      id="email"
+                      name="email"
+                      required 
+                      placeholder="Enter your email"
+                      className={styles.inputField}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                  />
 
-                    <label htmlFor="username" className={styles.label}>Username:</label>
-                    <input
-                        id="username"
-                        name="username"
-                        required
-                        placeholder="Choose a username"
-                        className={styles.inputField}
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                    />
+                  <label htmlFor="username" className={styles.label}>Username:</label>
+                  <input
+                      id="username"
+                      name="username"
+                      required
+                      placeholder="Choose a username"
+                      className={styles.inputField}
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                  />
 
-                    <label htmlFor="password" className={styles.label}>Password:</label>
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        required
-                        placeholder="Create a strong password"
-                        className={styles.inputField}
-                        value={password}
-                        onChange={(e) => {
-                            const newPassword = e.target.value;
-                            setPassword(newPassword);
-                            validatePassword(newPassword);
-                        }}
-                    />
-                    {passwordError && <p className={styles.error}>{passwordError}</p>}
+                  <label htmlFor="password" className={styles.label}>Password:</label>
+                  <input
+                      type="password"
+                      id="password"
+                      name="password"
+                      required
+                      placeholder="Create a strong password"
+                      className={styles.inputField}
+                      value={password}
+                      onChange={(e) => {
+                          const newPassword = e.target.value;
+                          setPassword(newPassword);
+                          validatePassword(newPassword);
+                      }}
+                  />
+                  {passwordError && <p className={styles.error}>{passwordError}</p>}
 
-                    <label htmlFor="businessname" className={styles.label}>Your Business' Name:</label>
-                    <input
-                        id="businessname"
-                        name="businessname"
-                        required
-                        placeholder="Business Name"
-                        className={styles.inputField}
-                        value={businessName}
-                        onChange={(e) => setBusinessName(e.target.value)}
-                    />
+                  <label htmlFor="businessname" className={styles.label}>Business Name:</label>
+                  <input
+                      id="businessname"
+                      name="businessname"
+                      required
+                      placeholder="Business Name"
+                      className={styles.inputField}
+                      value={businessName}
+                      onChange={(e) => setBusinessName(e.target.value)}
+                  />
 
-                    <label htmlFor="industry" className={styles.label}>Industry Your Business Is In:</label>
-                    <input
-                        id="industry"
-                        name="industry"
-                        required
-                        placeholder="Industry"
-                        className={styles.inputField}
-                        value={industry}
-                        onChange={(e) => setIndustry(e.target.value)}
-                    />
-                </form>
+                  <label htmlFor="industry" className={styles.label}>Business Industry:</label>
+                  <input
+                      id="industry"
+                      name="industry"
+                      required
+                      placeholder="Industry"
+                      className={styles.inputField}
+                      value={industry}
+                      onChange={(e) => setIndustry(e.target.value)}
+                  />
+              </form>
 
-                {error && <p className={styles.error}>{error}</p>} {/* Show error if invalid */}
-                <button type="submit" className={styles.businessSubmit} onClick={handleSubmit}>Sign Up</button>
+              {error && <p className={styles.error}>{error}</p>} {/* Show error if invalid */}
+              <button type="submit" className={styles.businessSubmit} onClick={handleSubmit}>Sign Up</button>
 
-            </div>
+          </div>
         </>
     );
 }
