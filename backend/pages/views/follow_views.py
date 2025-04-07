@@ -30,6 +30,7 @@ class FollowPagination(PageNumberPagination):
 
 class FollowListView(APIView, FollowPagination):
     def get(self, request, user_id):
+        print(f"Authenticated user: {request.user}")
         try:
             user = User.objects.get(id=user_id)
             

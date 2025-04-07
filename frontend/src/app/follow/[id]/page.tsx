@@ -45,7 +45,11 @@ export default function FollowPage() {
         try {
             const response = await fetch(
                 `http://localhost:8000/api/follow-list/${id}/?type=${type}&page=${pageNum}`,
-                { method: "GET", credentials: "include" }
+                { method: "GET", credentials: "include",
+                    headers: {
+                        "Authorization": `Bearer ${Cookies.get("access_token")}`
+                    }
+                }
             );
 
             if (response.ok) {
@@ -126,12 +130,14 @@ export default function FollowPage() {
                                 <button className={styles.username} onClick={() => handleUserClick(user.username)}>
                                     {user.username}
                                 </button>
-                                <button 
-                                    className={styles.followButton} 
-                                    onClick={() => handleFollowToggle(user.id, user.isFollowing)}
-                                >
-                                    {user.isFollowing ? "Unfollow" : "Follow"}
-                                </button>
+                                {profile && user.id !== profile.id.toString() && (
+                                    <button 
+                                        className={user.isFollowing ? styles.unfollowButton : styles.followButton} 
+                                        onClick={() => handleFollowToggle(user.id, user.isFollowing)}
+                                    >
+                                        {user.isFollowing ? "Unfollow" : "Follow"}
+                                    </button>
+                                )}
                             </div>
                         </div>
                     ))}
