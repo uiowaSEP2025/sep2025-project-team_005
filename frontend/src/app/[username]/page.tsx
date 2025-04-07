@@ -55,6 +55,8 @@ export default function DiscoverProfile() {
         const fetchUserId = async () => {
             if (!username) return; // Ensure username is available
 
+            console.log("Username param:", username);
+
             try {
                 const response = await fetch(`http://localhost:8000/api/user/${username}/`, {
                     method: "GET",
