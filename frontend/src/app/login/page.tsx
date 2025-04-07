@@ -7,9 +7,10 @@ import Link from "next/link";
 import Image from "next/image";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { signIn, useSession } from "next-auth/react";
 
 export default function Login() {
-  const { profile, isLoading } = useAuth();
+  const { profile, isLoading, fetchProfile } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -37,6 +38,13 @@ export default function Login() {
     }
   };
 
+  // Function to handle clicking login with google button
+  const handleGoogleLogin = () => {
+    // Call next-auth sign in function with the provider (google) and callback URL
+    signIn("google", { callbackUrl: "/google-auth" });
+  };
+
+  
   return (
     <div className={styles.container}>
       <header className={styles.header}>
@@ -59,6 +67,11 @@ export default function Login() {
           Don't have an account? <Link href="/signup" className={styles.link}>Sign Up</Link>
         </p>
       </form>
+
+      <button onClick={handleGoogleLogin} className={styles.googleButton}>
+        <Image src="/google-icon.svg" alt="Google Logo" width={20} height={20} />
+        Sign in with Google
+      </button>
 
       <footer className={styles.footer}>
         &copy; {new Date().getFullYear()} SavvyNote. All rights reserved.
