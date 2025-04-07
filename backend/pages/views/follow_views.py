@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from pages.serializers.follower_serializers import FollowCountSerializer
 from pages.serializers.user_serializers import UserSerializer
-from pages.models import User, Musician, Follower
+from pages.models import User, Musician, Follower, BlockedUser
 from rest_framework.permissions import IsAuthenticated
 
 
@@ -29,6 +29,8 @@ class FollowPagination(PageNumberPagination):
     max_page_size = 50
 
 class FollowListView(APIView, FollowPagination):
+    permission_classes = [IsAuthenticated]
+    
     def get(self, request, user_id):
         print(f"Authenticated user: {request.user}")
         try:
@@ -42,6 +44,9 @@ class FollowListView(APIView, FollowPagination):
             else:
                 follow_queryset = User.objects.filter(followers__follower=user)
             
+            blocked_by_others = BlockedUser.objects.filter(blocked=request.user).values_list('blocker_id', flat=True)
+            follow_queryset = follow_queryset.exclude(id__in=blocked_by_others)
+                
             paginated_followers = self.paginate_queryset(follow_queryset, request, view=self)
             serializer = UserSerializer(paginated_followers, many=True, context={'request': request, 'auth_user': request.user})
 

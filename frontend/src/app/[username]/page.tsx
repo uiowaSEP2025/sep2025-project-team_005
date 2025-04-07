@@ -79,12 +79,21 @@ export default function DiscoverProfile() {
     // Fetch Musician Profile
     useEffect(() => {
         const fetchProfile = async () => {
-            if (!userId) return;
+            if (!userId || !profile) return;
             try {
                 const response = await fetch(`http://localhost:8000/api/musician/${userId.user_id}/`, {
                     method: "GET",
                     credentials: "include",
+                    headers: {
+                        "Authorization": `Bearer ${Cookies.get("access_token")}`
+                    }
                 });
+
+                if (response.status === 403) {
+                    alert("The page you are trying to access doesn't axist");
+                    router.push(`/${profile.username}/`);
+                    return;
+                }
 
                 if (response.ok) {
                     const data = await response.json();

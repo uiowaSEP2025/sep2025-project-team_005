@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from pages.models import Musician, User, Genre, Instrument, MusicianInstrument
+from pages.models import Musician, User, Genre, Instrument, MusicianInstrument, BlockedUser
 from pages.serializers.musician_serializers import MusicianSerializer
 from django.contrib.auth.hashers import check_password
 from rest_framework.permissions import IsAuthenticated
@@ -12,6 +12,10 @@ class MusicianDetailView(APIView):
             user = User.objects.get(id=user_id)
             musician = Musician.objects.get(user=user)
             serializer = MusicianSerializer(musician)
+            
+            if BlockedUser.objects.filter(blocked=request.user, blocker=user_id).exists():
+                return Response({"detail": "You are blocked from viewing this profile."}, status=403)
+            
             return Response(serializer.data, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)

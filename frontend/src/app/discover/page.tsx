@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth, useRequireAuth } from "@/context/ProfileContext";
 import axios from "axios";
+import Cookies from "js-cookie";
 import debounce from "lodash.debounce";
 import Image from "next/image";
 
@@ -208,6 +209,9 @@ export default function Discover() {
                         }
                     });
                     return searchParams.toString();
+                },
+                headers: {
+                    "Authorization": `Bearer ${Cookies.get("access_token")}`
                 }
             });
     

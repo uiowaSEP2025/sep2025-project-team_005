@@ -1,9 +1,9 @@
-# views.py
+from django.db import models
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from pages.models import User, BlockedUser
+from pages.models import User, BlockedUser, Follower
 from rest_framework.pagination import PageNumberPagination
 from pages.serializers.user_serializers import UserSerializer
 
@@ -23,6 +23,13 @@ class BlockUserView(APIView):
         block, created = BlockedUser.objects.get_or_create(
             blocker=request.user, blocked=target_user
         )
+        
+        # Remove any mutual following relationships
+        Follower.objects.filter(
+            models.Q(follower=request.user, following=target_user) |
+            models.Q(follower=target_user, following=request.user)
+        ).delete()
+        
         if created:
             return Response({"message": "User blocked."}, status=status.HTTP_201_CREATED)
         return Response({"message": "Already blocked."}, status=status.HTTP_200_OK)
