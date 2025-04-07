@@ -60,3 +60,4 @@ jobs:
         docker compose up -d
         cd backend
         pytest
+

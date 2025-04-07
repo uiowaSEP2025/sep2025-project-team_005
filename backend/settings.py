@@ -44,6 +44,7 @@ SECRET_KEY = env("SECRET_KEY")
 AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")            ## Will have to change for production
 AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
 AWS_REGION = env("AWS_REGION")
+AWS_S3_SESSION_PROFILE = env("AWS_PROFILE")
 AWS_IMAGE_BUCKET_NAME="savvy-note-images"
 AWS_VIDEO_BUCKET_NAME="savvy-note-videos"
 AWS_METADATA_BUCKET_NAME="savvy-note-metadata"
@@ -160,6 +161,7 @@ EMAIL_HOST_PASSWORD = env('EMAIL_PASSWORD')
 
 # CORS settings for Next.js frontend
 CORS_ALLOW_CREDENTIALS = True
+
 if django_env == 'production':
     CORS_ALLOWED_ORIGINS = [
         "https://your-production-domain.com",  # Add your production domain
@@ -170,15 +172,6 @@ else:
     ]
 
 CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]
-
-if django_env == 'production':
-    CORS_ALLOWED_ORIGINS = [
-        "https://your-production-domain.com",  # Add your production domain
-    ]
-else:
-    CORS_ALLOWED_ORIGINS = [
-        "http://localhost:3000",  # Local Next.js frontend for development
-    ]
 
 # REST Framework settings
 REST_FRAMEWORK = {
