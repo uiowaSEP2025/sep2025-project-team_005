@@ -182,3 +182,21 @@ def reset_password(request):
     return Response(
         {"message": "Successfully reset the password!"}, status=status.HTTP_200_OK
     )
+
+
+# Views function to handle login via google
+@api_view(["POST"])
+def google_login(request):
+    email = request.data.get("email")
+    google_id = request.data.get("google_id")
+
+    if not email or not google_id:
+        return Response({"error": "Missing email or Google ID"}, status=400)
+
+    user, created = User.objects.get_or_create(email=email, defaults={"username": email.split("@")[0]})
+
+    refresh = RefreshToken.for_user(user)
+    return Response({
+        "access": str(refresh.access_token),
+        "refresh": str(refresh),
+    })
