@@ -186,7 +186,11 @@ export default function DiscoverProfile() {
     }
 
     const handleSettings = async () => {
-        // TODO: Create settings
+        try {
+            router.push("/settings");
+        } catch (error) {
+            console.error(error)
+        }
     }
 
     const handleLogout = async () => {
@@ -214,10 +218,28 @@ export default function DiscoverProfile() {
         setDropdownOpen(prevState => !prevState);
     };
 
-    const handleBlockUser = () => {
-        // Add functionality for "Block User"
-        //console.log("User blocked");
-    };
+    const handleBlockUser = async () => {
+        if (!userId) return;
+    
+        try {
+            const response = await fetch(`http://localhost:8000/api/block/${userId.user_id}/`, {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Authorization": `Bearer ${Cookies.get("access_token")}`,
+                },
+            });
+    
+            if (response.ok) {
+                alert("User blocked.");
+                setDropdownOpen(false);
+            } else {
+                console.error("Failed to block user.");
+            }
+        } catch (error) {
+            console.error("Error blocking user:", error);
+        }
+    };    
 
     const handlePost = async () => {
         try {

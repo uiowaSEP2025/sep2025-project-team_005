@@ -4,6 +4,7 @@ from pages.views.discover_views import GetUsersView, InstrumentListView, GenreLi
 from pages.views.settings_views import MusicianDetailView, ChangePasswordView
 from pages.views.follow_views import FollowingView, FollowListView, FollowToggleView, IsFollowingView
 from pages.views.post_views import CreatePostView, GetPostsView
+from pages.views.blocked_views import BlockUserView, BlockedListView
 from pages.views.helper_views import create_genre, create_instrument, get_instruments, get_genres, get_musician_instruments, get_users, get_musicians, get_businesses
 from django.http import JsonResponse
 
@@ -35,5 +36,7 @@ urlpatterns = [
         path('follow-list/<uuid:user_id>/', FollowListView.as_view(), name='follow-list'),
         path('follow/<uuid:user_id>/', FollowToggleView.as_view(), name='follow-toggle'),
         path('is-following/<uuid:user_id>/', IsFollowingView.as_view(), name='is-follow'),
+        path("block/<uuid:user_id>/", BlockUserView.as_view(), name="block_user"),
+        path('block-list/<uuid:user_id>/', BlockedListView.as_view(), name='block-list'),
     ])),
 ]
