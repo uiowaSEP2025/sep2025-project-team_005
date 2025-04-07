@@ -3,6 +3,9 @@
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useAuth, useRequireAuth } from "@/context/ProfileContext";
 import { useEffect, useState } from "react";
+import axios from "axios";
+import Cookies from "js-cookie";
+
 import Image from "next/image";
 import styles from "@/styles/FollowList.module.css";
 
@@ -47,6 +50,7 @@ export default function FollowPage() {
 
             if (response.ok) {
                 const data = await response.json();
+                console.log(data);
                 setUsers(prevUsers => (reset ? data.results : [...prevUsers, ...data.results]));
                 setHasMore(!!data.next);
             } else {
@@ -72,9 +76,12 @@ export default function FollowPage() {
 
     const handleFollowToggle = async (userId: string, isFollowing: boolean) => {
         try {
-            const response = await fetch(`http://localhost:8000/follow/${userId}/`, {
+            const response = await fetch(`http://localhost:8000/api/follow/${userId}/`, {
                 method: isFollowing ? "DELETE" : "POST",
                 credentials: "include",
+                headers: {
+                    "Authorization": `Bearer ${Cookies.get("access_token")}`
+                }
             });
             
             if (response.ok) {
