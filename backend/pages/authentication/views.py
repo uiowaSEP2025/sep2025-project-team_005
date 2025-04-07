@@ -77,7 +77,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         )
         response.set_cookie(
             "refresh_token", str(refresh), secure=True, samesite="Lax"
-)
+        )
         return response
         
         
@@ -195,8 +195,35 @@ def google_login(request):
 
     user, created = User.objects.get_or_create(email=email, defaults={"username": email.split("@")[0]})
 
+    # Generate JWT tokens
     refresh = RefreshToken.for_user(user)
-    return Response({
-        "access": str(refresh.access_token),
+    access_token = str(refresh.access_token)
+
+    response = Response({
+        "access": access_token,
         "refresh": str(refresh),
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "email": user.email,
+            "phone": user.phone,
+            "role": user.role,
+        }
     })
+
+
+    print("RESPONSE CREATED: ", response)
+    print("Username: ", user.username)
+    print("ID: ", user.id)
+    print("Auth: ", user.is_authenticated)
+
+
+    response.set_cookie(
+        "access_token", access_token, secure=True, samesite="Lax"
+    )
+    response.set_cookie(
+        "refresh_token", str(refresh), secure=True, samesite="Lax"
+    )
+    return response

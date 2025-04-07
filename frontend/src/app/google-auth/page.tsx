@@ -21,9 +21,14 @@ export default function GoogleAuthRedirect() {
             google_id: session.user.id,
           });
 
+
+          console.log("IN GOOGLE-AUTH/PAGES.TSX COMPLETE LOGIN FUCTION");
+          console.log("Username: ", response.data.user.username)
+
+
           if (response.status === 200) {
             await fetchProfile();
-            router.push(`/${response.data.username}`);
+            router.push(`/${response.data.user.username}`);
           } else {
             router.push("/login?error=backend");
           }
