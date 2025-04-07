@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >
   CloudFormation template to create EC2 instances for the Frontend,
-  Backend, and VPN. The public website is served via an ALB (defined in alb-controller.yaml)
+  Backend, and VPN. The public website is served via NGinx
   which redirects HTTP to HTTPS. Direct SSH access is disabled on the frontend/backend,
   and administrative access is provided only via the VPN.
 
@@ -13,7 +13,7 @@ Parameters:
   PublicSubnetId:
     Description: "Public Subnet ID (must have a default route to an Internet Gateway)"
     Type: AWS::EC2::Subnet::Id
-    Default: subnet-01172df8f774b84b6
+    Default: subnet-0ed044eecdf8f523d # For Joroma: subnet-01172df8f774b84b6
 
   InstanceType:
     Description: EC2 instance type (only micro instances allowed)
@@ -25,17 +25,17 @@ Parameters:
   VpcId:
     Description: "VPC ID in which the instances will be launched"
     Type: AWS::EC2::VPC::Id
-    Default: vpc-04cbf3cb88c253a81
+    Default: vpc-0c7aaefb9f9905d91 # For Joroma: vpc-04cbf3cb88c253a81
 
   MyAppSecurityGroup:
     Description: "Security Group ID for application servers that will access the RDS instance"
     Type: String
-    Default: sg-06e2aee3009eae596
+    Default: sg-054edbad8f1ebf210 # For Joroma: sg-06e2aee3009eae596
   
-  FrontendEIP:
-    Description: "The manually allocated Elastic IP for the Frontend instance"
-    Type: String
-    Default: "3.23.6.91"
+  #FrontendEIP:
+  #  Description: "The manually allocated Elastic IP for the Frontend instance"
+  #  Type: String
+  #  Default: "3.148.116.100" # For Joroma: "3.23.6.91"
 
 
 Mappings:
@@ -46,6 +46,16 @@ Mappings:
       AMI: ami-08529db39844c00c2
 
 Resources:
+  FrontendEIPResource:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+
+  FrontendEIPAssociation:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      InstanceId: !Ref FrontendInstance
+      AllocationId: !GetAtt FrontendEIPResource.AllocationId
 
   #####################################
   # IAM Resources for VPN Instance
@@ -113,7 +123,7 @@ Resources:
   BackendInstanceSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: "Allow HTTP and HTTPS traffic to the frontend instance"
+      GroupDescription: "Allow HTTP and HTTPS traffic to the backend instance"
       VpcId: !Ref VpcId
       SecurityGroupIngress:
         # Django: allow TCP port 8000 from anywhere
@@ -170,71 +180,65 @@ Resources:
       SubnetId: !Ref PublicSubnetId
       KeyName: !Ref KeyName
       ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
-      # The Frontend instance is not directly exposed; it will receive traffic via the ALB.
+      # The Frontend instance is not directly exposed; it will receive traffic via NGinx.
       SecurityGroupIds:
         - !Ref FrontendInstanceSecurityGroup
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
+          # Set the default region and configure the AWS CLI using SSM values
           export AWS_DEFAULT_REGION=us-east-2
+          aws configure set aws_access_key_id "$(aws ssm get-parameter --name '/savvynote/AMAZON_ACCESS_KEY_ID' --with-decryption --query 'Parameter.Value' --output text --region us-east-2)"
+          aws configure set aws_secret_access_key "$(aws ssm get-parameter --name '/savvynote/AMAZON_SECRET_ACCESS_KEY' --with-decryption --query 'Parameter.Value' --output text --region us-east-2)"
+          aws configure set region us-east-2
+
+          # Redirect all output to a log file and enable debugging
           exec > /var/log/user-data.log 2>&1
           set -x
-          apt-get update -y
-          apt-get install -y git nginx openssl awscli docker.io docker-compose npm
-          
-          ######## STILL NEED TO CONNECT THIS TO EIP?? ############
 
+          # Update package lists
+          apt-get update -y
+
+          # Install Node.js (v16), Git, Nginx, OpenSSL, awscli, Docker, and docker-compose
+          curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+          apt-get install -y nodejs git nginx openssl awscli docker.io docker-compose
+
+          # Ensure Docker group exists and add ubuntu user to it
+          groupadd docker || true
+          usermod -aG docker ubuntu
           systemctl start docker
-          usermod -a -G docker ubuntu
+
+          # Log in to Docker using credentials from SSM
           DOCKER_USERNAME=$(aws ssm get-parameter --name "/savvynote/DOCKER_USERNAME" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
           DOCKER_PASSWORD=$(aws ssm get-parameter --name "/savvynote/DOCKER_PASSWORD" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
-          docker login 
-          sudo usermod -aG docker ubuntu
-          newgrp docker
+          docker logout
+          docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
 
+          # Clone the repository and launch the frontend container
           cd /home/ubuntu
           git clone https://github.com/uiowaSEP2025/sep2025-project-team_005.git savvynote
-          python3 -m venv venv
-          source venv/bin/activate
           cd /home/ubuntu/savvynote
           docker-compose -f docker-compose.yaml up -d frontend
-          cd /etc/nginx/sites-available
-          BACKEND_IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=Backend-Instance" --query "Reservations[0].Instances[0].PublicIpAddress" --output text --region us-east-2)
-          
-          sudo tee /etc/nginx/sites-available/default > /dev/null << 'EOF'
-          # You should look at the following URL's in order to grasp a solid understanding
-          # of Nginx configuration files in order to fully unleash the power of Nginx.
-          # https://www.nginx.com/resources/wiki/start/
-          # https://www.nginx.com/resources/wiki/start/topics/tutorials/config_pitfalls/
-          # https://wiki.debian.org/Nginx/DirectoryStructure
-          #
-          # In most cases, administrators will remove this file from sites-enabled/ and
-          # leave it as reference inside of sites-available where it will continue to be
-          # updated by the nginx packaging team.
-          #
-          # This file will automatically load configuration files provided by other
-          # applications, such as Drupal or Wordpress. These applications will be made
-          # available underneath a path with that package name, such as /drupal8.
-          #
-          # Please see /usr/share/doc/nginx-doc/examples/ for more detailed examples.
-          ##
-          
+
+          # Retrieve the Backend instance Public IP for Nginx proxying
+          BACKEND_IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=Backend-Instance" \
+                        --query "Reservations[0].Instances[0].PublicIpAddress" --output text --region us-east-2)
+
+          # Write the Nginx configuration file
+          mkdir -p /etc/nginx/sites-available
+          cat > /etc/nginx/sites-available/default << EOF
           # Default server configuration
-          #
           server {
               listen 80;
               server_name savvy-note.com www.savvy-note.com;
-
               return 301 https://$host$request_uri;
           }
-
           server {
               listen 443 ssl;
               server_name savvy-note.com www.savvy-note.com;
 
               ssl_certificate /etc/nginx/SSL/savvy-note.com.pem;
               ssl_certificate_key /etc/nginx/SSL/savvy-note.com.key;
-
               ssl_protocols TLSv1.2 TLSv1.3;
               ssl_ciphers 'TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384';
               ssl_prefer_server_ciphers off;
@@ -248,7 +252,6 @@ Resources:
                   proxy_set_header Connection 'upgrade';
                   proxy_set_header Host $host;
               }
-
               location /api/ {
                   proxy_pass http://$BACKEND_IP:8000/api/;
                   proxy_set_header Host $host;
@@ -259,44 +262,25 @@ Resources:
                   proxy_set_header Upgrade $http_upgrade;
               }
           }
-
-          # Virtual Host configuration for example.com
-          #
-          # You can move that to a different file under sites-available/ and symlink that
-          # to sites-enabled/ to enable it.
-          #
-          #server {
-          #       listen 80;
-          #       listen [::]:80;
-          #
-          #       server_name example.com;
-          #
-          #       root /var/www/example.com;
-          #       index index.html;
-          #
-          #       location / {
-          #               try_files $uri $uri/ =404;
-          #       }
-          #}
           EOF
 
-          sudo mkdir -p /etc/nginx/SSL
-          sudo aws ssm get-parameter \
-          --name "/savvynote/savvy-note.com.key" \
-          --with-decryption \
-          --query "Parameter.Value" \
-          --output text > /etc/nginx/SSL/savvy-note.com.key
-          sudo aws ssm get-parameter \
-            --name "/savvynote/savvy-note.com.pem" \
-            --with-decryption \
-            --query "Parameter.Value" \
-            --output text > /etc/nginx/SSL/savvy-note.com.pem
-            sudo chmod 600 /etc/nginx/SSL/savvy-note.com.key
-            sudo chmod 600 /etc/nginx/SSL/savvy-note.com.pem
+          # Retrieve SSL certificate and key from SSM, then secure them
+          mkdir -p /etc/nginx/SSL
+          aws ssm get-parameter --name "/savvynote/savvy-note.com.key" --with-decryption \
+            --query "Parameter.Value" --output text --region us-east-2 > /etc/nginx/SSL/savvy-note.com.key
+          aws ssm get-parameter --name "/savvynote/savvy-note.com.pem" --with-decryption \
+            --query "Parameter.Value" --output text --region us-east-2 > /etc/nginx/SSL/savvy-note.com.pem
+          chmod 600 /etc/nginx/SSL/savvy-note.com.key /etc/nginx/SSL/savvy-note.com.pem
 
+          # Restart Nginx to load the new configuration
+          systemctl restart nginx
+
+          # Install Node dependencies, build, and start the Next.js app
           cd /home/ubuntu/savvynote/frontend
+          npm install
           npm run build
           npm start
+
       Tags:
         - Key: Name
           Value: Frontend-Instance
@@ -307,7 +291,7 @@ Resources:
       InstanceType: !Ref InstanceType
       KeyName: !Ref KeyName
       ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
-      # The Backend instance is kept isolated; it should only be accessible from internal sources (ALB or VPN).
+      # The Backend instance is kept isolated; it should only be accessible from internal sources (NGinx or VPN).
       SecurityGroupIds:
         - !Ref BackendInstanceSecurityGroup
       UserData:
@@ -320,11 +304,11 @@ Resources:
           apt-get install -y git nginx openssl awscli docker.io docker-compose python3-venv
 
           systemctl start docker
-          usermod -a -G docker ubuntu
+          groupadd docker
+          usermod -aG docker ubuntu
           DOCKER_USERNAME=$(aws ssm get-parameter --name "/savvynote/DOCKER_USERNAME" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
           DOCKER_PASSWORD=$(aws ssm get-parameter --name "/savvynote/DOCKER_PASSWORD" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
           docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-          sudo usermod -aG docker ubuntu
           newgrp docker
 
           cd /home/ubuntu
@@ -339,7 +323,7 @@ Resources:
 
           # Pulling the SSM secrets from AWS into the .env file the code expects
           ENV_FILE="/home/ubuntu/savvynote/.env"
-          cat <<EOF > $$ENV_FILE
+          cat <<EOF > $ENV_FILE
           DB_NAME=$(aws ssm get-parameter --name "/savvynote/DB_NAME" --with-decryption --query "Parameter.Value" --output text) --region us-east-2
           DB_USER=$(aws ssm get-parameter --name "/savvynote/DB_USER" --with-decryption --query "Parameter.Value" --output text) --region us-east-2
           DB_PASSWORD=$(aws ssm get-parameter --name "/savvynote/DB_PASSWORD" --with-decryption --query "Parameter.Value" --output text) --region us-east-2
@@ -356,12 +340,12 @@ Resources:
           EOF
 
           # Secure the .env file so that only the owner (root or ubuntu) can read and write it
-          chmod 600 $$ENV_FILE
+          chmod 600 $ENV_FILE
 
           sudo -u postgres psql
-          ALTER USER postgres WITH PASSWORD '$(aws ssm get-parameter --name "/savvynote/DB_PASSWORD" --with-decryption --query "Parameter.Value" --output text)';
+          ALTER USER postgres WITH PASSWORD '$(aws ssm get-parameter --name "/savvynote/DB_PASSWORD" --with-decryption --query "Parameter.Value" --output text --region us-east-2)';
           CREATE DATABASE "savvy-note-sp";
-          GRANT ALL PRIVILEGES ON DATABASE "savvy-note-sp" TO $(aws ssm get-parameter --name "/savvynote/DB_USER" --with-decryption --query "Parameter.Value" --output text);
+          GRANT ALL PRIVILEGES ON DATABASE "savvy-note-sp" TO $(aws ssm get-parameter --name "/savvynote/DB_USER" --with-decryption --query "Parameter.Value" --output text --region us-east-2);
           
           sudo systemctl start postgresql
           python3 manage.py migrate
@@ -395,12 +379,12 @@ Resources:
           export CLIENT="savvynote-client"
           ./openvpn-install.sh
           ls -l /root/client.ovpn
-          aws s3 cp /root/client.ovpn s3://kwixmbucket/client.ovpn --region us-east-1 --acl public-read
+          aws s3 cp /root/client.ovpn s3://kwixmbucket/client.ovpn --region us-east-2 --acl public-read
           # (Optional) Upload the generated client.ovpn to S3 or output it via CloudFormation Outputs
 
 Outputs:
   FrontendPublicIP:
-    Description: "Public IP of the Frontend instance (this is what your ALB will target)"
+    Description: "Public IP of the Frontend instance (this is what NGinx will target)"
     Value: !GetAtt [FrontendInstance, PublicIp]
   BackendPublicIP:
     Description: "Public IP of the Backend instance (for internal use only)"
