@@ -7,7 +7,6 @@ import Link from "next/link";
 import Image from "next/image";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import Head from "next/head";
 
 export default function Login() {
   const { profile, isLoading, fetchProfile } = useAuth();
@@ -42,36 +41,31 @@ export default function Login() {
   }, [profile, isLoading, router]);
 
   return (
-    <>
-      <Head>
-        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-      </Head>
-      <div className={styles.container}>
-        <header className={styles.header}>
-          <h1 className={styles.title}>Welcome Back</h1>
-          <p className={styles.description}>Log in to connect, collaborate, and get paid.</p>
-          <Image src="/savvy.png" alt="Platform Logo" width={150} height={150} className={styles.logo} />
-        </header>
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <h1 className={styles.title}>Welcome Back</h1>
+        <p className={styles.description}>Log in to connect, collaborate, and get paid.</p>
+        <Image src="/savvy.png" alt="Platform Logo" width={150} height={150} className={styles.logo} />
+      </header>
 
-        <form className={styles.loginForm} onSubmit={handleLogin}>
-          <input type="username" placeholder="Username" className={styles.inputField} value={username} 
-            onChange={(e)=> setUsername(e.target.value)} required />
-          <input type="password" placeholder="Password" className={styles.inputField} value={password} 
-            onChange={(e) => setPassword(e.target.value)} required />
-          <div className={styles.forgotPasswordContainer}>
-            <Link href="/forgot-password" className={styles.link}>Forgot Password?</Link>
-          </div>
-          <button type="submit" className={styles.primaryButton}>Login</button>
-          {error && <p className={styles.error}>{error}</p>}
-          <p className={styles.altOption}>
-            Don't have an account? <Link href="/signup" className={styles.link}>Sign Up</Link>
-          </p>
-        </form>
+      <form className={styles.loginForm} onSubmit={handleLogin}>
+        <input type="username" placeholder="Username" className={styles.inputField} value={username} 
+          onChange={(e)=> setUsername(e.target.value)} required />
+        <input type="password" placeholder="Password" className={styles.inputField} value={password} 
+          onChange={(e) => setPassword(e.target.value)} required />
+        <div className={styles.forgotPasswordContainer}>
+          <Link href="/forgot-password" className={styles.link}>Forgot Password?</Link>
+        </div>
+        <button type="submit" className={styles.primaryButton}>Login</button>
+        {error && <p className={styles.error}>{error}</p>}
+        <p className={styles.altOption}>
+          Don't have an account? <Link href="/signup" className={styles.link}>Sign Up</Link>
+        </p>
+      </form>
 
-        <footer className={styles.footer}>
-          &copy; {new Date().getFullYear()} SavvyNote. All rights reserved.
-        </footer>
-      </div>
-    </>
+      <footer className={styles.footer}>
+        &copy; {new Date().getFullYear()} SavvyNote. All rights reserved.
+      </footer>
+    </div>
   );
 }

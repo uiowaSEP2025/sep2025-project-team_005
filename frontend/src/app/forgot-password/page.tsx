@@ -4,7 +4,6 @@ import styles from "@/styles/Signup.module.css";
 import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
-import Head from "next/head";
 import { useState } from "react";
 
 export default function ForgotPassword() {
@@ -46,36 +45,31 @@ export default function ForgotPassword() {
     };
 
     return (
-        <>
-            <Head>
-                <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-            </Head>
-            <div className={styles.container}>
-                <div className={styles.header}>
-                    <Link href="/login">
-                        <button>Back to Login</button>
-                    </Link>
-                    <Image src="/savvy.png" alt="Platform Logo" width={200} height={200} />
-                    <h1 className={styles.title}>Enter Your Email</h1>
-                </div>
-
-                <form className={styles.form} onSubmit={handleSubmit}>
-                    <label htmlFor="email" className={styles.label}>Email:</label>
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        required
-                        placeholder="Enter your email"
-                        className={styles.inputField}
-                        value={email}
-                        onChange={(e) => {setEmail(e.target.value);}}
-                    />
-                    {emailError && <p className={styles.error}>{emailError}</p>}
-
-                    <button type="submit" className={styles.submitButton}>Send Reset Password Email</button>
-                </form>
+        <div className={styles.container}>
+            <div className={styles.header}>
+                <Link href="/login">
+                    <button>Back to Login</button>
+                </Link>
+                <Image src="/savvy.png" alt="Platform Logo" width={200} height={200} />
+                <h1 className={styles.title}>Enter Your Email</h1>
             </div>
-        </>
+
+            <form className={styles.form} onSubmit={handleSubmit}>
+                <label htmlFor="email" className={styles.label}>Email:</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    required
+                    placeholder="Enter your email"
+                    className={styles.inputField}
+                    value={email}
+                    onChange={(e) => {setEmail(e.target.value);}}
+                />
+                {emailError && <p className={styles.error}>{emailError}</p>}
+
+                <button type="submit" className={styles.submitButton}>Send Reset Password Email</button>
+            </form>
+        </div>
     );
 }
