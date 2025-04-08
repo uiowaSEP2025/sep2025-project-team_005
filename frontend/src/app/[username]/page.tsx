@@ -8,6 +8,7 @@ import { useAuth, useRequireAuth } from "@/context/ProfileContext";
 import { useEffect, useState } from "react";
 import { FaEllipsisV } from "react-icons/fa";
 import Image from "next/image";
+import Head from "next/head";
 
 import styles from "@/styles/Profile.module.css";
 import axios from "axios";
@@ -262,41 +263,45 @@ export default function DiscoverProfile() {
     if (isLoading || !musicianProfile || !followCount) return <p className="description">Loading...</p>;
 
     return (
-        <div className={styles.container}>
-            <div className={styles.profileHeader}>
-                <Image 
-                    src="/savvy.png" 
-                    alt={`${username}'s profile picture`} 
-                    width={120} 
-                    height={120} 
-                    className={styles.profilePhoto}
-                />
-                <div className={styles.profileInfo}>
-                    <div className={styles.headerWithDots}>
-                        <h1 className={styles.title}>{musicianProfile.stage_name || username}</h1>
-                        {/* Three-Dot Button */}
-                        <div className={styles.threeDotButton} onClick={handleDropdownToggle} data-testid="dropdown-button">
-                            <FaEllipsisV size={24} />
+        <>
+            <Head>
+                <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+            </Head>
+            <div className={styles.container}>
+                <div className={styles.profileHeader}>
+                    <Image 
+                        src="/savvy.png" 
+                        alt={`${username}'s profile picture`} 
+                        width={120} 
+                        height={120} 
+                        className={styles.profilePhoto}
+                    />
+                    <div className={styles.profileInfo}>
+                        <div className={styles.headerWithDots}>
+                            <h1 className={styles.title}>{musicianProfile.stage_name || username}</h1>
+                            {/* Three-Dot Button */}
+                            <div className={styles.threeDotButton} onClick={handleDropdownToggle} data-testid="dropdown-button">
+                                <FaEllipsisV size={24} />
+                            </div>
                         </div>
-                    </div>
 
-                    <div className={styles.followStats}>
-                        <div className={styles.statCard}>
-                            <button className={styles.statNumber} onClick={() => userId && handleNavigation(userId.user_id, "followers")}>{followCount.follower_count}</button>
-                            <p className={styles.statLabel}>Followers</p>
+                        <div className={styles.followStats}>
+                            <div className={styles.statCard}>
+                                <button className={styles.statNumber} onClick={() => userId && handleNavigation(userId.user_id, "followers")}>{followCount.follower_count}</button>
+                                <p className={styles.statLabel}>Followers</p>
+                            </div>
+                            <div className={styles.statCard}>
+                            <button className={styles.statNumber} onClick={() => userId && handleNavigation(userId.user_id, "following")}>{followCount.following_count}</button>
+                                <p className={styles.statLabel}>Following</p>
+                            </div>
                         </div>
-                        <div className={styles.statCard}>
-                        <button className={styles.statNumber} onClick={() => userId && handleNavigation(userId.user_id, "following")}>{followCount.following_count}</button>
-                            <p className={styles.statLabel}>Following</p>
-                        </div>
+                        {profile?.username !== username && (
+                            <div className={styles.profileActions}>
+                                <button className={styles.followButton}>Follow</button>
+                                <button className={styles.messageButton}>Message</button>
+                            </div>
+                        )}
                     </div>
-                    {profile?.username !== username && (
-                        <div className={styles.profileActions}>
-                            <button className={styles.followButton} data-testid="follow-button">Follow</button>
-                            <button className={styles.messageButton} data-testid="message-button">Message</button>
-                        </div>
-                    )}
-                </div>
 
                 {/* Dropdown Menu */}
                 {isDropdownOpen && (
@@ -313,56 +318,57 @@ export default function DiscoverProfile() {
                         </div>
                     )
                 )}
-            </div>
+                </div>
 
-            <div className={styles.bioSection}>
-                {profile?.username === username && (
-                    <button className={styles.editButton} onClick={handleUpdateProfile} data-testid="edit-button"><Edit size={24}/></button>
-                )}
-                <h2 className={styles.bioTitle}>About</h2>
-                <p className={styles.description}><strong>Home Studio:</strong> {musicianProfile.home_studio ? "Yes" : "No"}</p>
-                <p className={styles.description}><strong>Genres:</strong> {musicianProfile.genres.join(", ")}</p>
-                <p className={styles.description}>
-                    <strong>Instruments: </strong>
-                    <span>
-                        {musicianProfile.instruments.map((instr, index) => (
-                            <React.Fragment key={index}>
-                                {instr.instrument_name} - {instr.years_played} years
-                                {index < musicianProfile.instruments.length - 1 && <br />}
-                            </React.Fragment>
-                        ))}
-                    </span>
-                </p>
-            </div>
-            
-            <div className={styles.postsSection}>
-                <div className={styles.postsHeader}>
-                    <h2 className={styles.featureTitle}>Posts</h2>
+                <div className={styles.bioSection}>
                     {profile?.username === username && (
-                        <div>
-                            <button className={styles.editButton} onClick={handlePost} data-testid="post-button">Post</button>
-                            <input type="file" onChange={handleFileUpload} />
+                        <button className={styles.editButton} onClick={handleUpdateProfile} data-testid="edit-button"><Edit size={24}/></button>
+                    )}
+                    <h2 className={styles.bioTitle}>About</h2>
+                    <p className={styles.description}><strong>Home Studio:</strong> {musicianProfile.home_studio ? "Yes" : "No"}</p>
+                    <p className={styles.description}><strong>Genres:</strong> {musicianProfile.genres.join(", ")}</p>
+                    <p className={styles.description}>
+                        <strong>Instruments: </strong>
+                        <span>
+                            {musicianProfile.instruments.map((instr, index) => (
+                                <React.Fragment key={index}>
+                                    {instr.instrument_name} - {instr.years_played} years
+                                    {index < musicianProfile.instruments.length - 1 && <br />}
+                                </React.Fragment>
+                            ))}
+                        </span>
+                    </p>
+                </div>
+                
+                <div className={styles.postsSection}>
+                    <div className={styles.postsHeader}>
+                        <h2 className={styles.featureTitle}>Posts</h2>
+                        {profile?.username === username && (
+                            <div>
+                                <button className={styles.editButton} onClick={handlePost} data-testid="post-button">Post</button>
+                                <input type="file" onChange={handleFileUpload} />
+                            </div>
+                        )}
+                    </div>
+                    {loading && <p>Loading posts...</p>}
+                    {posts.length > 0 ? (
+                        <div className={styles.postsGrid}>
+                            {posts.map((post, index) => (
+                                <div key={index} className={styles.imageContainer} onClick={() => handlePostClick(post)}>
+                                    <img src={post.s3_url} alt={post.caption}/>
+                                </div>
+                            ))}
                         </div>
+                    ) : (
+                        <p>No posts found.</p>
+                    )}
+                    {hasMore && (
+                        <button onClick={loadMorePosts} disabled={loading}>
+                            Load More
+                        </button>
                     )}
                 </div>
-                {loading && <p>Loading posts...</p>}
-                {posts.length > 0 ? (
-                    <div className={styles.postsGrid}>
-                        {posts.map((post, index) => (
-                            <div key={index} className={styles.imageContainer} onClick={() => handlePostClick(post)}>
-                                <img src={post.s3_url} alt={post.caption}/>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <p>No posts found.</p>
-                )}
-                {hasMore && (
-                    <button onClick={loadMorePosts} disabled={loading}>
-                        Load More
-                    </button>
-                )}
             </div>
-        </div>
+        </>
     );
 }
