@@ -33,6 +33,5 @@ urlpatterns = [
         path('add-instrument/', create_instrument, name="add-instrument"),
         path('add-genre/', create_genre, name="add-genre"),
         path('follow-list/<uuid:user_id>/', FollowListView.as_view(), name='follow-list'),
-        #path('social/', include('social_django.urls', namespace='social')),
     ])),
 ]
