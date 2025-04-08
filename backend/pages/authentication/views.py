@@ -193,9 +193,17 @@ def google_login(request):
     if not email or not google_id:
         return Response({"error": "Missing email or Google ID"}, status=400)
 
-    user, created = User.objects.get_or_create(email=email, defaults={"username": email.split("@")[0]})
+    # Look for existing user by email
+    user = User.objects.filter(email=email).first()
 
-    # Generate JWT tokens
+    if user is None:
+        # No user exists yet — send 202 to trigger signup flow
+        return Response(
+            {"message": "user_not_found", "email": email},
+            status=202
+        )
+
+    # If user exists, generate JWT tokens
     refresh = RefreshToken.for_user(user)
     access_token = str(refresh.access_token)
 
@@ -211,15 +219,7 @@ def google_login(request):
             "phone": user.phone,
             "role": user.role,
         }
-    })
-
-
-    print("RESPONSE CREATED: ", response)
-    print("Username: ", user.username)
-    print("ID: ", user.id)
-    print("Auth: ", user.is_authenticated)
-
-
+    }, status=200)
     response.set_cookie(
         "access_token", access_token, secure=True, samesite="Lax"
     )

@@ -25,16 +25,16 @@ export default function GoogleAuthRedirect() {
             withCredentials: true,
           }
         );
-
-
-          console.log("IN GOOGLE-AUTH/PAGES.TSX COMPLETE LOGIN FUCTION");
-          console.log("Username: ", response.data.user.username)
-
-
           if (response.status === 200) {
             await fetchProfile();
             router.push(`/${response.data.user.username}`);
-          } else {
+          } 
+          else if (response.status === 202) {
+            // Status of 202 from backend indicates that google auth succeeded, but user with this email does not yet exist
+            // Redirect to sign up role-selection page, passing the user as a query parameter
+            router.push(`/signup?email=${encodeURIComponent(session.user.email)}`);
+          }
+          else {
             router.push("/login?error=backend");
           }
         } catch (err) {
