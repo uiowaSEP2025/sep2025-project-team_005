@@ -7,7 +7,8 @@ import Link from "next/link";
 import Image from "next/image";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { signIn, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
+import { FcGoogle } from "react-icons/fc";
 
 export default function Login() {
   const { profile, isLoading, fetchProfile } = useAuth();
@@ -69,8 +70,8 @@ export default function Login() {
       </form>
 
       <button onClick={handleGoogleLogin} className={styles.googleButton}>
-        <Image src="/google-icon.svg" alt="Google Logo" width={20} height={20} />
-        Sign in with Google
+        <FcGoogle className={styles.googleIcon} />
+          Sign in with Google
       </button>
 
       <footer className={styles.footer}>
