@@ -19,7 +19,12 @@ export default function GoogleAuthRedirect() {
           const response = await axios.post("http://localhost:8000/api/auth/google-login/", {
             email: session.user.email,
             google_id: session.user.id,
-          });
+            credentials: "include",
+          }, 
+          {
+            withCredentials: true,
+          }
+        );
 
 
           console.log("IN GOOGLE-AUTH/PAGES.TSX COMPLETE LOGIN FUCTION");
