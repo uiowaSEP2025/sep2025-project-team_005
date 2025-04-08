@@ -4,7 +4,6 @@ import styles from "@/styles/Signup.module.css";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Head from "next/head";
 
 
 // Ensures that the genres read from the database are explicitly types
@@ -392,196 +391,191 @@ export default function MusicianSignup() {
     };
 
     return (
-        <>
-            <Head>
-                <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-            </Head>
-            <div className={styles.container}>
-                <header className={styles.header}>
-                    <Image src="/savvy.png" alt="Platform Logo" width={200} height={200} />
-                    <h1 className={styles.title}>Sign Up: Musician</h1>
-                </header>
+        <div className={styles.container}>
+            <header className={styles.header}>
+                <Image src="/savvy.png" alt="Platform Logo" width={200} height={200} />
+                <h1 className={styles.title}>Sign Up: Musician</h1>
+            </header>
 
-                <form role="form" className={styles.form} onSubmit={handleSubmit}>
-                    <label htmlFor="email" className={styles.label}>Email:</label>
-                    <input
-                        type="email"    // HTML5 pre-enforced validation for email
-                        id="email"
-                        name="email"
-                        required        // Require field to be filled out upon submission
-                        placeholder="Enter your email"
-                        className={styles.inputField}
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                    />
+            <form role="form" className={styles.form} onSubmit={handleSubmit}>
+                <label htmlFor="email" className={styles.label}>Email:</label>
+                <input
+                    type="email"    // HTML5 pre-enforced validation for email
+                    id="email"
+                    name="email"
+                    required        // Require field to be filled out upon submission
+                    placeholder="Enter your email"
+                    className={styles.inputField}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                />
 
-                    <label htmlFor="username" className={styles.label}>Username:</label>
-                    <input
-                        type="text"
-                        id="username"
-                        name="username"
-                        required
-                        placeholder="Choose a username"
-                        className={styles.inputField}
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                    />
+                <label htmlFor="username" className={styles.label}>Username:</label>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    required
+                    placeholder="Choose a username"
+                    className={styles.inputField}
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                />
 
-                    <label htmlFor="password" className={styles.label}>Password:</label>
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        required
-                        placeholder="Create a strong password"
-                        className={styles.inputField}
-                        value={password}
-                        onChange={(e) => {
-                            const newPassword = e.target.value;
-                            setPassword(newPassword);
-                            validatePassword(newPassword);
-                        }}
-                    />
-                    {passwordError && <p className={styles.error}>{passwordError}</p>}
+                <label htmlFor="password" className={styles.label}>Password:</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    required
+                    placeholder="Create a strong password"
+                    className={styles.inputField}
+                    value={password}
+                    onChange={(e) => {
+                        const newPassword = e.target.value;
+                        setPassword(newPassword);
+                        validatePassword(newPassword);
+                    }}
+                />
+                {passwordError && <p className={styles.error}>{passwordError}</p>}
 
-                    <label htmlFor="stageName" className={styles.label}>Stage Name:</label>
-                    <input
-                        type="text"
-                        id="stageName"
-                        name="stageName"
-                        placeholder="Stage Name"
-                        className={styles.inputField}
-                        value={stageName}
-                        onChange={(e) => setStageName(e.target.value)}
-                    />
+                <label htmlFor="stageName" className={styles.label}>Stage Name:</label>
+                <input
+                    type="text"
+                    id="stageName"
+                    name="stageName"
+                    placeholder="Stage Name"
+                    className={styles.inputField}
+                    value={stageName}
+                    onChange={(e) => setStageName(e.target.value)}
+                />
 
-                    <div>
-                        <label className={styles.label}>Do you have a home studio?</label>
-                        <div className={styles.radioButtons}>
-                            <label>
-                                <input
-                                    type="radio" 
-                                    id="yes" 
-                                    name="decision" 
-                                    value="Yes" 
-                                    onChange={handleRadioChange} 
-                                    checked={homeStudio === 'Yes'} 
-                                    className={styles.radioButton} 
-                                />
-                                Yes
-                            </label>
-                            <label>
-                                <input
-                                    type="radio" 
-                                    id="no" 
-                                    name="decision" 
-                                    value="No" 
-                                    onChange={handleRadioChange} 
-                                    checked={homeStudio === 'No'} 
-                                    className={styles.radioButton} 
-                                />
-                                No
-                            </label>
-                        </div>
-                    </div>
-
-                    <h3 className={styles.label}>Instruments Played:</h3>
-
-                    {instruments.map((instrument, index) => (
-                        <div key={index} className={styles.instrumentRow}>
-                            <div className={styles.autocompleteWrapper}>
-                                <input
-                                    type="text"
-                                    placeholder="Instrument"
-                                    className={styles.inputField}
-                                    value={instrument.instrument}
-                                    onChange={(e) => handleInstrumentChange(index, e.target.value)}
-                                />
-                                {autocompleteResultsInstruments[index] && autocompleteResultsInstruments[index].length > 0 && (
-                                    <div className={styles.autocompleteDropdown}>
-                                        {autocompleteResultsInstruments[index].map((option, i) => (
-                                            <div
-                                                key={i}
-                                                className={styles.autocompleteItem}
-                                                onClick={() => handleInstrumentDropdownItemClick(index, option.instrument)}
-                                            >
-                                            {option.instrument}
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-
+                <div>
+                    <label className={styles.label}>Do you have a home studio?</label>
+                    <div className={styles.radioButtons}>
+                        <label>
                             <input
-                                type="number"
-                                placeholder="Years played"
-                                value={instrument.years_played}
-                                onChange={(e) => handleYearsChange(index, e.target.value)}
-                                className={styles.inputField}
+                                type="radio" 
+                                id="yes" 
+                                name="decision" 
+                                value="Yes" 
+                                onChange={handleRadioChange} 
+                                checked={homeStudio === 'Yes'} 
+                                className={styles.radioButton} 
                             />
+                            Yes
+                        </label>
+                        <label>
+                            <input
+                                type="radio" 
+                                id="no" 
+                                name="decision" 
+                                value="No" 
+                                onChange={handleRadioChange} 
+                                checked={homeStudio === 'No'} 
+                                className={styles.radioButton} 
+                            />
+                            No
+                        </label>
+                    </div>
+                </div>
 
-                            <button 
-                                type="button" 
-                                className={styles.removeInstrumentButton} 
-                                onClick={() => removeInstrumentField(index)}
-                            >
-                                ➖
-                            </button>
+                <h3 className={styles.label}>Instruments Played:</h3>
 
+                {instruments.map((instrument, index) => (
+                    <div key={index} className={styles.instrumentRow}>
+                        <div className={styles.autocompleteWrapper}>
+                            <input
+                                type="text"
+                                placeholder="Instrument"
+                                className={styles.inputField}
+                                value={instrument.instrument}
+                                onChange={(e) => handleInstrumentChange(index, e.target.value)}
+                            />
+                            {autocompleteResultsInstruments[index] && autocompleteResultsInstruments[index].length > 0 && (
+                                <div className={styles.autocompleteDropdown}>
+                                    {autocompleteResultsInstruments[index].map((option, i) => (
+                                        <div
+                                            key={i}
+                                            className={styles.autocompleteItem}
+                                            onClick={() => handleInstrumentDropdownItemClick(index, option.instrument)}
+                                        >
+                                        {option.instrument}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
-                    ))}
 
-                    <button type="button" className={styles.addInstrumentButton} onClick={addInstrumentField}>
-                        + Add another instrument
-                    </button>
+                        <input
+                            type="number"
+                            placeholder="Years played"
+                            value={instrument.years_played}
+                            onChange={(e) => handleYearsChange(index, e.target.value)}
+                            className={styles.inputField}
+                        />
 
-                    <h4 className={styles.label}>Genres Played:</h4>
+                        <button 
+                            type="button" 
+                            className={styles.removeInstrumentButton} 
+                            onClick={() => removeInstrumentField(index)}
+                        >
+                            ➖
+                        </button>
 
-                    {genres.map((genre, index) => (
-                        <div key={index} className={styles.instrumentRow}>
-                            <div className={styles.autocompleteWrapper}>
-                                <input
-                                    type="text"
-                                    placeholder="Genre"
-                                    className={styles.inputField}
-                                    value={genre.genre}
-                                    onChange={(e) => handleGenreChange(index, e.target.value)}
-                                />
-                                {autocompleteResultsGenre[index] && autocompleteResultsGenre[index].length > 0 && (
-                                    <div className={styles.autocompleteDropdown}>
-                                        {autocompleteResultsGenre[index].map((option, i) => (
-                                            <div
-                                                key={i}
-                                                className={styles.autocompleteItem}
-                                                onClick={() => handleGenreDropdownItemClick(index, option.genre)}
-                                            >
-                                                {option.genre} 
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
+                    </div>
+                ))}
 
-                            <button 
-                                type="button" 
-                                className={styles.removeInstrumentButton} 
-                                onClick={() => removeGenreField(index)}
-                            >
-                                ➖
-                            </button>
+                <button type="button" className={styles.addInstrumentButton} onClick={addInstrumentField}>
+                    + Add another instrument
+                </button>
 
+                <h4 className={styles.label}>Genres Played:</h4>
+
+                {genres.map((genre, index) => (
+                    <div key={index} className={styles.instrumentRow}>
+                        <div className={styles.autocompleteWrapper}>
+                            <input
+                                type="text"
+                                placeholder="Genre"
+                                className={styles.inputField}
+                                value={genre.genre}
+                                onChange={(e) => handleGenreChange(index, e.target.value)}
+                            />
+                            {autocompleteResultsGenre[index] && autocompleteResultsGenre[index].length > 0 && (
+                                <div className={styles.autocompleteDropdown}>
+                                    {autocompleteResultsGenre[index].map((option, i) => (
+                                        <div
+                                            key={i}
+                                            className={styles.autocompleteItem}
+                                            onClick={() => handleGenreDropdownItemClick(index, option.genre)}
+                                        >
+                                            {option.genre} 
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
-                    ))}
 
-                    <button type="button" className={styles.addInstrumentButton} onClick={addGenreField}>
-                        + Add another genre
-                    </button>
+                        <button 
+                            type="button" 
+                            className={styles.removeInstrumentButton} 
+                            onClick={() => removeGenreField(index)}
+                        >
+                            ➖
+                        </button>
+
+                    </div>
+                ))}
+
+                <button type="button" className={styles.addInstrumentButton} onClick={addGenreField}>
+                    + Add another genre
+                </button>
 
 
-                    {error && <p className={styles.error}>{error}</p>} {/* Show error if invalid */}
-                    <button type="submit" className={styles.submitButton}>Sign Up</button>
-                </form>
-            </div>
-        </>
+                {error && <p className={styles.error}>{error}</p>} {/* Show error if invalid */}
+                <button type="submit" className={styles.submitButton}>Sign Up</button>
+            </form>
+        </div>
     );
 }
