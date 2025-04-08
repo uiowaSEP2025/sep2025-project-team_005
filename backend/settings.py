@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import environ
 import os
-from pages.pipeline import redirect_to_signup_if_new
 
 # Set up .env communication
 env = environ.Env()
@@ -86,7 +85,6 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'corsheaders',
     'storages',
-    'social_django'     # For Google login and 2FA
 ]
 
 MIDDLEWARE = [
@@ -114,7 +112,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'social_django.context_processors.backends',    # For google login and 2FA
             ],
         },
     },
@@ -222,30 +219,3 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Google Login Settings
-SITE_ID = 1
-
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv("GOOGLE_CLIENT_ID")
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
-SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email', 'profile',]
-SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_PARAMS = {'access_type': 'online'}
-SOCIAL_AUTH_GOOGLE_OAUTH2_USE_UNIQUE_USER_ID = True
-
-AUTHENTICATION_BACKENDS = (
-    'social_core.backends.google.GoogleOAuth2',  # Add Google OAuth2 backend
-    'django.contrib.auth.backends.ModelBackend',  # Default backend
-)
-
-SOCIAL_AUTH_PIPELINE = (
-    'social_core.pipeline.social_auth.social_details',
-    'social_core.pipeline.social_auth.social_uid',
-    'social_core.pipeline.social_auth.auth_allowed',
-    'social_core.pipeline.social_auth.social_user',
-    'pages.pipeline.redirect_to_signup_if_new',
-    'social_core.pipeline.user.user_details',
-)
-
-LOGIN_URL = 'social:begin'
-LOGIN_REDIRECT_URL = "/api/users/all/"  # Redirect after successful login ***NOTE: CHANGE THESE LATER!
-LOGOUT_REDIRECT_URL = "/"  # Redirect after logout

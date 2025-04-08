@@ -8,11 +8,11 @@ import { useAuth, useRequireAuth } from "@/context/ProfileContext";
 import { useEffect, useState } from "react";
 import { FaEllipsisV } from "react-icons/fa";
 import Image from "next/image";
-
 import styles from "@/styles/Profile.module.css";
 import axios from "axios";
 import Cookies from "js-cookie";
 import debounce from "lodash.debounce";
+import { signOut } from 'next-auth/react';
 
 interface UserID {
     user_id: string;
@@ -149,6 +149,9 @@ export default function DiscoverProfile() {
             // Clear user profile data
             setProfile(null);
 
+
+            // Call next-auth sign out function to end next-auth session (google login) and remove next-auth.session-token from cookies
+            signOut({ callbackUrl: '/' });
 
             // Redirect to login page
             router.push("/login");
