@@ -50,7 +50,6 @@ export default function DiscoverProfile() {
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
-    const [s3_url, setS3Url] = useState(false);
 
     useEffect(() => {
         const fetchUserId = async () => {
@@ -185,7 +184,6 @@ export default function DiscoverProfile() {
             });
             if (response.status >= 200 && response.status < 300) {
                 alert("Post created!");
-                setS3Url(response.data.s3_url)
                 console.log("Request successful:", response.data);
             } else {
                 alert("Post creation failed. Please refresh the page and try again.");
