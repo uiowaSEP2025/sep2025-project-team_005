@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { useAuth } from "@/context/ProfileContext";
+import CircularProgress from '@mui/material/CircularProgress';
 
 export default function GoogleAuthRedirect() {
   const { data: session, status } = useSession();
@@ -47,5 +48,16 @@ export default function GoogleAuthRedirect() {
     completeLogin();
   }, [session, status]);
 
-  return <p>Redirecting...</p>;
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+      }}
+    >
+      <CircularProgress size={50} />
+    </div>
+  );
 }
