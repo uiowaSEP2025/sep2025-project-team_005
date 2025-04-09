@@ -138,9 +138,6 @@ export default function DiscoverProfile() {
             // Call next-auth sign out function to end next-auth session (google login) and remove next-auth.session-token from cookies
             // Once done, redirect to login page
             signOut({ callbackUrl: '/login' });
-
-            // Redirect to login page
-            //router.push("/login");
         } 
         catch (error) {
             console.error("Logout failed", error);
