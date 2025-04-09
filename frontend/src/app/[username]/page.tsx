@@ -398,7 +398,7 @@ export default function DiscoverProfile() {
                         </div>
                     ) : (
                         <div className={styles.dropdownMenu}>
-                            <button className={styles.dropdownItem} onClick={handleBlockUser}>
+                            <button className={styles.dropdownItem} onClick={handleBlockUser} data-testid="block-button">
                                 Block User
                             </button>
                         </div>
