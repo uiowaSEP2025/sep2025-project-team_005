@@ -221,6 +221,7 @@ const [showPassword, setShowPassword] = useState(false);
           type="button"
           className={styles.eyeButton}
           onClick={() => setShowPassword((prev) => !prev)}
+          aria-label="Show Password"
         >
           {showPassword ? <EyeOff size={30} /> : <Eye size={30} />}
         </button>

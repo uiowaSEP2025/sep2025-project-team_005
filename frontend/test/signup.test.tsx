@@ -502,8 +502,8 @@ describe("Business Sign Up Page", () => {
     const emailInput = screen.getByLabelText(/Email/i);
     const usernameInput = screen.getByLabelText(/Username/i);
     const passwordInput = screen.getByLabelText(/Password/i);
-    const businessNameInput = screen.getByLabelText(/Your Business' Name/i);
-    const industryInput = screen.getByLabelText(/Industry Your Business Is In/i);
+    const businessNameInput = screen.getByLabelText(/Business Name/i);
+    const industryInput = screen.getByLabelText(/Business Industry/i);
 
     // Type test values into these input text fields
     await user.type(emailInput, "test@business.com");
@@ -583,8 +583,8 @@ describe("Business Sign Up Page", () => {
     const emailInput = screen.getByLabelText(/Email/i);
     const usernameInput = screen.getByLabelText(/Username/i);
     const passwordInput = screen.getByLabelText(/Password/i);
-    const businessNameInput = screen.getByLabelText(/Your Business' Name/i);
-    const industryInput = screen.getByLabelText(/Industry Your Business Is In/i);
+    const businessNameInput = screen.getByLabelText(/Business Name/i);
+    const industryInput = screen.getByLabelText(/Business Industry/i);
 
     await user.type(emailInput, "invalidEmail");
     await user.type(usernameInput, "companyUsername");

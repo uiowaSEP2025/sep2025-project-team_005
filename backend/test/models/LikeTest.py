@@ -16,7 +16,6 @@ class LikeTest:
     def create_post(db, create_user):
         post1 = Post.objects.create(
             owner=create_user,
-            s3_url="https://s3-bucket-url.com/sample1.png",
             file_key="image/sample1.png",
             file_type="image/png",
             caption="Test caption1"
@@ -25,7 +24,6 @@ class LikeTest:
         
         post2 = Post.objects.create(
             owner=create_user,
-            s3_url="https://s3-bucket-url.com/sample2.png",
             file_key="image/sample2.png",
             file_type="image/png",
             caption="Test caption2"

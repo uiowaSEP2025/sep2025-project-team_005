@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "@/styles/Login.module.css";
 import { useAuth } from "@/context/ProfileContext";
 import Link from "next/link";
@@ -9,33 +9,36 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 
 export default function Login() {
-  const { profile, isLoading } = useAuth();
+  const { profile, isLoading, fetchProfile } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
+  const [loggingIn, setLoggingIn] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoggingIn(true);
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/auth/login/",      // Replace with an env variable for both local and Kubernetes deployment
+        "http://localhost:8000/api/auth/login/",
         { username, password },
         { withCredentials: true } // Sends cookies to backend
       );
+      await fetchProfile();
 
-      try {
-        if(!isLoading && profile)
-          router.push(`/${username}`);
-      } 
-      catch (error) {
-          console.error(error)
-      }
     }
     catch (err) {
       setError("Invalid username or password");
     }
   };
+
+  useEffect(() => {
+    if (!isLoading && profile && loggingIn) {
+      setLoggingIn(false);
+        router.push(`/${profile.username}`);
+    }
+  }, [profile, isLoading, router]);
 
   return (
     <div className={styles.container}>
