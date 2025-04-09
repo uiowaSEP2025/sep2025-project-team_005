@@ -2,8 +2,31 @@
 
 import { Button, Stack, Box } from "@mui/material";
 import { Home, Search, Add, Chat, Settings } from "@mui/icons-material";
+import { useRouter } from "next/navigation";
 
 const Toolbar = () => {
+    const router = useRouter();
+
+    const handleFeedClick = () => {
+        router.push(`/feed/`);
+    };
+    
+    const handleDiscoverClick = () => {
+        router.push(`/discover/`);
+    };
+    
+    const handleJobsClick = () => {
+        router.push(`//`);
+    };
+    
+    const handleMessagesClick = () => {
+        router.push(`//`);
+    };
+    
+    const handleSettingsClick = () => {
+        router.push(`settings/user`);
+    };
+
     return (
         <Box
         sx={{
@@ -20,11 +43,11 @@ const Toolbar = () => {
             boxShadow: '2px 0 5px rgba(0,0,0,0.2)', // Add subtle shadow for a floating effect
         }}
         >
-            <Button variant="contained" startIcon={<Home />}>Feed</Button>
-            <Button variant="contained" startIcon={<Search />}>Discover</Button>
-            <Button variant="contained" startIcon={<Add />}>Jobs</Button>
-            <Button variant="contained" startIcon={<Chat />}>Messages</Button>
-            <Button variant="contained" startIcon={<Settings />}>Settings</Button>
+            <Button variant="contained" startIcon={<Home />} onClick={handleFeedClick}>Feed</Button>
+            <Button variant="contained" startIcon={<Search />} onClick={handleDiscoverClick}>Discover</Button>
+            <Button variant="contained" startIcon={<Add />} onClick={handleJobsClick}>Jobs</Button>
+            <Button variant="contained" startIcon={<Chat />} onClick={handleMessagesClick}>Messages</Button>
+            <Button variant="contained" startIcon={<Settings />} onClick={handleSettingsClick}>Settings</Button>
         </Box>
     );
 };

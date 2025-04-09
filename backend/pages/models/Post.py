@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import MaxLengthValidator
 import uuid
-from pages.models.Like import Like
+from pages.models import Like, Comment
 
 from .User import User
 
@@ -15,7 +15,6 @@ class Post(models.Model):
     caption = models.TextField(validators=[MaxLengthValidator(500)], blank=True)
     
     tagged_users = models.ManyToManyField(User, related_name="tagged_users")
-    likes = models.ManyToManyField(User, related_name="liked_posts", blank=True)
     
     def like_count(self):
         return Like.objects.filter(post=self).count()

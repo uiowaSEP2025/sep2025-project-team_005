@@ -7,7 +7,7 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = '__all__'
+        fields = ['id', 'owner','file_key','file_type','created_at','caption','tagged_users', 's3_url']
 
     def get_s3_url(self, obj):
         return generate_s3_url(obj.file_key, obj.file_type)

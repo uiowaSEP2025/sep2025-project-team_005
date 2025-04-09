@@ -1,13 +1,14 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from pages.serializers.post_serializers import PostSerializer
+from pages.serializers import PostSerializer, CommentSerializer
 from pages.utils.s3_utils import upload_to_s3
 from pages.forms import PostForm
-from pages.models import Post
+from pages.models import Post, Comment
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.db.models import Q, Count
 
 class CreatePostView(APIView):
     authentication_classes = [JWTAuthentication]
@@ -42,6 +43,21 @@ class GetPostsView(APIView, PageNumberPagination):
         username = request.GET.get("username")
 
         posts = Post.objects.filter(owner__username=username).distinct().order_by("-created_at")
+
+        paginated_posts = self.paginate_queryset(posts, request)
+
+        serialized_posts = PostSerializer(paginated_posts, many=True).data
+        return self.get_paginated_response(serialized_posts)
+    
+class GetFeedView(APIView, PageNumberPagination):
+    page_size = 6
+
+    def get(self, request):
+        username = request.GET.get("username")
+        print("AAAAAAAAAAA")
+        print(username)
+
+        posts = Post.objects.filter(~Q(owner__username=username)).distinct().order_by("-created_at")
 
         paginated_posts = self.paginate_queryset(posts, request)
 

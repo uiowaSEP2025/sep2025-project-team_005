@@ -7,26 +7,13 @@ import { useAuth, useRequireAuth } from "@/context/ProfileContext";
 import { useEffect, useState } from "react";
 
 import axios from "axios";
-import Cookies from "js-cookie";
 import debounce from "lodash.debounce";
 import Toolbar from '@/components/toolbars/toolbar';
-import { Box, Card, CardContent, CardMedia, Typography } from '@mui/material';
+import { Box, Card, CardActions, CardActionArea, CardContent, CardMedia, Typography, Button } from '@mui/material';
+import { ThumbUpOffAlt, ChatBubbleOutline } from '@mui/icons-material';
 
 interface UserID {
     user_id: string;
-}
-
-interface MusicianProfile {
-    stage_name: string;
-    years_played: number;
-    home_studio: boolean;
-    genres: string[];
-    instruments: { instrument_name: string; years_played: number }[];
-}
-
-interface FollowCount {
-    follower_count: number;
-    following_count: number;
 }
 
 interface Post {
@@ -37,6 +24,7 @@ export default function Feed() {
     useRequireAuth();
 
     const router = useRouter();
+    // username is not a param - needs to get user from useAuth
     const { username } = useParams();
     const { profile, isLoading, setProfile } = useAuth();
     const [userId, setUserId] = useState<UserID | null>(null);
@@ -73,10 +61,10 @@ export default function Feed() {
         router.push(`/follow/${user_id}?type=${type}`);
     };
 
-    const fetchPosts = async (username: string, pageNum = 1) => {
+    const fetchPostsAndComments = async (username: string, pageNum = 1) => {
         setLoading(true);
         try {
-            const response = await axios.get('http://localhost:8000/api/fetch-posts/', {
+            const response = await axios.get('http://localhost:8000/api/fetch-feed/', {
                 params: {
                     username: username,
                     page: pageNum
@@ -108,13 +96,9 @@ export default function Feed() {
         }
     };
 
-    const handlePostClick = async (post: Post) => {
-        router.push("") // TODO: replace with route to individual post view
-    }
-
     const debouncedFetchPosts = debounce(() => {
         setPage(1);
-        fetchPosts(String(username),1);
+        fetchPostsAndComments(String(username),1);
     }, 300);
 
     useEffect(() => {
@@ -123,10 +107,26 @@ export default function Feed() {
 
     const loadMorePosts = () => {
         if (hasMore && !loading) {
-            fetchPosts(String(username), page + 1);
+            fetchPostsAndComments(String(username), page + 1);
             setPage((prevPage) => prevPage + 1);
         }
     };
+
+    const handlePostClick = async (post: Post) => {
+        router.push("") // TODO: replace with route to individual post view
+    }
+
+    const handleLikeClick = async (post: Post) => {
+        // post like creation
+    }
+
+    const handleCommentClick = async (post: Post) => {
+        router.push("") // TODO: replace with route to individual post view
+    }
+
+    const handleShareClick = async (post: Post) => {
+        router.push("") // TODO: replace with route to individual share view
+    }
 
     if (isLoading) return <p className="description">Loading...</p>;
 
@@ -134,23 +134,27 @@ export default function Feed() {
         <Box>
             <Toolbar />    
             <Box sx={{ marginLeft: '20%', flexGrow: 1, padding: '1rem' }}>
-                <Card sx={{ marginBottom: '1rem' }}>
-                    <CardMedia
-                    component="img"
-                    height="300"
-                    image="https://via.placeholder.com/600"
-                    alt="Post image"
-                    />
-                    <CardContent>
-                    <Typography variant="h6">Caption</Typography>
-                    <Box sx={{ marginTop: '1rem' }}>
-                        <Typography variant="body2"><strong>user</strong> Comment </Typography>
-                        <Typography variant="body2"><strong>user</strong> Comment</Typography>
-                        <Typography variant="body2"><strong>user</strong> Comment </Typography>
-                    </Box>
-                    </CardContent>
+            {posts.map((post) => (
+                <Card key={post.id} sx={{ marginBottom: '1rem' }}>
+                    <CardActionArea onClick={() => handlePostClick(post)}>
+                        <CardMedia
+                            component="img"
+                            height="200"
+                            image={post.s3_url}
+                            alt="Image"
+                        />
+                        <CardContent>
+                            {/* ThumbUpAlt for if liked */}
+                            <Typography variant="h6">{post.caption}</Typography>
+                        </CardContent>
+                    </CardActionArea>
+                    <CardActions>
+                        <Button startIcon={<ThumbUpOffAlt />} onClick={() => handleLikeClick(post)}></Button>
+                        <Button startIcon={<ChatBubbleOutline />} onClick={() => handleCommentClick(post)}></Button>
+                        <Button variant="contained" onClick={() => handleShareClick(post)}>Share</Button>
+                    </CardActions>
                 </Card>
-    
+            ))}
             </Box>
         </Box>
     );
