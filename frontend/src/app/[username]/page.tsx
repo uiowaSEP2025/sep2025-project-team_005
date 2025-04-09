@@ -385,9 +385,11 @@ export default function DiscoverProfile() {
                                 {isFollowing ? "Unfollow" : "Follow"}
                             </button>
                             <button className={styles.messageButton} data-testid="message-button">Message</button>
+
                         </div>
                     )}
                 </div>
+
 
                 {/* Dropdown Menu */}
                 {isDropdownOpen && (
@@ -404,6 +406,7 @@ export default function DiscoverProfile() {
                         </div>
                     )
                 )}
+              
             </div>
 
             <div className={styles.bioSection}>

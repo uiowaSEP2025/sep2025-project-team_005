@@ -331,47 +331,82 @@ export default function Discover() {
                             )}
                         </div>
                     </div>
-                )
-            )}
-
-            <div className={styles.selectedFilters}>
-                {selectedGenres.map((genre, index) => (
-                    <span key={index} className={styles.selectedItem}>
-                        {genre} 
-                        <button onClick={() => removeGenre(genre)}> X </button>
-                    </span>
                 ))}
-            </div>
-            
-            {/* User List */}
-            <ul className={styles.userList}>
-                {users.length > 0 ? (
-                    users.map((user, index) => (
-                    <li key={index} className={styles.userCard} onClick={() => handleUserClick(user)} data-testid={`user-item-${user}`}>
-                        <div className={styles.profileImageContainer}>
-                            <Image
-                                src={"/savvy.png"}
-                                alt={`${user}'s profile photo`}
-                                width={60}
-                                height={60}
-                                className={styles.profilePhoto}
+
+                <div className={styles.selectedFilters}>
+                    {selectedGenres.map((genre, index) => (
+                        <span key={index} className={styles.selectedItem}>
+                            {genre} 
+                            <button onClick={() => removeGenre(genre)}> X </button>
+                        </span>
+                    ))}
+                </div>
+
+                {/* Genre Search Dropdown */}
+                {genres.map((genre, index) => (
+                    <div key={index} className={styles.instrumentRow}>
+                        <div className={styles.autocompleteWrapper}>
+                            <input
+                                type="text"
+                                placeholder="Genre"
+                                className={styles.inputField}
+                                value={genre.genre}
+                                onChange={(e) => handleGenreChange(index, e.target.value)}
                             />
+                            {autocompleteResultsGenre[index] && autocompleteResultsGenre[index].length > 0 && (
+                                <div className={styles.autocompleteDropdown}>
+                                    {autocompleteResultsGenre[index].map((option, i) => (
+                                        <div
+                                            key={i}
+                                            className={styles.autocompleteItem}
+                                            onClick={() => handleGenreDropdownItemClick(option.genre)}
+                                        >
+                                            {option.genre}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
-                        <span className={styles.username}>{user}</span>
-                    </li>
-                    ))
-                ) : (
-                    <p>No users found.</p>
+                    </div>
+                ))}
+
+                <div className={styles.selectedFilters}>
+                    {selectedGenres.map((genre, index) => (
+                        <span key={index} className={styles.selectedItem}>
+                            {genre} 
+                            <button onClick={() => removeGenre(genre)}> X </button>
+                        </span>
+                    ))}
+                </div>
+            
+                {/* User List */}
+                <ul className={styles.userList}>
+                    {users.length > 0 ? (
+                        users.map((user, index) => (
+                        <li key={index} className={styles.userCard} onClick={() => handleUserClick(user)} data-testid={`user-item-${user}`}>
+                            <div className={styles.profileImageContainer}>
+                                <Image
+                                    src={"/savvy.png"}
+                                    alt={`${user}'s profile photo`}
+                                    width={60}
+                                    height={60}
+                                    className={styles.profilePhoto}
+                                />
+                            </div>
+                            <span className={styles.username}>{user}</span>
+                        </li>
+                        ))
+                    ) : (
+                        <p>No users found.</p>
+                    )}
+                </ul>
+
+                {hasMore && (
+                    <button onClick={loadMoreUsers} disabled={loading} data-testid="load-more-button">
+                        Load More
+                    </button>
                 )}
-            </ul>
-
-
-            {hasMore && (
-                <button onClick={loadMoreUsers} disabled={loading} data-testid="load-more-button">
-                    Load More
-                </button>
-            )}
+            </div>
         </div>
-    </div>
     );
 }

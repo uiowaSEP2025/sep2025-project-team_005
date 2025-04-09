@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Head from "next/head";
 import { AuthProvider } from "@/context/ProfileContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import "./globals.css";
@@ -25,14 +26,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <ThemeProvider>
-          <AuthProvider>{children}</AuthProvider>
-        </ThemeProvider>
-      </body>
-    </html>
+    <>
+      <Head>
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+      </Head>
+      <html lang="en">
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+          <ThemeProvider>
+            <AuthProvider>{children}</AuthProvider>
+          </ThemeProvider>
+        </body>
+      </html>
+    </>
   );
 }
