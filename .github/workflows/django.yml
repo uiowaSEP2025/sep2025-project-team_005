@@ -37,7 +37,12 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install Dependencies
+    - name: Install Frontend Dependencies
+      run: |
+        cd frontend
+        npm install
+        npm audit fix
+    - name: Install Backend Dependencies
       run: |
         cd backend
         python -m pip install --upgrade pip
@@ -55,9 +60,23 @@ jobs:
         echo "source_profile = default" >> ~/.aws/config
         echo "region = ${{ secrets.AWS_REGION }}" >> ~/.aws/config
         echo "output = json" >> ~/.aws/config
-    - name: Run Tests
+    - name: Run Frontend Tests
+      run: |
+        docker compose up -d
+        cd frontend
+        npm run test
+    - name: Run Backend Tests
       run: |
         docker compose up -d
         cd backend
         pytest
+
+        # Behave needs the frontend and backend running in background to test.
+        cd ../frontend
+        npm run dev &
+        
+        cd ../backend
+        sudo systemctl start postgresql
+        python3 manage.py runserver &
+        behave test/features
 
