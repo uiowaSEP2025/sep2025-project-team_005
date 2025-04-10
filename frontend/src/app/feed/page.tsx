@@ -13,13 +13,23 @@ import Dropdown from '@/components/menus/dropdown';
 import { Box, Card, CardActions, CardActionArea, CardContent, CardMedia, Typography, Button, Avatar } from '@mui/material';
 import { ThumbUpOffAlt, ChatBubbleOutline } from '@mui/icons-material';
 import { FaEllipsisV } from 'react-icons/fa';
+import Cookies from "js-cookie";
 
 interface UserID {
     user_id: string;
 }
 
+interface User {
+    username: string;
+    id: string;
+  }
+
 interface Post {
-    [key: string]: string;
+    owner: User;
+    id: string;
+    created_at: string;
+    caption: string;
+    s3_url: string;
 }
 
 export default function Feed() {
@@ -34,6 +44,8 @@ export default function Feed() {
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
+    const [hiddenPosts, setHiddenPosts] = useState<Set<string>>(new Set());
+    const [expandedPosts, setExpandedPosts] = useState<Set<string>>(new Set());
 
     useEffect(() => {
         const fetchUserId = async () => {
@@ -59,11 +71,7 @@ export default function Feed() {
         fetchUserId();
     }, [username]);
 
-    const handleNavigation = (user_id: string, type: "followers" | "following") => {
-        router.push(`/follow/${user_id}?type=${type}`);
-    };
-
-    const fetchPostsAndComments = async (username: string, pageNum = 1) => {
+    const fetchFeed = async (username: string, pageNum = 1) => {
         setLoading(true);
         try {
             const response = await axios.get('http://localhost:8000/api/fetch-feed/', {
@@ -137,9 +145,28 @@ export default function Feed() {
     //     }
     };
 
+    const handleBlock = async (user: User) => {
+        if (!user) return;
+    
+        try {
+            const response = await axios.post(`http://localhost:8000/api/block/${user.id}/`, {
+            });
+    
+            if (response.status >= 200 && response.status < 300) {
+                alert("User blocked.");
+                console.log("Request successful:", response.data);
+            } else {
+                alert("Failed to block user.");
+                console.error("Request failed:", response.status, response.statusText);
+            }
+        } catch (error) {
+            console.error("Error blocking user:", error);
+        }
+    }; 
+
     const debouncedFetchPosts = debounce(() => {
         setPage(1);
-        fetchPostsAndComments(String(username),1);
+        fetchFeed(String(username),1);
     }, 300);
 
     useEffect(() => {
@@ -148,7 +175,7 @@ export default function Feed() {
 
     const loadMorePosts = () => {
         if (hasMore && !loading) {
-            fetchPostsAndComments(String(username), page + 1);
+            fetchFeed(String(username), page + 1);
             setPage((prevPage) => prevPage + 1);
         }
     };
@@ -162,7 +189,7 @@ export default function Feed() {
     }
 
     const handleCommentClick = async (post: Post) => {
-        router.push("") // TODO: replace with route to individual post view
+        router.push("") // TODO: replace with route to individual post-comment view
     }
 
     const handleShareClick = async (post: Post) => {
@@ -174,19 +201,35 @@ export default function Feed() {
     }
 
     const handleHide = async (post: Post) => {
-        console.log("Hide")
+        setHiddenPosts((prev) => new Set(prev.add(post.id)));
     }
+
+    const handleUnblock = async (post: Post) => {
+        setHiddenPosts((prev) => {
+            const newSet = new Set(prev);
+            newSet.delete(post.id);
+            return newSet;
+        });    
+    }
+
+    const toggleDescription = (post: Post) => {
+        setExpandedPosts((prev) => {
+          const newSet = new Set(prev);
+          if (newSet.has(post.id)) {
+            newSet.delete(post.id);
+          } else {
+            newSet.add(post.id);
+          }
+          return newSet;
+        });
+    };
 
     const handleReport = async (post: Post) => {
-        //
+        // TODO
     }
 
-    const handleBlock = async (user: string) => {
-        //
-    }
-
-    const handleProfile = async (user: string) => {
-        console.log(user)
+    const handleProfile = async (username: string) => {
+        router.push(`/${username}`)
     }
 
     if (isLoading) return <p className="description">Loading...</p>;
@@ -195,42 +238,76 @@ export default function Feed() {
         <Box>
             <Toolbar />    
             <Box sx={{ marginLeft: '20%', padding: '1rem' }}>
-            {posts.map((post) => (
-                <Card key={post.id} sx={{ marginBottom: '1rem', width: '50%', height: '50%', objectFit: 'cover' }}>
-                    <Box sx={{ backgroundColor: 'black', color: 'white', padding: '0.5rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Box display="flex" alignItems="center" gap={1}>
-                            <Avatar alt="User" src={"/savvy.png"} sx={{ width: 64, height: 64, cursor: 'pointer' }} onClick={() => handleProfile(post.user)} />
-                            <Typography variant="body1">{post.user || 'Username'}</Typography>
-                        </Box>
-                        <Box display="flex" gap={1}>
-                            <Button size="small" variant="contained" onClick={() => handleFollow(post)}>Follow</Button>
-                            <Dropdown buttonLabel={<FaEllipsisV size={24} />}menuItems=
-                                {[
-                                    { label: "Hide Post", onClick: () => handleHide(post) },
-                                    { label: "Report Post", onClick: () => handleReport(post) },
-                                    { label: "Block User", onClick: () => handleBlock(post.user) },
-                                ]}>
-                            </Dropdown>
-                        </Box>
+                {loading && <p>Loading posts...</p>}
+                {posts.length > 0 ? (
+                    <Box>
+                        {posts.map((post) => (
+                            !hiddenPosts.has(post.id) ? (
+                                <Card key={post.id} sx={{ marginBottom: '1rem', width: '50%', height: '50%', objectFit: 'cover' }}>
+                                    <Box sx={{ backgroundColor: 'black', color: 'white', padding: '0.5rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <Box display="flex" alignItems="center" gap={1}>
+                                            <CardActions onClick={() => handleProfile(post?.owner.username)} sx={{ cursor: 'pointer' }}>
+                                                <Avatar alt="User" src={"/savvy.png"} sx={{ width: 64, height: 64 }} />
+                                                <Typography variant="body1">{post.owner.username || 'Username'}</Typography>
+                                            </CardActions>
+                                        </Box>
+                                        <Box display="flex" gap={1}>
+                                            <Button size="small" variant="contained" onClick={() => handleFollow(post)}>Follow</Button>
+                                            <Dropdown buttonLabel={<FaEllipsisV size={24} />}menuItems=
+                                                {[
+                                                    { label: "Hide Post", onClick: () => handleHide(post) },
+                                                    { label: "Report Post", onClick: () => handleReport(post) },
+                                                    { label: "Block User", onClick: () => handleBlock(post.owner) },
+                                                ]}>
+                                            </Dropdown>
+                                        </Box>
+                                    </Box>
+                                    <CardActionArea onClick={() => handlePostClick(post)}>
+                                        <CardMedia
+                                            component="img"
+                                            image={post.s3_url}
+                                            alt="Image"
+                                        />
+                                    </CardActionArea>
+                                    <CardContent>
+                                        <Typography sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                                        {`${post.owner.username}: ${
+                                            expandedPosts.has(post.id)
+                                            ? post.caption
+                                            : post.caption.length > 100
+                                                ? post.caption.slice(0, 100) + '...'
+                                                : post.caption
+                                        }`}
+                                        </Typography>
+                                        {post.caption.length > 100 && (
+                                            <Button onClick={() => toggleDescription(post)}>
+                                                {expandedPosts.has(post.id) ? "Show Less" : "Show More"}
+                                            </Button>
+                                        )}
+                                    </CardContent>
+                                    <CardActions>
+                                        {/* ThumbUpAlt for if liked */}
+                                        <Button startIcon={<ThumbUpOffAlt />} onClick={() => handleLikeToggle(post)}></Button>
+                                        <Button startIcon={<ChatBubbleOutline />} onClick={() => handleCommentClick(post)}></Button>
+                                        <Button variant="contained" onClick={() => handleShareClick(post)}>Share</Button>
+                                    </CardActions>
+                                </Card>
+                            ) : (
+                                <Card key={post.id} sx={{ marginBottom: '1rem', width: '50%', height: '50%', objectFit: 'cover' }}>
+                                    <CardContent>
+                                        <Typography>This post is hidden.</Typography>
+                                        <Button onClick={() => handleUnblock(post)}>Unhide</Button>
+                                    </CardContent>
+                                </Card>
+                            )
+                        ))}
                     </Box>
-                    <CardActionArea onClick={() => handlePostClick(post)}>
-                        <CardMedia
-                            component="img"
-                            image={post.s3_url}
-                            alt="Image"
-                        />
-                        <CardContent>
-                            <Typography variant="h6">{post.caption}</Typography>
-                        </CardContent>
-                    </CardActionArea>
-                    <CardActions>
-                        {/* ThumbUpAlt for if liked */}
-                        <Button startIcon={<ThumbUpOffAlt />} onClick={() => handleLikeToggle(post)}></Button>
-                        <Button startIcon={<ChatBubbleOutline />} onClick={() => handleCommentClick(post)}></Button>
-                        <Button variant="contained" onClick={() => handleShareClick(post)}>Share</Button>
-                    </CardActions>
-                </Card>
-            ))}
+                ) : (
+                    <Typography>No posts found.</Typography>
+                )}
+                {hasMore && (
+                    <Button onClick={loadMorePosts} disabled={loading}>Load More</Button>
+                )}   
             </Box>
         </Box>
     );

@@ -170,9 +170,9 @@ export default function DiscoverProfile() {
                 return;
             }
             formData.append("file", file);
-            formData.append("caption", "Test");
+            formData.append("caption", "Test ".repeat(100));
     
-            const response = await axios.post("http://localhost:8000/api/post/create", formData, {
+            const response = await axios.post("http://localhost:8000/api/post/create/", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                     "Authorization": `Bearer ${Cookies.get("access_token")}`
