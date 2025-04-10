@@ -13,7 +13,7 @@ Parameters:
   PublicSubnetId:
     Description: "Public Subnet ID (must have a default route to an Internet Gateway)"
     Type: AWS::EC2::Subnet::Id
-    Default: subnet-0ed044eecdf8f523d # For Joroma: subnet-01172df8f774b84b6
+    Default: subnet-01172df8f774b84b6 # For KodyGMail: subnet-0ed044eecdf8f523d
 
   InstanceType:
     Description: EC2 instance type (only micro instances allowed)
@@ -25,17 +25,17 @@ Parameters:
   VpcId:
     Description: "VPC ID in which the instances will be launched"
     Type: AWS::EC2::VPC::Id
-    Default: vpc-0c7aaefb9f9905d91 # For Joroma: vpc-04cbf3cb88c253a81
+    Default: vpc-04cbf3cb88c253a81 # For KodyGMail: vpc-0c7aaefb9f9905d91
 
   MyAppSecurityGroup:
     Description: "Security Group ID for application servers that will access the RDS instance"
     Type: String
-    Default: sg-054edbad8f1ebf210 # For Joroma: sg-06e2aee3009eae596
+    Default: sg-06e2aee3009eae596 # For KodyGMail: sg-054edbad8f1ebf210
   
   #FrontendEIP:
   #  Description: "The manually allocated Elastic IP for the Frontend instance"
   #  Type: String
-  #  Default: "3.148.116.100" # For Joroma: "3.23.6.91"
+  #  Default: "3.23.6.91" # For KodyGMail: "3.148.116.100"
 
 
 Mappings:
@@ -194,7 +194,7 @@ Resources:
 
           # Redirect all output to a log file and enable debugging
           exec > /var/log/user-data.log 2>&1
-          set -x
+          set -xe
 
           # Update package lists
           apt-get update -y
@@ -204,7 +204,6 @@ Resources:
           apt-get install -y nodejs git nginx openssl awscli docker.io docker-compose
 
           # Ensure Docker group exists and add ubuntu user to it
-          groupadd docker || true
           usermod -aG docker ubuntu
           systemctl start docker
 
@@ -212,12 +211,34 @@ Resources:
           DOCKER_USERNAME=$(aws ssm get-parameter --name "/savvynote/DOCKER_USERNAME" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
           DOCKER_PASSWORD=$(aws ssm get-parameter --name "/savvynote/DOCKER_PASSWORD" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
           docker logout
-          docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
           # Clone the repository and launch the frontend container
+          cd ..
           cd /home/ubuntu
           git clone https://github.com/uiowaSEP2025/sep2025-project-team_005.git savvynote
           cd /home/ubuntu/savvynote
+          chown -R ubuntu:ubuntu /home/ubuntu/savvynote
+
+          # Pulling the SSM secrets from AWS into the .env file the code expects
+          ENV_FILE="/home/ubuntu/savvynote/.env"
+          echo "About to create the .env file at $ENV_FILE"
+          cat <<EOF > /home/ubuntu/savvynote/.env
+          DB_NAME=$(aws ssm get-parameter --name "/savvynote/DB_NAME" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          DB_USER=$(aws ssm get-parameter --name "/savvynote/DB_USER" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          DB_PASSWORD=$(aws ssm get-parameter --name "/savvynote/DB_PASSWORD" --with-decryption --query "Parameter.Value" --outut text --region us-east-2)
+          DB_HOST=$(aws ssm get-parameter --name "/savvynote/DB_HOST" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          DB_PORT=$(aws ssm get-parameter --name "/savvynote/DB_PORT" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          SECRET_KEY=$(aws ssm get-parameter --name "/savvynote/SECRET_KEY" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          NEXT_PUBLIC_API_URL=$(aws ssm get-parameter --name "/savvynote/NEXT_PUBLIC_API_URL" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          AWS_ACCESS_KEY_ID=$(aws ssm get-parameter --name "/savvynote/AMAZON_ACCESS_KEY_ID" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          AWS_SECRET_ACCESS_KEY=$(aws ssm get-parameter --name "/savvynote/AMAZON_SECRET_ACCESS_KEY" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          AWS_REGION=$(aws ssm get-parameter --name "/savvynote/AMAZON_REGION" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          EMAIL_USER=$(aws ssm get-parameter --name "/savvynote/EMAIL_USER" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          EMAIL_PASSWORD=$(aws ssm get-parameter --name "/savvynote/EMAIL_PASSWORD" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          SELENIUM_USER_DIR=$(aws ssm get-parameter --name "/savvynote/SELENIUM_USER_DIR" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          EOF
+          chmod 600 $ENV_FILE
           docker-compose -f docker-compose.yaml up -d frontend
 
           # Retrieve the Backend instance Public IP for Nginx proxying
@@ -299,48 +320,46 @@ Resources:
           #!/bin/bash
           export AWS_DEFAULT_REGION=us-east-2
           exec > /var/log/user-data.log 2>&1
-          set -x
+          set -xe
           apt-get update -y
           apt-get install -y git nginx openssl awscli docker.io docker-compose python3-venv
 
           systemctl start docker
-          groupadd docker
           usermod -aG docker ubuntu
           DOCKER_USERNAME=$(aws ssm get-parameter --name "/savvynote/DOCKER_USERNAME" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
           DOCKER_PASSWORD=$(aws ssm get-parameter --name "/savvynote/DOCKER_PASSWORD" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
-          docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
           newgrp docker
 
+          cd ..
           cd /home/ubuntu
           git clone https://github.com/uiowaSEP2025/sep2025-project-team_005.git savvynote
           python3 -m venv venv
           source venv/bin/activate
-          cd /home/ubuntu/savvynote
-          docker-compose -f docker-compose.yaml up -d backend
           cd /home/ubuntu/savvynote/backend
           pip install -r requirements.txt
           sed -i "s/ALLOWED_HOSTS = \[\]/ALLOWED_HOSTS = ['*']/" /home/ubuntu/savvynote/myproject/settings.py
 
           # Pulling the SSM secrets from AWS into the .env file the code expects
+          echo "Reached .env creation" 
           ENV_FILE="/home/ubuntu/savvynote/.env"
           cat <<EOF > $ENV_FILE
-          DB_NAME=$(aws ssm get-parameter --name "/savvynote/DB_NAME" --with-decryption --query "Parameter.Value" --output text) --region us-east-2
-          DB_USER=$(aws ssm get-parameter --name "/savvynote/DB_USER" --with-decryption --query "Parameter.Value" --output text) --region us-east-2
-          DB_PASSWORD=$(aws ssm get-parameter --name "/savvynote/DB_PASSWORD" --with-decryption --query "Parameter.Value" --output text) --region us-east-2
-          DB_HOST=$(aws ssm get-parameter --name "/savvynote/DB_HOST" --with-decryption --query "Parameter.Value" --output text) --region us-east-2
-          DB_PORT=$(aws ssm get-parameter --name "/savvynote/DB_PORT" --with-decryption --query "Parameter.Value" --output text) --region us-east-2
-          SECRET_KEY=$(aws ssm get-parameter --name "/savvynote/SECRET_KEY" --with-decryption --query "Parameter.Value" --output text) --region us-east-2
-          NEXT_PUBLIC_API_URL=$(aws ssm get-parameter --name "/savvynote/NEXT_PUBLIC_API_URL" --with-decryption --query "Parameter.Value" --output text) --region us-east-2
-          AWS_ACCESS_KEY_ID=$(aws ssm get-parameter --name "/savvynote/AMAZON_ACCESS_KEY_ID" --with-decryption --query "Parameter.Value" --output text) --region us-east-2
-          AWS_SECRET_ACCESS_KEY=$(aws ssm get-parameter --name "/savvynote/AMAZON_SECRET_ACCESS_KEY" --with-decryption --query "Parameter.Value" --output text) --region us-east-2
-          AWS_REGION=$(aws ssm get-parameter --name "/savvynote/AMAZON_REGION" --with-decryption --query "Parameter.Value" --output text) --region us-east-2
-          EMAIL_USER=$(aws ssm get-parameter --name "/savvynote/EMAIL_USER" --with-decryption --query "Parameter.Value" --output text) --region us-east-2
-          EMAIL_PASSWORD=$(aws ssm get-parameter --name "/savvynote/EMAIL_PASSWORD" --with-decryption --query "Parameter.Value" --output text) --region us-east-2
-          SELENIUM_USER_DIR=$(aws ssm get-parameter --name "/savvynote/SELENIUM_USER_DIR" --with-decryption --query "Parameter.Value" --output text) --region us-east-2
+          DB_NAME=$(aws ssm get-parameter --name "/savvynote/DB_NAME" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          DB_USER=$(aws ssm get-parameter --name "/savvynote/DB_USER" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          DB_PASSWORD=$(aws ssm get-parameter --name "/savvynote/DB_PASSWORD" --with-decryption --query "Parameter.Value" --outut text --region us-east-2)
+          DB_HOST=$(aws ssm get-parameter --name "/savvynote/DB_HOST" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          DB_PORT=$(aws ssm get-parameter --name "/savvynote/DB_PORT" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          SECRET_KEY=$(aws ssm get-parameter --name "/savvynote/SECRET_KEY" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          NEXT_PUBLIC_API_URL=$(aws ssm get-parameter --name "/savvynote/NEXT_PUBLIC_API_URL" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          AWS_ACCESS_KEY_ID=$(aws ssm get-parameter --name "/savvynote/AMAZON_ACCESS_KEY_ID" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          AWS_SECRET_ACCESS_KEY=$(aws ssm get-parameter --name "/savvynote/AMAZON_SECRET_ACCESS_KEY" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          AWS_REGION=$(aws ssm get-parameter --name "/savvynote/AMAZON_REGION" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          EMAIL_USER=$(aws ssm get-parameter --name "/savvynote/EMAIL_USER" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          EMAIL_PASSWORD=$(aws ssm get-parameter --name "/savvynote/EMAIL_PASSWORD" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          SELENIUM_USER_DIR=$(aws ssm get-parameter --name "/savvynote/SELENIUM_USER_DIR" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
           EOF
-
-          # Secure the .env file so that only the owner (root or ubuntu) can read and write it
           chmod 600 $ENV_FILE
+          docker-compose -f docker-compose.yaml up -d backend
 
           sudo -u postgres psql
           ALTER USER postgres WITH PASSWORD '$(aws ssm get-parameter --name "/savvynote/DB_PASSWORD" --with-decryption --query "Parameter.Value" --output text --region us-east-2)';
