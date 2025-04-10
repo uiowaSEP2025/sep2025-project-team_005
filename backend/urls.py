@@ -3,7 +3,7 @@ from django.urls import path, include
 from pages.views.discover_views import GetUsersView, InstrumentListView, GenreListView, UserByUsernameView
 from pages.views.settings_views import MusicianDetailView, ChangePasswordView
 from pages.views.follow_views import FollowingView, FollowListView
-from pages.views.post_views import CreatePostView, GetPostsView, GetFeedView
+from pages.views.post_views import CreatePostView, GetPostsView, GetFeedView, LikeToggleView
 from pages.views.helper_views import create_genre, create_instrument, get_instruments, get_genres, get_musician_instruments, get_users, get_musicians, get_businesses
 from django.http import JsonResponse
 
@@ -17,8 +17,11 @@ urlpatterns = [
     path('api/', include([
         path('auth/', include("pages.authentication.urls", namespace="authentication")),
         path('discover/', GetUsersView.as_view(), name="get_users"),
-        path('create-post/', CreatePostView.as_view(), name='create_post'),
-        path('fetch-posts/', GetPostsView.as_view(), name="get_posts"),
+        path('post/', include([
+            path('create/', CreatePostView.as_view(), name='create_post'),
+            path('fetch/', GetPostsView.as_view(), name="get_posts"),
+            path('like/', LikeToggleView.as_view(), name="like_post")
+        ])),
         path('fetch-feed/', GetFeedView.as_view(), name="get-feed"),
         path('musician/<uuid:user_id>/', MusicianDetailView.as_view(), name='musician-detail'),
         path('change-password/', ChangePasswordView.as_view(), name="change-password"),

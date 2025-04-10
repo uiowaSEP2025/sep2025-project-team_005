@@ -4,7 +4,7 @@ from rest_framework import status
 from pages.serializers import PostSerializer, CommentSerializer
 from pages.utils.s3_utils import upload_to_s3
 from pages.forms import PostForm
-from pages.models import Post, Comment
+from pages.models import Post, Comment, Like
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -63,3 +63,32 @@ class GetFeedView(APIView, PageNumberPagination):
 
         serialized_posts = PostSerializer(paginated_posts, many=True).data
         return self.get_paginated_response(serialized_posts)
+    
+class LikeToggleView(APIView):
+    def post(self, request):
+        post = request.POST.get("post")
+        try:
+            target_post = Post.objects.get(id=post.id)
+        except Post.DoesNotExist:
+            return Response({"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        follow_exists = Like.objects.filter(user=request.user, post=post).exists()
+        if follow_exists:
+            return Response({"message": "Already liked"}, status=status.HTTP_200_OK)
+
+        Like.objects.create(user=request.user, post=post)
+        return Response({"message": "Liked"}, status=status.HTTP_201_CREATED)
+
+    def delete(self, request):
+        post = request.POST.get("post")
+        try:
+            target_post = Post.objects.get(id=post.id)
+        except Post.DoesNotExist:
+            return Response({"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            like = Like.objects.get(user=request.user, post=target_post)
+            like.delete()
+            return Response({"message": "Unliked"}, status=status.HTTP_204_NO_CONTENT)
+        except like.DoesNotExist:
+            return Response({"error": "This post is already not liked"}, status=status.HTTP_400_BAD_REQUEST)

@@ -14,6 +14,7 @@ import styles from "@/styles/Profile.module.css";
 import axios from "axios";
 import Cookies from "js-cookie";
 import debounce from "lodash.debounce";
+import Dropdown from '@/components/menus/dropdown';
 
 interface UserID {
     user_id: string;
@@ -45,7 +46,6 @@ export default function DiscoverProfile() {
     const [musicianProfile, setMusicianProfile] = useState<MusicianProfile | null>(null);
     const [followCount, setFollowCount] = useState<FollowCount | null>(null);
     const [userId, setUserId] = useState<UserID | null>(null);
-    const [isDropdownOpen, setDropdownOpen] = useState(false);
     const [posts, setPosts] = useState<Post[]>([]);
     const [file, setFile] = useState<File>();
     const [loading, setLoading] = useState(false);
@@ -157,10 +157,6 @@ export default function DiscoverProfile() {
         }
     };
 
-    const handleDropdownToggle = () => {
-        setDropdownOpen(prevState => !prevState);
-    };
-
     const handleBlockUser = () => {
         // Add functionality for "Block User"
         //console.log("User blocked");
@@ -176,7 +172,7 @@ export default function DiscoverProfile() {
             formData.append("file", file);
             formData.append("caption", "Test");
     
-            const response = await axios.post("http://localhost:8000/api/create-post/", formData, {
+            const response = await axios.post("http://localhost:8000/api/post/create", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                     "Authorization": `Bearer ${Cookies.get("access_token")}`
@@ -202,7 +198,7 @@ export default function DiscoverProfile() {
     const fetchPosts = async (username: string, pageNum = 1) => {
         setLoading(true);
         try {
-            const response = await axios.get('http://localhost:8000/api/fetch-posts/', {
+            const response = await axios.get('http://localhost:8000/api/post/fetch/', {
                 params: {
                     username: username,
                     page: pageNum
@@ -277,10 +273,21 @@ export default function DiscoverProfile() {
                     <div className={styles.profileInfo}>
                         <div className={styles.headerWithDots}>
                             <h1 className={styles.title}>{musicianProfile.stage_name || username}</h1>
-                            {/* Three-Dot Button */}
-                            <div className={styles.threeDotButton} onClick={handleDropdownToggle} data-testid="dropdown-button">
-                                <FaEllipsisV size={24} />
-                            </div>
+                            <Dropdown 
+                                buttonLabel={<FaEllipsisV size={24} />} 
+                                data-testid="dropdown-button"
+                                sx={{ 
+                                    position: 'absolute', 
+                                    right: 0, 
+                                    cursor: 'pointer', 
+                                }}
+                                menuItems={[
+                                    profile?.username === username ? { label: "Settings", onClick: handleSettings } : null,
+                                    profile?.username === username ? { label: "Logout", onClick: handleLogout } : null,
+                                    profile?.username !== username ? { label: "Block User", onClick: handleBlockUser } : null,
+                                ]}
+                            >
+                            </Dropdown>
                         </div>
 
                         <div className={styles.followStats}>
@@ -300,22 +307,6 @@ export default function DiscoverProfile() {
                             </div>
                         )}
                     </div>
-
-                    {/* Dropdown Menu */}
-                    {isDropdownOpen && (
-                        profile?.username === username ? (
-                            <div>
-                                <button className={styles.dropdownItem} onClick={handleSettings} data-testid="setting-button">Settings</button>
-                                <button className={styles.dropdownItem} onClick={handleLogout} data-testid="logout-button">Logout</button>
-                            </div>
-                        ) : (
-                            <div className={styles.dropdownMenu}>
-                                <button className={styles.dropdownItem} onClick={handleBlockUser}>
-                                    Block User
-                                </button>
-                            </div>
-                        )
-                    )}
                 </div>
 
                 <div className={styles.bioSection}>

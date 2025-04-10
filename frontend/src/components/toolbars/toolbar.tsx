@@ -1,11 +1,17 @@
 "use client";
 
-import { Button, Stack, Box } from "@mui/material";
+import { Button, Box, Avatar } from "@mui/material";
 import { Home, Search, Add, Chat, Settings } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
+import { Sun, Moon } from "lucide-react";
+import { useTheme } from "@/context/ThemeContext";
+import styles from "@/styles/Home.module.css";
+import { useAuth } from "@/context/ProfileContext";
 
 const Toolbar = () => {
     const router = useRouter();
+    const { toggleTheme, theme } = useTheme();
+    const { profile, isLoading, setProfile } = useAuth();
 
     const handleFeedClick = () => {
         router.push(`/feed/`);
@@ -24,8 +30,12 @@ const Toolbar = () => {
     };
     
     const handleSettingsClick = () => {
-        router.push(`settings/user`);
+        router.push(`/settings/user`);
     };
+
+    const handleProfile = () => {
+        router.push(`/${profile?.username}`)
+    }
 
     return (
         <Box
@@ -43,11 +53,13 @@ const Toolbar = () => {
             boxShadow: '2px 0 5px rgba(0,0,0,0.2)', // Add subtle shadow for a floating effect
         }}
         >
+            <Avatar alt="User" src={"/savvy.png"} sx={{ width: 64, height: 64, cursor: 'pointer' }} onClick={handleProfile}></Avatar>
             <Button variant="contained" startIcon={<Home />} onClick={handleFeedClick}>Feed</Button>
             <Button variant="contained" startIcon={<Search />} onClick={handleDiscoverClick}>Discover</Button>
             <Button variant="contained" startIcon={<Add />} onClick={handleJobsClick}>Jobs</Button>
             <Button variant="contained" startIcon={<Chat />} onClick={handleMessagesClick}>Messages</Button>
             <Button variant="contained" startIcon={<Settings />} onClick={handleSettingsClick}>Settings</Button>
+            <Button aria-label="Toggle Theme" onClick={toggleTheme}>{theme === "light" ? <Moon size={26} /> : <Sun size={26} />}</Button>
         </Box>
     );
 };
