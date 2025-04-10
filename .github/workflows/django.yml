@@ -78,5 +78,7 @@ jobs:
         cd ../backend
         sudo systemctl start postgresql
         python3 manage.py runserver &
-        behave test/features
 
+        echo "Waiting for servers to be fully up..."
+        sleep 15
+        behave test/features
