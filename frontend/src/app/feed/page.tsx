@@ -29,7 +29,7 @@ interface Post {
     id: string;
     created_at: string;
     caption: string;
-    s3_url: string;
+    s3_urls: string[];
 }
 
 export default function Feed() {
@@ -265,7 +265,7 @@ export default function Feed() {
                                     <CardActionArea onClick={() => handlePostClick(post)}>
                                         <CardMedia
                                             component="img"
-                                            image={post.s3_url}
+                                            image={post.s3_urls[1]}
                                             alt="Image"
                                         />
                                     </CardActionArea>

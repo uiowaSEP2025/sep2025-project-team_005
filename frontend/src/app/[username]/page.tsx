@@ -34,7 +34,10 @@ interface FollowCount {
 }
 
 interface Post {
-    [key: string]: string;
+    id: string;
+    created_at: string;
+    caption: string;
+    s3_urls: string[];
 }
 
 export default function DiscoverProfile() {
@@ -47,10 +50,16 @@ export default function DiscoverProfile() {
     const [followCount, setFollowCount] = useState<FollowCount | null>(null);
     const [userId, setUserId] = useState<UserID | null>(null);
     const [posts, setPosts] = useState<Post[]>([]);
-    const [file, setFile] = useState<File>();
+    const [files, setFiles] = useState<File[]>();
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
+    // const [postImages, setPostImages] = useState<{ postId: string; imageIndex: number }[]>(
+    //     posts.map(post => ({
+    //     postId: post.id,
+    //     imageIndex: 0,
+    //     }))
+    // );
 
     useEffect(() => {
         const fetchUserId = async () => {
@@ -165,11 +174,13 @@ export default function DiscoverProfile() {
     const handlePost = async () => {
         try {
             const formData = new FormData();
-            if (!file) {
+            if (!files) {
                 console.error("Please upload a file");
                 return;
             }
-            formData.append("file", file);
+            files.forEach((file) => {
+                formData.append("files", file);
+            });
             formData.append("caption", "Test ".repeat(100));
     
             const response = await axios.post("http://localhost:8000/api/post/create/", formData, {
@@ -252,9 +263,40 @@ export default function DiscoverProfile() {
 
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files.length > 0) {
-            setFile(event.target.files?.[0]);
+            const files = event.target.files ? Array.from(event.target.files).slice(0, 10) : [];
+            setFiles(files);
         }
     };
+
+    // const handleNextImage = (postId: string) => {
+    //     setPostImages((prevImages) => 
+    //         prevImages.map((post) => {
+    //             const currentPost = posts.find((post) => post.id === postId);
+    
+    //             if (post.postId === postId && currentPost) {
+    //                 return {
+    //                     ...post,
+    //                     imageIndex: Math.min(post.imageIndex + 1, currentPost.s3_urls.length - 1),
+    //                 };
+    //             }
+    //             return post;
+    //         })
+    //     );
+    // };
+
+    // const handlePreviousImage = (postId: string) => {
+    //     setPostImages((prevImages) => 
+    //         prevImages.map((post) => {    
+    //             if (post.postId === postId) {
+    //                 return {
+    //                     ...post,
+    //                     imageIndex: Math.max(post.imageIndex - 1, 0),
+    //                 };
+    //             }
+    //             return post;
+    //         })
+    //     );
+    // };
 
     if (isLoading || !musicianProfile || !followCount) return <p className="description">Loading...</p>;
 
@@ -335,7 +377,7 @@ export default function DiscoverProfile() {
                         {profile?.username === username && (
                             <div>
                                 <button className={styles.editButton} onClick={handlePost} data-testid="post-button">Post</button>
-                                <input type="file" onChange={handleFileUpload} />
+                                <input type="file" multiple onChange={handleFileUpload} />
                             </div>
                         )}
                     </div>
@@ -344,7 +386,21 @@ export default function DiscoverProfile() {
                         <div className={styles.postsGrid}>
                             {posts.map((post) => (
                                 <div key={post.id} className={styles.imageContainer} onClick={() => handlePostClick(post)}>
-                                    <img src={post.s3_url} alt={post.caption}/>
+                                    {/* <button 
+                                        onClick={() => handlePreviousImage(post.id)} 
+                                        disabled={postImages.find(p => p.postId === post.id)?.imageIndex == 0}
+                                    >
+                                        Previous Image
+                                    </button> */}
+                                    {post.s3_urls.map((s3_url, index) => (
+                                        <img key={index} src={s3_url} alt={post.caption} />
+                                    ))}                                    
+                                    {/* <button 
+                                        onClick={() => handleNextImage(post.id)} 
+                                        disabled={postImages.find(p => p.postId === post.id)?.imageIndex == post.s3_urls.length - 1}
+                                    >
+                                        Next Image
+                                    </button> */}
                                 </div>
                             ))}
                         </div>

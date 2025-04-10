@@ -4,12 +4,13 @@ from pages.utils.s3_utils import generate_s3_url
 from pages.models import Post
 
 class PostSerializer(serializers.ModelSerializer):
-    s3_url = serializers.SerializerMethodField()
+    s3_urls = serializers.SerializerMethodField()
     owner = UserSerializer(read_only=True)
 
     class Meta:
         model = Post
-        fields = ['id','owner','file_key','file_type','created_at','caption','tagged_users', 's3_url']
+        fields = ['id','owner','file_keys','file_types','created_at','caption','tagged_users', 's3_urls']
 
-    def get_s3_url(self, obj):
-        return generate_s3_url(obj.file_key, obj.file_type)
+    def get_s3_urls(self, obj):
+        s3_urls = [generate_s3_url(file_key, file_type) for file_key, file_type in zip(obj.file_keys, obj.file_types)]
+        return s3_urls
