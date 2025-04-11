@@ -8,6 +8,7 @@ from rest_framework import status
 User = get_user_model()
 LOGIN_URL = "/api/auth/login/"
 PROFILE_URL = "/api/auth/profile/"
+GOOGLE_LOGIN_URL = "/api/auth/google-login/"
 
 ## Test User Model correctly retrieves the user
 def test_get_user_model():
@@ -85,3 +86,41 @@ def test_profile_view_authenticated(api_client, create_user, get_token_user1):
 def test_profile_view_unauthenticated(api_client):
     response = api_client.get(PROFILE_URL)
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+# Tests for google login:
+@pytest.mark.django_db
+def test_missing_email_or_google_id(api_client):
+    """Test failed login with missing email or google ID from google authentication"""
+    url = GOOGLE_LOGIN_URL
+
+    response = api_client.post(url, {})
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data['error'] == 'Missing email or Google ID'
+
+    response = api_client.post(url, {'google_id': '12345'})
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data['error'] == 'Missing email or Google ID'
+
+@pytest.mark.django_db
+def test_user_does_not_have_account_yet(api_client):
+    """Test attempted google login with email that does not have an account yet"""
+    url = GOOGLE_LOGIN_URL
+
+    response = api_client.post(url, {"email": "brandnewuser123@test.com", "google_id": "09876"})
+    assert response.status_code == status.HTTP_202_ACCEPTED
+    assert response.data['message'] == "user_not_found"
+    assert response.data['email'] == "brandnewuser123@test.com"
+
+@pytest.mark.django_db
+def test_existing_user_successful_google_login(api_client, create_user):
+    url = GOOGLE_LOGIN_URL
+    user1, _ = create_user
+
+    response = api_client.post(url, {"email": "user1@gmail.com", "google_id": "12345"})
+    assert response.status_code == status.HTTP_200_OK
+    assert "access" in response.data
+    assert 'user' in response.data
+    assert response.data['user']['email'] == user1.email
+    assert "access_token" in response.cookies
+    assert "refresh_token" in response.cookies

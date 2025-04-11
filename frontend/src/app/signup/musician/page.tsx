@@ -3,7 +3,7 @@
 import styles from "@/styles/Signup.module.css";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 
 // Ensures that the genres read from the database are explicitly types
@@ -59,6 +59,20 @@ export default function MusicianSignup() {
     }>({});
     const [instrumentOptions, setInstrumentOptions] = useState<InstrumentOption[]>([]);
     const [genreOptions, setGenreOptions] = useState<GenreOption[]>([]);
+    const searchParams = useSearchParams();     // Used to obtain email if passed from google login to role selection page to here
+    
+        useEffect(() => {
+            // Get the email from the query parameter (if it exists)
+            const email = searchParams.get("email");
+            if (email) {
+                // If an email was passed as a query parameter (google login -> sign up), set the email to pre-fill the email field
+                setEmail(email);
+    
+                console.log(email);
+            } else {
+                console.log("No email passed");
+            }
+        }, [searchParams]);
 
     // Fetch instruments and genres from the database when the component mounts
     useEffect(() => {

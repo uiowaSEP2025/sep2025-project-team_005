@@ -53,7 +53,18 @@ describe("Discover Page", () => {
     });
 
     it("displays 'No users found' if API returns empty results", async () => {
-        (axios.get as jest.Mock).mockResolvedValueOnce({ data: { results: [], next: null } });
+        (axios.get as jest.Mock).mockImplementation((url) => {
+            if (url.includes("instruments")) {
+                return Promise.resolve({ data: ["Guitar", "Piano"] });
+            }
+            if (url.includes("genres")) {
+                return Promise.resolve({ data: ["Jazz", "Rock"] });
+            }
+            if (url.includes("discover")) {
+                return Promise.resolve({ data: { results: [], next: null } });
+            }
+            return Promise.reject(new Error("Unexpected API call"));
+        });
 
         render(<Discover />);
 

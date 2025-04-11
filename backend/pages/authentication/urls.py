@@ -13,4 +13,5 @@ urlpatterns = [
     path("signup/", signup, name="signup"),
     path("forgot-password/", forgot_password_email, name="forgot_password"),
     path("reset-password/", reset_password, name="reset_password"),
+    path("google-login/", google_login, name="google_login")
 ]

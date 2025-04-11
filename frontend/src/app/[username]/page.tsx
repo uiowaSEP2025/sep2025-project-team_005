@@ -8,11 +8,11 @@ import { useAuth, useRequireAuth } from "@/context/ProfileContext";
 import { useEffect, useState } from "react";
 import { FaEllipsisV } from "react-icons/fa";
 import Image from "next/image";
-
 import styles from "@/styles/Profile.module.css";
 import axios from "axios";
 import Cookies from "js-cookie";
 import debounce from "lodash.debounce";
+import { signOut } from 'next-auth/react';
 
 interface UserID {
     user_id: string;
@@ -55,6 +55,8 @@ export default function DiscoverProfile() {
     useEffect(() => {
         const fetchUserId = async () => {
             if (!username) return; // Ensure username is available
+
+            console.log("Username param:", username);
 
             try {
                 const response = await fetch(`http://localhost:8000/api/user/${username}/`, {
@@ -215,8 +217,9 @@ export default function DiscoverProfile() {
             setProfile(null);
 
 
-            // Redirect to login page
-            router.push("/login");
+            // Call next-auth sign out function to end next-auth session (google login) and remove next-auth.session-token from cookies
+            // Once done, redirect to login page
+            signOut({ callbackUrl: '/login' });
         } 
         catch (error) {
             console.error("Logout failed", error);
