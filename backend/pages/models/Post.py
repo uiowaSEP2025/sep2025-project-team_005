@@ -28,4 +28,4 @@ class Post(models.Model):
     tagged_users = models.ManyToManyField(User, related_name="tagged_users")
     
     def like_count(self):
-        return Like.objects.filter(post=self).count()
+        return self.likes.count()

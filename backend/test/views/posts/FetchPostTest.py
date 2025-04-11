@@ -44,7 +44,7 @@ def mock_generate_s3_url(mocker):
 def test_fetch_posts(api_client, create_user, create_post, mock_generate_s3_url):
     api_client.force_authenticate(user=create_user)
 
-    response = api_client.get(f"/api/fetch-posts/?username={create_user.username}")
+    response = api_client.get(f"/api/post/fetch/?username={create_user.username}")
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) > 0
@@ -63,7 +63,7 @@ def test_fetch_posts_order(api_client, create_user, create_post, db, mock_genera
     post2.created_at = now() - timedelta(days=1)
     post2.save()
 
-    response = api_client.get(f"/api/fetch-posts/?username={create_user.username}")
+    response = api_client.get(f"/api/post/fetch/?username={create_user.username}")
 
     assert response.status_code == status.HTTP_200_OK
     assert response.data["results"][0]["caption"] == "Test"
@@ -74,10 +74,10 @@ def test_post_serializer(mocker, create_post, mock_generate_s3_url):
     data = serializer.data
 
     assert data["id"] == str(create_post.id)
-    assert data["owner"] == create_post.owner.id
+    assert data["owner"]["id"] == str(create_post.owner.id)
     assert data["file_keys"] == ["user_0001/test.png"]
     assert data["file_types"] == ["image/png"]
     assert data["caption"] == "Test"
-    assert data["s3_url"] == "https://mock-s3-url.com/user_0000/test.jpg"
+    assert data["s3_urls"] == ["https://mock-s3-url.com/user_0000/test.jpg"]
 
     mock_generate_s3_url.assert_called_once_with("user_0001/test.png", "image/png")

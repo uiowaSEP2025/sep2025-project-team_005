@@ -6,7 +6,7 @@ from pages.models import Post
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 User = get_user_model()
-CREATE_URL = "/api/post/create"
+CREATE_URL = "/api/post/create/"
 
 @pytest.fixture
 def create_user(db):
@@ -25,15 +25,15 @@ def mock_upload(mocker):
     yield mock
 
 @pytest.fixture
-def test_file():
-    return SimpleUploadedFile("test.jpg", b"file_content", content_type="image/jpeg")
+def test_files():
+    return [SimpleUploadedFile("test.jpg", b"file_content", content_type="image/jpeg")]
 
-def test_create_post_success(mock_upload, api_client, create_user, test_file):
+def test_create_post_success(mock_upload, api_client, create_user, test_files):
     """ Test success post creation with a tagged user """
     api_client.force_authenticate(user=create_user)
     tagged_user = User.objects.create_user(username="taggeduser", email="tagged@test.com", password="password123")
 
-    data = {"file": test_file, "caption": "Test Caption",}    #, "tagged_users": [tagged_user.id],}
+    data = {"files": test_files, "caption": "Test Caption",}    #, "tagged_users": [tagged_user.id],}
     
     response = api_client.post(CREATE_URL, data, format="multipart")
     
@@ -46,12 +46,12 @@ def test_create_post_success(mock_upload, api_client, create_user, test_file):
     #assert post.tagged_users.count() == 1
     #assert post.tagged_users.first() == tagged_user
     
-def test_create_post_without_tagged_users(api_client, create_user, test_file, mock_upload):
+def test_create_post_without_tagged_users(api_client, create_user, test_files, mock_upload):
     """ Test successful post creation with no tagged users in data field """
     api_client.force_authenticate(user=create_user)
 
     data = {
-        "file": test_file,
+        "files": test_files,
         "caption": "Test Caption",
     }
     
@@ -91,7 +91,7 @@ def test_create_post_invalid_data(api_client, create_user):
     response = api_client.post(CREATE_URL, data, format="multipart")
     
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert "file" in response.data["details"]
+    assert "files" in response.data["details"]
     assert Post.objects.count() == 0
     
 def test_create_post_invalid_file_type(api_client, create_user):
@@ -99,19 +99,19 @@ def test_create_post_invalid_file_type(api_client, create_user):
     api_client.force_authenticate(user=create_user)
     invalid_file = SimpleUploadedFile("test.txt", b"invalid content", content_type="text/plain")
 
-    data = {"file": invalid_file, "caption": "Invalid file test"}
+    data = {"files": [invalid_file], "caption": "Invalid file test"}
 
     response = api_client.post(CREATE_URL, data, format="multipart")
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert "Only image and video files are allowed." in response.data["details"]["file"]
+    assert "Only image and video files are allowed." in response.data["details"]["files"]
 
-def test_create_post_exception(mock_upload, api_client, create_user, test_file):
+def test_create_post_exception(mock_upload, api_client, create_user, test_files):
     """ Test an unsuccessful post creation will throw 500 status error """
     api_client.force_authenticate(user=create_user)
     mock_upload.side_effect = Exception("S3 upload failed")
     
-    data = {"file": test_file, "caption": "Test Caption"}
+    data = {"files": test_files, "caption": "Test Caption"}
     
     response = api_client.post(CREATE_URL, data, format="multipart")
     
