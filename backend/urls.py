@@ -17,6 +17,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include([
         path('auth/', include("pages.authentication.urls", namespace="authentication")),
+        path('stripe/', include("pages.stripe.urls", namespace="stripe")),
         path('discover/', GetUsersView.as_view(), name="get_users"),
         path('create-post/', CreatePostView.as_view(), name='create_post'),
         path('fetch-posts/', GetPostsView.as_view(), name="get_posts"),

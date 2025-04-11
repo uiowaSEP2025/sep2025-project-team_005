@@ -35,6 +35,7 @@ six
 sniffio
 sortedcontainers
 sqlparse
+stripe
 trio
 trio-websocket
 typing_extensions
