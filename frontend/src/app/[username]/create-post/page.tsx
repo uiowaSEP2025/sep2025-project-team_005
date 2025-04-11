@@ -4,7 +4,7 @@ import React from 'react';
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth, useRequireAuth } from "@/context/ProfileContext";
-import styles from "@/styles/Profile.module.css";
+import styles from "@/styles/CreatePost.module.css";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { Router } from 'lucide-react';
@@ -18,6 +18,7 @@ export default function CreateNewPost() {
     const { username } = useParams();
     const { profile, isLoading, setProfile } = useAuth();
     const [file, setFile] = useState<File>();
+    const [caption, setCaption] = useState("");
 
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files.length > 0) {
@@ -33,7 +34,7 @@ export default function CreateNewPost() {
                 return;
             }
             formData.append("file", file);
-            formData.append("caption", "Test");
+            formData.append("caption", caption);
     
             const response = await axios.post("http://localhost:8000/api/create-post/", formData, {
                 headers: {
@@ -69,29 +70,45 @@ export default function CreateNewPost() {
     });
 
     return (
-        <div className={styles.postsHeader}>
+        <div className={styles.centerWrapper}>
+          <div className={styles.postsHeader}>
             <h2 className={styles.featureTitle}>Posts</h2>
             {profile?.username === username && (
-                <div>
-                    <button className={styles.editButton} onClick={handlePost} data-testid="post-button">Post</button>
-                    <div>
-                            <Button
-                                component="label"
-                                role={undefined}
-                                variant="contained"
-                                tabIndex={-1}
-                                startIcon={<CloudUpload />}
-                                >
-                                Upload files
-                                <VisuallyHiddenInput
-                                    type="file"
-                                    onChange={(event) => handleFileUpload(event)}
-                                    multiple
-                                />
-                            </Button>
-                        </div>
-                </div>
+              <div className={styles.buttonGroup}>
+                <Button
+                  component="label"
+                  role={undefined}
+                  variant="contained"
+                  tabIndex={-1}
+                  startIcon={<CloudUpload />}
+                >
+                  Upload files
+                  <VisuallyHiddenInput
+                    type="file"
+                    onChange={(event) => handleFileUpload(event)}
+                    multiple
+                  />
+                </Button>
+
+                <label className={styles.label}>Caption:</label>
+                <input 
+                    className={styles.inputField} 
+                    placeholder="Caption"
+                    value={caption}
+                    onChange={(e) => setCaption(e.target.value)}
+                >
+                </input>
+
+                <button
+                  className={styles.editButton}
+                  onClick={handlePost}
+                  data-testid="post-button"
+                >
+                  Post
+                </button>
+              </div>
             )}
+          </div>
         </div>
-    );
+      );
 }
