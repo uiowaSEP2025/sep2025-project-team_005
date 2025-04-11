@@ -1,4 +1,5 @@
 import os
+import uuid
 import django
 import tempfile
 import shutil
@@ -14,7 +15,7 @@ def before_all(context):
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
 
-    context.temp_dir = tempfile.mkdtemp()
+    context.temp_dir = tempfile.mkdtemp(prefix=str(uuid.uuid4()))
     chrome_options.add_argument(f"--user-data-dir={context.temp_dir}")
 
     chrome_binary = os.getenv("CHROMIUM_BROWSER_PATH", "/usr/bin/chromium-browser")
