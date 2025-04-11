@@ -33,7 +33,7 @@ def before_all(context):
         if not os.getenv("CI"):
             if os.path.exists(context.temp_dir):
                 shutil.rmtree(context.temp_dir)
-            raise e
+        raise e
     
 def after_all(context):
     if hasattr(context, "browser"):

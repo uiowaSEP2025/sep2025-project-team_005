@@ -47,6 +47,11 @@ jobs:
         cd backend
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+    - name: Install Chromium and ChromeDriver
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y chromium-browser
+        sudo apt-get install -y chromedriver
     - name: Configure AWS Profile for s3
       run: |
         mkdir -p ~/.aws
