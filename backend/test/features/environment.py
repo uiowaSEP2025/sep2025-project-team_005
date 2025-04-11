@@ -29,14 +29,15 @@ def before_all(context):
     try:
         context.browser = webdriver.Chrome(service=service, options=chrome_options)
     except Exception as e:
-        shutil.rmtree(context.temp_dir)
+        if os.path.exists(context.temp_dir):
+            shutil.rmtree(context.temp_dir)  # clean up only if it exists
         raise e
-
+    
 def after_all(context):
     if hasattr(context, "browser"):
         context.browser.quit()
-    if hasattr(context, "temp_dir"):
+    if hasattr(context, "temp_dir") and os.path.exists(context.temp_dir):
         shutil.rmtree(context.temp_dir)
-
+        
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
 django.setup()
