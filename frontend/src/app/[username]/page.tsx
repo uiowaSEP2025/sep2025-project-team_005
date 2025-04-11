@@ -165,7 +165,7 @@ export default function DiscoverProfile() {
         //console.log("User blocked");
     };
 
-    const handlePost = async () => {
+    const handleNewPost = async () => {
         router.push(`${username}/create-post`);
     };
 
@@ -309,7 +309,7 @@ export default function DiscoverProfile() {
                     <h2 className={styles.featureTitle}>Posts</h2>
                     {profile?.username === username && (
                         <div>
-                            <button className={styles.editButton} onClick={handlePost} data-testid="post-button">+ New Post</button>
+                            <button className={styles.editButton} onClick={handleNewPost} data-testid="post-button">+ New Post</button>
                         </div>
                     )}
                 </div>
@@ -317,7 +317,7 @@ export default function DiscoverProfile() {
                 {posts.length > 0 ? (
                     <div className={styles.postsGrid}>
                         {posts.map((post, index) => (
-                            <div key={index} className={styles.imageContainer} onClick={() => handleNewPostClick()}>
+                            <div key={index} className={styles.imageContainer} onClick={() => handlePostClick(post)}>
                                 <img src={post.s3_url} alt={post.caption}/>
                             </div>
                         ))}
