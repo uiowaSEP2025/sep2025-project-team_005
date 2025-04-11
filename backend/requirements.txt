@@ -7,7 +7,6 @@ certifi
 charset-normalizer
 coverage
 Django
-django-behave
 django-cors-headers
 django-environ
 django-extensions

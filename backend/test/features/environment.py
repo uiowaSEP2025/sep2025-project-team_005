@@ -1,4 +1,5 @@
 import os
+import uuid
 import django
 import tempfile
 import shutil
@@ -14,8 +15,9 @@ def before_all(context):
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
 
-    context.temp_dir = tempfile.mkdtemp()
-    chrome_options.add_argument(f"--user-data-dir={context.temp_dir}")
+    if not os.getenv("CI"):
+        context.temp_dir = tempfile.mkdtemp(prefix=str(uuid.uuid4()))
+        chrome_options.add_argument(f"--user-data-dir={context.temp_dir}")
 
     chrome_binary = os.getenv("CHROMIUM_BROWSER_PATH", "/usr/bin/chromium-browser")
     chrome_driver = os.getenv("CHROME_DRIVER_PATH", "/usr/bin/chromedriver")
@@ -28,14 +30,17 @@ def before_all(context):
     try:
         context.browser = webdriver.Chrome(service=service, options=chrome_options)
     except Exception as e:
-        shutil.rmtree(context.temp_dir)
+        if not os.getenv("CI"):
+            if os.path.exists(context.temp_dir):
+                shutil.rmtree(context.temp_dir)
         raise e
-
+    
 def after_all(context):
     if hasattr(context, "browser"):
         context.browser.quit()
-    if hasattr(context, "temp_dir"):
-        shutil.rmtree(context.temp_dir)
+    if not os.getenv("CI"):
+        if hasattr(context, "temp_dir") and os.path.exists(context.temp_dir):
+            shutil.rmtree(context.temp_dir)
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
 django.setup()

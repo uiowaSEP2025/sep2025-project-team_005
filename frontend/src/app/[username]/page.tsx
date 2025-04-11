@@ -385,7 +385,6 @@ export default function DiscoverProfile() {
                                 {isFollowing ? "Unfollow" : "Follow"}
                             </button>
                             <button className={styles.messageButton} data-testid="message-button">Message</button>
-
                         </div>
                     )}
                 </div>
