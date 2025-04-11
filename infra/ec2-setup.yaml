@@ -1,0 +1,416 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  CloudFormation template to create EC2 instances for the Frontend,
+  Backend, and VPN. The public website is served via NGinx
+  which redirects HTTP to HTTPS. Direct SSH access is disabled on the frontend/backend,
+  and administrative access is provided only via the VPN.
+
+Parameters:
+  KeyName:
+    Description: Name of an existing EC2 KeyPair for SSH access (used for VPN instance if needed)
+    Type: AWS::EC2::KeyPair::KeyName
+
+  PublicSubnetId:
+    Description: "Public Subnet ID (must have a default route to an Internet Gateway)"
+    Type: AWS::EC2::Subnet::Id
+    Default: subnet-01172df8f774b84b6 # For KodyGMail: subnet-0ed044eecdf8f523d
+
+  InstanceType:
+    Description: EC2 instance type (only micro instances allowed)
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+      - t2.micro
+
+  VpcId:
+    Description: "VPC ID in which the instances will be launched"
+    Type: AWS::EC2::VPC::Id
+    Default: vpc-04cbf3cb88c253a81 # For KodyGMail: vpc-0c7aaefb9f9905d91
+
+  MyAppSecurityGroup:
+    Description: "Security Group ID for application servers that will access the RDS instance"
+    Type: String
+    Default: sg-06e2aee3009eae596 # For KodyGMail: sg-054edbad8f1ebf210
+  
+  #FrontendEIP:
+  #  Description: "The manually allocated Elastic IP for the Frontend instance"
+  #  Type: String
+  #  Default: "3.23.6.91" # For KodyGMail: "3.148.116.100"
+
+
+Mappings:
+  RegionMap:
+    us-east-1:
+      AMI: ami-0a25f237e97fa2b5e
+    us-east-2:
+      AMI: ami-08529db39844c00c2
+
+Resources:
+  FrontendEIPResource:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+
+  FrontendEIPAssociation:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      InstanceId: !Ref FrontendInstance
+      AllocationId: !GetAtt FrontendEIPResource.AllocationId
+
+  #####################################
+  # IAM Resources for VPN Instance
+  #####################################
+  VPNInstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: S3PutPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:PutObjectAcl
+                Resource: "arn:aws:s3:::kwixmbucket/*"
+
+  VPNInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref VPNInstanceRole
+
+  #####################################
+  # Security Groups
+  #####################################
+
+  # InstanceSecurityGroup is for the Frontend and Backend instances.
+  # Only HTTPS (port 443) traffic is allowed from anywhere.
+  FrontendInstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Allow HTTP and HTTPS traffic to the frontend instance"
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        # Nginx: allow HTTP (TCP port 80) from anywhere
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        # SSH: allow SSH (port 22) from anywhere
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        # Next.js: allow TCP port 3000 from anywhere
+        - IpProtocol: tcp
+          FromPort: 3000
+          ToPort: 3000
+          CidrIp: 0.0.0.0/0
+        # HTTPS: allow HTTPS (port 443) from anywhere
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+          
+  BackendInstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Allow HTTP and HTTPS traffic to the backend instance"
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        # Django: allow TCP port 8000 from anywhere
+        - IpProtocol: tcp
+          FromPort: 8000
+          ToPort: 8000
+          CidrIp: 0.0.0.0/0
+        # Nginx: allow HTTP (TCP port 80) from anywhere
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        # SSH: allow SSH (port 22) from anywhere
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        # HTTPS: allow HTTPS (port 443) from anywhere. Only needs to be on the instance(s) with Nginx
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+        # Postgres: allow TCP port 5432 only from a specific security group
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          SourceSecurityGroupId: !Ref MyAppSecurityGroup
+        # Email: allow TCP port 587 from anywhere. 
+        - IpProtocol: tcp
+          FromPort: 587
+          ToPort: 587
+          CidrIp: 0.0.0.0/0
+  
+  # VPNSecurityGroup allows public VPN connections (UDP port 1194) only.
+  VPNSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Allow only OpenVPN access (UDP 1194) to the VPN instance"
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: udp
+          FromPort: 1194
+          ToPort: 1194
+          CidrIp: 0.0.0.0/0
+
+  #####################################
+  # EC2 Instances
+  #####################################
+
+  FrontendInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      SubnetId: !Ref PublicSubnetId
+      KeyName: !Ref KeyName
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      # The Frontend instance is not directly exposed; it will receive traffic via NGinx.
+      SecurityGroupIds:
+        - !Ref FrontendInstanceSecurityGroup
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          # Set the default region and configure the AWS CLI using SSM values
+          export AWS_DEFAULT_REGION=us-east-2
+          aws configure set aws_access_key_id "$(aws ssm get-parameter --name '/savvynote/AMAZON_ACCESS_KEY_ID' --with-decryption --query 'Parameter.Value' --output text --region us-east-2)"
+          aws configure set aws_secret_access_key "$(aws ssm get-parameter --name '/savvynote/AMAZON_SECRET_ACCESS_KEY' --with-decryption --query 'Parameter.Value' --output text --region us-east-2)"
+          aws configure set region us-east-2
+
+          # Redirect all output to a log file and enable debugging
+          exec > /var/log/user-data.log 2>&1
+          set -xe
+
+          # Update package lists
+          apt-get update -y
+
+          # Install Node.js (v16), Git, Nginx, OpenSSL, awscli, Docker, and docker-compose
+          curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+          apt-get install -y nodejs git nginx openssl awscli docker.io docker-compose
+
+          # Ensure Docker group exists and add ubuntu user to it
+          usermod -aG docker ubuntu
+          systemctl start docker
+
+          # Log in to Docker using credentials from SSM
+          DOCKER_USERNAME=$(aws ssm get-parameter --name "/savvynote/DOCKER_USERNAME" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          DOCKER_PASSWORD=$(aws ssm get-parameter --name "/savvynote/DOCKER_PASSWORD" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          docker logout
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+          # Clone the repository and launch the frontend container
+          cd ..
+          cd /home/ubuntu
+          git clone https://github.com/uiowaSEP2025/sep2025-project-team_005.git savvynote
+          cd /home/ubuntu/savvynote
+          chown -R ubuntu:ubuntu /home/ubuntu/savvynote
+
+          # Pulling the SSM secrets from AWS into the .env file the code expects
+          ENV_FILE="/home/ubuntu/savvynote/.env"
+          echo "About to create the .env file at $ENV_FILE"
+          cat <<EOF > /home/ubuntu/savvynote/.env
+          DB_NAME=$(aws ssm get-parameter --name "/savvynote/DB_NAME" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          DB_USER=$(aws ssm get-parameter --name "/savvynote/DB_USER" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          DB_PASSWORD=$(aws ssm get-parameter --name "/savvynote/DB_PASSWORD" --with-decryption --query "Parameter.Value" --outut text --region us-east-2)
+          DB_HOST=$(aws ssm get-parameter --name "/savvynote/DB_HOST" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          DB_PORT=$(aws ssm get-parameter --name "/savvynote/DB_PORT" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          SECRET_KEY=$(aws ssm get-parameter --name "/savvynote/SECRET_KEY" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          NEXT_PUBLIC_API_URL=$(aws ssm get-parameter --name "/savvynote/NEXT_PUBLIC_API_URL" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          AWS_ACCESS_KEY_ID=$(aws ssm get-parameter --name "/savvynote/AMAZON_ACCESS_KEY_ID" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          AWS_SECRET_ACCESS_KEY=$(aws ssm get-parameter --name "/savvynote/AMAZON_SECRET_ACCESS_KEY" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          AWS_REGION=$(aws ssm get-parameter --name "/savvynote/AMAZON_REGION" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          EMAIL_USER=$(aws ssm get-parameter --name "/savvynote/EMAIL_USER" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          EMAIL_PASSWORD=$(aws ssm get-parameter --name "/savvynote/EMAIL_PASSWORD" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          SELENIUM_USER_DIR=$(aws ssm get-parameter --name "/savvynote/SELENIUM_USER_DIR" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          EOF
+          chmod 600 $ENV_FILE
+          docker-compose -f docker-compose.yaml up -d frontend
+
+          # Retrieve the Backend instance Public IP for Nginx proxying
+          BACKEND_IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=Backend-Instance" \
+                        --query "Reservations[0].Instances[0].PublicIpAddress" --output text --region us-east-2)
+
+          # Write the Nginx configuration file
+          mkdir -p /etc/nginx/sites-available
+          cat > /etc/nginx/sites-available/default << EOF
+          # Default server configuration
+          server {
+              listen 80;
+              server_name savvy-note.com www.savvy-note.com;
+              return 301 https://$host$request_uri;
+          }
+          server {
+              listen 443 ssl;
+              server_name savvy-note.com www.savvy-note.com;
+
+              ssl_certificate /etc/nginx/SSL/savvy-note.com.pem;
+              ssl_certificate_key /etc/nginx/SSL/savvy-note.com.key;
+              ssl_protocols TLSv1.2 TLSv1.3;
+              ssl_ciphers 'TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384';
+              ssl_prefer_server_ciphers off;
+              ssl_session_cache shared:SSL:10m;
+              ssl_session_timeout 1h;
+
+              location / {
+                  proxy_pass http://localhost:3000/;
+                  proxy_http_version 1.1;
+                  proxy_set_header Upgrade $http_upgrade;
+                  proxy_set_header Connection 'upgrade';
+                  proxy_set_header Host $host;
+              }
+              location /api/ {
+                  proxy_pass http://$BACKEND_IP:8000/api/;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+                  proxy_set_header Cookie $http_cookie;
+                  proxy_set_header Upgrade $http_upgrade;
+              }
+          }
+          EOF
+
+          # Retrieve SSL certificate and key from SSM, then secure them
+          mkdir -p /etc/nginx/SSL
+          aws ssm get-parameter --name "/savvynote/savvy-note.com.key" --with-decryption \
+            --query "Parameter.Value" --output text --region us-east-2 > /etc/nginx/SSL/savvy-note.com.key
+          aws ssm get-parameter --name "/savvynote/savvy-note.com.pem" --with-decryption \
+            --query "Parameter.Value" --output text --region us-east-2 > /etc/nginx/SSL/savvy-note.com.pem
+          chmod 600 /etc/nginx/SSL/savvy-note.com.key /etc/nginx/SSL/savvy-note.com.pem
+
+          # Restart Nginx to load the new configuration
+          systemctl restart nginx
+
+          # Install Node dependencies, build, and start the Next.js app
+          cd /home/ubuntu/savvynote/frontend
+          npm install
+          npm run build
+          npm start
+
+      Tags:
+        - Key: Name
+          Value: Frontend-Instance
+
+  BackendInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyName
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      # The Backend instance is kept isolated; it should only be accessible from internal sources (NGinx or VPN).
+      SecurityGroupIds:
+        - !Ref BackendInstanceSecurityGroup
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          export AWS_DEFAULT_REGION=us-east-2
+          exec > /var/log/user-data.log 2>&1
+          set -xe
+          apt-get update -y
+          apt-get install -y git nginx openssl awscli docker.io docker-compose python3-venv
+
+          systemctl start docker
+          usermod -aG docker ubuntu
+          DOCKER_USERNAME=$(aws ssm get-parameter --name "/savvynote/DOCKER_USERNAME" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          DOCKER_PASSWORD=$(aws ssm get-parameter --name "/savvynote/DOCKER_PASSWORD" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          newgrp docker
+
+          cd ..
+          cd /home/ubuntu
+          git clone https://github.com/uiowaSEP2025/sep2025-project-team_005.git savvynote
+          python3 -m venv venv
+          source venv/bin/activate
+          cd /home/ubuntu/savvynote/backend
+          pip install -r requirements.txt
+          sed -i "s/ALLOWED_HOSTS = \[\]/ALLOWED_HOSTS = ['*']/" /home/ubuntu/savvynote/myproject/settings.py
+
+          # Pulling the SSM secrets from AWS into the .env file the code expects
+          echo "Reached .env creation" 
+          ENV_FILE="/home/ubuntu/savvynote/.env"
+          cat <<EOF > $ENV_FILE
+          DB_NAME=$(aws ssm get-parameter --name "/savvynote/DB_NAME" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          DB_USER=$(aws ssm get-parameter --name "/savvynote/DB_USER" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          DB_PASSWORD=$(aws ssm get-parameter --name "/savvynote/DB_PASSWORD" --with-decryption --query "Parameter.Value" --outut text --region us-east-2)
+          DB_HOST=$(aws ssm get-parameter --name "/savvynote/DB_HOST" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          DB_PORT=$(aws ssm get-parameter --name "/savvynote/DB_PORT" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          SECRET_KEY=$(aws ssm get-parameter --name "/savvynote/SECRET_KEY" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          NEXT_PUBLIC_API_URL=$(aws ssm get-parameter --name "/savvynote/NEXT_PUBLIC_API_URL" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          AWS_ACCESS_KEY_ID=$(aws ssm get-parameter --name "/savvynote/AMAZON_ACCESS_KEY_ID" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          AWS_SECRET_ACCESS_KEY=$(aws ssm get-parameter --name "/savvynote/AMAZON_SECRET_ACCESS_KEY" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          AWS_REGION=$(aws ssm get-parameter --name "/savvynote/AMAZON_REGION" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          EMAIL_USER=$(aws ssm get-parameter --name "/savvynote/EMAIL_USER" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          EMAIL_PASSWORD=$(aws ssm get-parameter --name "/savvynote/EMAIL_PASSWORD" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          SELENIUM_USER_DIR=$(aws ssm get-parameter --name "/savvynote/SELENIUM_USER_DIR" --with-decryption --query "Parameter.Value" --output text --region us-east-2)
+          EOF
+          chmod 600 $ENV_FILE
+          docker-compose -f docker-compose.yaml up -d backend
+
+          sudo -u postgres psql
+          ALTER USER postgres WITH PASSWORD '$(aws ssm get-parameter --name "/savvynote/DB_PASSWORD" --with-decryption --query "Parameter.Value" --output text --region us-east-2)';
+          CREATE DATABASE "savvy-note-sp";
+          GRANT ALL PRIVILEGES ON DATABASE "savvy-note-sp" TO $(aws ssm get-parameter --name "/savvynote/DB_USER" --with-decryption --query "Parameter.Value" --output text --region us-east-2);
+          
+          sudo systemctl start postgresql
+          python3 manage.py migrate
+
+          python3 manage.py runserver 0.0.0.0:8000
+      Tags:
+        - Key: Name
+          Value: Backend-Instance
+
+  VPNInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      SubnetId: !Ref PublicSubnetId
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]  # Ubuntu AMI is used here
+      KeyName: !Ref KeyName
+      IamInstanceProfile: !Ref VPNInstanceProfile
+      # The VPN instance allows only OpenVPN traffic (UDP 1194); no SSH is allowed.
+      SecurityGroupIds:
+        - !Ref VPNSecurityGroup
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          exec > /var/log/user-data.log 2>&1
+          set -x
+          apt-get update -y
+          apt-get install -y curl awscli
+          curl -O https://raw.githubusercontent.com/angristan/openvpn-install/master/openvpn-install.sh
+          chmod +x openvpn-install.sh
+          export AUTO_INSTALL=y
+          export CLIENT="savvynote-client"
+          ./openvpn-install.sh
+          ls -l /root/client.ovpn
+          aws s3 cp /root/client.ovpn s3://kwixmbucket/client.ovpn --region us-east-2 --acl public-read
+          # (Optional) Upload the generated client.ovpn to S3 or output it via CloudFormation Outputs
+
+Outputs:
+  FrontendPublicIP:
+    Description: "Public IP of the Frontend instance (this is what NGinx will target)"
+    Value: !GetAtt [FrontendInstance, PublicIp]
+  BackendPublicIP:
+    Description: "Public IP of the Backend instance (for internal use only)"
+    Value: !GetAtt [BackendInstance, PublicIp]
+  VPNPublicIP:
+    Description: "Public IP of the VPN instance (for team VPN access)"
+    Value: !GetAtt [VPNInstance, PublicIp]
+  VPNClientConfigURL:
+    Description: "URL to download the VPN client configuration (client.ovpn)"
+    Value: "https://kwixmbucket.s3.amazonaws.com/client.ovpn"
