@@ -8,11 +8,15 @@ import { useAuth, useRequireAuth } from "@/context/ProfileContext";
 import { useEffect, useState } from "react";
 import { FaEllipsisV } from "react-icons/fa";
 import Image from "next/image";
+import Toolbar from '@/components/toolbars/toolbar';
 
 import styles from "@/styles/Profile.module.css";
 import axios from "axios";
 import Cookies from "js-cookie";
 import debounce from "lodash.debounce";
+import Dropdown from '@/components/menus/dropdown';
+import { Button, styled } from '@mui/material';
+import { CloudUpload } from '@mui/icons-material';
 
 interface UserID {
     user_id: string;
@@ -32,7 +36,10 @@ interface FollowCount {
 }
 
 interface Post {
-    [key: string]: string;
+    id: string;
+    created_at: string;
+    caption: string;
+    s3_urls: string[];
 }
 
 export default function DiscoverProfile() {
@@ -44,9 +51,8 @@ export default function DiscoverProfile() {
     const [musicianProfile, setMusicianProfile] = useState<MusicianProfile | null>(null);
     const [followCount, setFollowCount] = useState<FollowCount | null>(null);
     const [userId, setUserId] = useState<UserID | null>(null);
-    const [isDropdownOpen, setDropdownOpen] = useState(false);
     const [posts, setPosts] = useState<Post[]>([]);
-    const [file, setFile] = useState<File>();
+    const [files, setFiles] = useState<File[]>();
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
@@ -188,7 +194,7 @@ export default function DiscoverProfile() {
 
     const handleUpdateProfile = async () =>  {
         try {
-            router.push("/settings/user");
+            router.push("/settings");
         } catch (error) {
             console.error(error)
         }
@@ -223,10 +229,6 @@ export default function DiscoverProfile() {
         }
     };
 
-    const handleDropdownToggle = () => {
-        setDropdownOpen(prevState => !prevState);
-    };
-
     const handleBlockUser = async () => {
         if (!userId) return;
     
@@ -241,7 +243,6 @@ export default function DiscoverProfile() {
     
             if (response.ok) {
                 alert("User blocked.");
-                setDropdownOpen(false);
             } else {
                 console.error("Failed to block user.");
             }
@@ -253,14 +254,16 @@ export default function DiscoverProfile() {
     const handlePost = async () => {
         try {
             const formData = new FormData();
-            if (!file) {
+            if (!files) {
                 console.error("Please upload a file");
                 return;
             }
-            formData.append("file", file);
-            formData.append("caption", "Test");
+            files.forEach((file) => {
+                formData.append("files", file);
+            });
+            formData.append("caption", "Test".repeat(100));
     
-            const response = await axios.post("http://localhost:8000/api/create-post/", formData, {
+            const response = await axios.post("http://localhost:8000/api/post/create/", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                     "Authorization": `Bearer ${Cookies.get("access_token")}`
@@ -286,7 +289,7 @@ export default function DiscoverProfile() {
     const fetchPosts = async (username: string, pageNum = 1) => {
         setLoading(true);
         try {
-            const response = await axios.get('http://localhost:8000/api/fetch-posts/', {
+            const response = await axios.get('http://localhost:8000/api/post/fetch/', {
                 params: {
                     username: username,
                     page: pageNum
@@ -340,121 +343,152 @@ export default function DiscoverProfile() {
 
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files.length > 0) {
-            setFile(event.target.files?.[0]);
+            const files = event.target.files ? Array.from(event.target.files).slice(0, 10) : [];
+            setFiles(files);
         }
     };
+
+    const VisuallyHiddenInput = styled('input')({
+        clip: 'rect(0 0 0 0)',
+        clipPath: 'inset(50%)',
+        height: 1,
+        overflow: 'hidden',
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        whiteSpace: 'nowrap',
+        width: 1,
+    });
 
     if (isLoading || !musicianProfile || !followCount) return <p className="description">Loading...</p>;
 
     return (
-        <div className={styles.container}>
-            <div className={styles.profileHeader}>
-                <Image 
-                    src="/savvy.png" 
-                    alt={`${username}'s profile picture`} 
-                    width={130} 
-                    height={130} 
-                    className={styles.profilePhoto}
-                />
-                <div className={styles.profileInfo}>
-                    <div className={styles.headerWithDots}>
-                        <h1 className={styles.title}>{musicianProfile.stage_name || username}</h1>
-                        {/* Three-Dot Button */}
-                        <div className={styles.threeDotButton} onClick={handleDropdownToggle} data-testid="dropdown-button">
-                            <FaEllipsisV size={24} />
+        <div>
+            <Toolbar />
+            <div className={styles.container}>
+                <div className={styles.profileHeader}>
+                    <Image 
+                        src="/savvy.png" 
+                        alt={`${username}'s profile picture`} 
+                        width={130} 
+                        height={130} 
+                        className={styles.profilePhoto}
+                    />
+                    <div className={styles.profileInfo}>
+                        <div className={styles.headerWithDots}>
+                            <h1 className={styles.title}>{musicianProfile.stage_name || username}</h1>
+                            <Dropdown 
+                                buttonLabel={<FaEllipsisV size={24} />} 
+                                data-testid="dropdown-button"
+                                sx={{ 
+                                    position: 'absolute', 
+                                    right: 0, 
+                                    cursor: 'pointer', 
+                                }}
+                                menuItems={[
+                                    profile?.username === username ? { label: "Settings", onClick: handleSettings } : null,
+                                    profile?.username === username ? { label: "Logout", onClick: handleLogout } : null,
+                                    profile?.username !== username ? { label: "Block User", onClick: handleBlockUser } : null,
+                                ]}
+                            >
+                            </Dropdown>
                         </div>
-                    </div>
 
-                    <div className={styles.followStats}>
-                        <div className={styles.statCard}>
-                            <button className={styles.statNumber} onClick={() => userId && handleNavigation(userId.user_id, "followers")}>{followCount.follower_count}</button>
-                            <p className={styles.statLabel}>Followers</p>
+                        <div className={styles.followStats}>
+                            <div className={styles.statCard}>
+                                <button className={styles.statNumber} onClick={() => userId && handleNavigation(userId.user_id, "followers")}>{followCount.follower_count}</button>
+                                <p className={styles.statLabel}>Followers</p>
+                            </div>
+                            <div className={styles.statCard}>
+                            <button className={styles.statNumber} onClick={() => userId && handleNavigation(userId.user_id, "following")}>{followCount.following_count}</button>
+                                <p className={styles.statLabel}>Following</p>
+                            </div>
                         </div>
-                        <div className={styles.statCard}>
-                        <button className={styles.statNumber} onClick={() => userId && handleNavigation(userId.user_id, "following")}>{followCount.following_count}</button>
-                            <p className={styles.statLabel}>Following</p>
-                        </div>
-                    </div>
-                    {profile?.username !== username && isFollowing !== null && (
-                        <div className={styles.profileActions}>
+                        {profile?.username !== username && isFollowing !== null && (
+                            <div className={styles.profileActions}>
                             <button 
                                 className={isFollowing ? styles.unfollowButton : styles.followButton}
                                 onClick={handleFollowToggle}
                                 data-testid="follow-button"
                             >
                                 {isFollowing ? "Unfollow" : "Follow"}
-                            </button>
+                            </button>                                
                             <button className={styles.messageButton} data-testid="message-button">Message</button>
-                        </div>
-                    )}
+                            </div>
+                        )}
+                    </div>
                 </div>
 
-
-                {/* Dropdown Menu */}
-                {isDropdownOpen && (
-                    profile?.username === username ? (
-                        <div>
-                            <button className={styles.dropdownItem} onClick={handleSettings} data-testid="setting-button">Settings</button>
-                            <button className={styles.dropdownItem} onClick={handleLogout} data-testid="logout-button">Logout</button>
-                        </div>
-                    ) : (
-                        <div className={styles.dropdownMenu}>
-                            <button className={styles.dropdownItem} onClick={handleBlockUser} data-testid="block-button">
-                                Block User
-                            </button>
-                        </div>
-                    )
-                )}
-              
-            </div>
-
-            <div className={styles.bioSection}>
-                {profile?.username === username && (
-                    <button className={styles.editButton} onClick={handleUpdateProfile} data-testid="edit-button"><Edit size={24}/></button>
-                )}
-                <h2 className={styles.bioTitle}>About</h2>
-                <p className={styles.description}><strong>Home Studio:</strong> {musicianProfile.home_studio ? "Yes" : "No"}</p>
-                <p className={styles.description}><strong>Genres:</strong> {musicianProfile.genres.join(", ")}</p>
-                <p className={styles.description}>
-                    <strong>Instruments: </strong>
-                    <span>
-                        {musicianProfile.instruments.map((instr, index) => (
-                            <React.Fragment key={index}>
-                                {instr.instrument_name} - {instr.years_played} years
-                                {index < musicianProfile.instruments.length - 1 && <br />}
-                            </React.Fragment>
-                        ))}
-                    </span>
-                </p>
-            </div>
-            
-            <div className={styles.postsSection}>
-                <div className={styles.postsHeader}>
-                    <h2 className={styles.featureTitle}>Posts</h2>
+                <div className={styles.bioSection}>
+                    {profile?.username === username && (
+                        <button className={styles.editButton} onClick={handleUpdateProfile} data-testid="edit-button"><Edit size={24}/></button>
+                    )}
+                    <h2 className={styles.bioTitle}>About</h2>
+                    <p className={styles.description}><strong>Home Studio:</strong> {musicianProfile.home_studio ? "Yes" : "No"}</p>
+                    <p className={styles.description}><strong>Genres:</strong> {musicianProfile.genres.join(", ")}</p>
+                    <p className={styles.description}>
+                        <strong>Instruments: </strong>
+                        <span>
+                            {musicianProfile.instruments.map((instr, index) => (
+                                <React.Fragment key={index}>
+                                    {instr.instrument_name} - {instr.years_played} years
+                                    {index < musicianProfile.instruments.length - 1 && <br />}
+                                </React.Fragment>
+                            ))}
+                        </span>
+                    </p>
+                </div>
+                
+                <div className={styles.postsSection}>
+                    <div className={styles.postsHeader}>
+                        <h2 className={styles.featureTitle}>Posts</h2>
+                        {profile?.username === username && (
+                            <div>
+                                <button className={styles.editButton} onClick={handlePost} data-testid="post-button">Post</button>
+                            </div>
+                        )}
+                    </div>
+                    <div className={styles.postsHeader}>
+                    {/* TODO: remove upon post creation */}
                     {profile?.username === username && (
                         <div>
-                            <button className={styles.editButton} onClick={handlePost} data-testid="post-button">Post</button>
-                            <input type="file" onChange={handleFileUpload} />
+                            <Button
+                                component="label"
+                                role={undefined}
+                                variant="contained"
+                                tabIndex={-1}
+                                startIcon={<CloudUpload />}
+                                >
+                                Upload files
+                                <VisuallyHiddenInput
+                                    type="file"
+                                    onChange={(event) => handleFileUpload(event)}
+                                    multiple
+                                />
+                            </Button>
                         </div>
                     )}
-                </div>
-                {loading && <p>Loading posts...</p>}
-                {posts.length > 0 ? (
-                    <div className={styles.postsGrid}>
-                        {posts.map((post, index) => (
-                            <div key={index} className={styles.imageContainer} onClick={() => handlePostClick(post)}>
-                                <img src={post.s3_url} alt={post.caption}/>
-                            </div>
-                        ))}
                     </div>
-                ) : (
-                    <p>No posts found.</p>
-                )}
-                {hasMore && (
-                    <button onClick={loadMorePosts} disabled={loading}>
-                        Load More
-                    </button>
-                )}
+                    {loading && <p>Loading posts...</p>}
+                    {posts.length > 0 ? (
+                        <div className={styles.postsGrid}>
+                            {posts.map((post) => (
+                                <div key={post.id} className={styles.imageContainer} onClick={() => handlePostClick(post)}>
+                                    {post.s3_urls.map((s3_url, index) => (
+                                        <img key={index} src={s3_url} alt={post.caption} />
+                                    ))}                                    
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <p>No posts found.</p>
+                    )}
+                    {hasMore && (
+                        <button onClick={loadMorePosts} disabled={loading}>
+                            Load More
+                        </button>
+                    )}
+                </div>
             </div>
         </div>
     );

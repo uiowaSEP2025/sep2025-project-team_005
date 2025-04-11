@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import DiscoverProfile from "@/app/[username]/page";
 import { AuthProvider } from "@/context/ProfileContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 import fetchMock from "jest-fetch-mock";
 
 import React from "react";
@@ -52,9 +53,11 @@ describe("Discover Profile Page", () => {
 
     const renderProfile = () => {
         render(
-            <AuthProvider>
-                <DiscoverProfile />
-            </AuthProvider>
+            <ThemeProvider>
+                <AuthProvider>
+                    <DiscoverProfile />
+                </AuthProvider>
+            </ThemeProvider>
         );
     };
 
@@ -292,10 +295,10 @@ describe("Discover Profile Page", () => {
         fireEvent.click(dropdownButton);
     
         await waitFor(() => {
-            expect(screen.getByTestId("block-button")).toBeInTheDocument();
+            expect(screen.getByTestId("menu-item-block-user")).toBeInTheDocument();
         });
     
-        const blockButton = screen.getByTestId("block-button");
+        const blockButton = screen.getByTestId("menu-item-block-user");
         fireEvent.click(blockButton);
     
         // Wait for the alert
@@ -373,11 +376,11 @@ describe("Discover Profile Page", () => {
 
         // Wait for logout button to appear
         await waitFor(() => {
-            expect(screen.getByTestId("logout-button")).toBeInTheDocument();
+            expect(screen.getByTestId("menu-item-logout")).toBeInTheDocument();
         });
 
         // Simulate logout button click
-        const logoutButton = screen.getByTestId("logout-button");
+        const logoutButton = screen.getByTestId("menu-item-logout");
         fireEvent.click(logoutButton);
 
         await waitFor(() => expect(axios.post).toHaveBeenCalledWith(

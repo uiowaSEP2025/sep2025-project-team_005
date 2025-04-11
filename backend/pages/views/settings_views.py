@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from pages.models import Musician, User, Genre, Instrument, MusicianInstrument, BlockedUser
-from pages.serializers.musician_serializers import MusicianSerializer
+from pages.serializers import MusicianSerializer
 from django.contrib.auth.hashers import check_password
 from rest_framework.permissions import IsAuthenticated
 

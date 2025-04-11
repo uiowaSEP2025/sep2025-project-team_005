@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from pages.models import Musician, Instrument, MusicianInstrument, Business
-from pages.serializers.signup_serializers import UserSignupSerializer
+from pages.serializers import UserSignupSerializer
 
 
 # API endpoint for signup requests (handles both musicians and business account)

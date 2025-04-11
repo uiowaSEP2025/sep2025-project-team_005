@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import FollowPage from "@/app/follow/[id]/page";
-import { AuthProvider } from "@/context/ProfileContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 import fetchMock from "jest-fetch-mock";
 
 fetchMock.enableMocks();
@@ -22,6 +22,14 @@ jest.mock("@/context/ProfileContext", () => ({
     useAuth: jest.fn(),
     useRequireAuth: jest.fn(),
 }));
+
+ const renderFollowPage = () => {
+    render(
+        <ThemeProvider>
+            <FollowPage />
+        </ThemeProvider>
+    );
+};
 
 describe("FollowPage", () => {
     beforeEach(() => {
@@ -51,7 +59,7 @@ describe("FollowPage", () => {
             })
         );
 
-        render(<FollowPage />);
+        renderFollowPage();
 
         // Wait for the users to appear in the list
         await waitFor(() => screen.getByText("user1"));
@@ -72,7 +80,7 @@ describe("FollowPage", () => {
             })
         );
 
-        render(<FollowPage />);
+        renderFollowPage();
 
         await waitFor(() => screen.getByText("user1"));
 
@@ -96,7 +104,7 @@ describe("FollowPage", () => {
             })
         );
     
-        render(<FollowPage />);
+        renderFollowPage();
     
         await waitFor(() => screen.getByText("user1"));
     
@@ -146,7 +154,7 @@ describe("FollowPage", () => {
           })
         );
       
-        render(<FollowPage />);
+        renderFollowPage();
         await waitFor(() => screen.getByText("user1"));
       
         // Ensure the Follow button is rendered
