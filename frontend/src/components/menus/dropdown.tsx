@@ -11,10 +11,11 @@ type MenuItemType = {
 type DropdownProps = {
     buttonLabel: ReactNode;
     menuItems: (MenuItemType | null | undefined)[];
+    "data-testid": string;
     sx?: object;
 };
 
-const Dropdown = ({ buttonLabel, menuItems, sx }: DropdownProps) => {
+const Dropdown = ({ buttonLabel, menuItems, "data-testid": testId, sx }: DropdownProps) => {
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
@@ -36,6 +37,7 @@ const Dropdown = ({ buttonLabel, menuItems, sx }: DropdownProps) => {
                 aria-expanded={open ? "true" : undefined}
                 onClick={handleClick}
                 sx={sx}
+                data-testid={testId}
             >
                 {buttonLabel}
             </Button>
