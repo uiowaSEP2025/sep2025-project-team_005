@@ -7,7 +7,6 @@ certifi
 charset-normalizer
 coverage
 Django
-django-behave
 django-cors-headers
 django-environ
 django-extensions
@@ -41,4 +40,5 @@ typing_extensions
 urllib3
 webdriver-manager
 websocket-client
+wheel
 wsproto

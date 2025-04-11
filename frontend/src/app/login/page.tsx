@@ -21,7 +21,7 @@ export default function Login() {
     setLoggingIn(true);
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/auth/login/",      // Replace with an env variable for both local and Kubernetes deployment
+        "http://localhost:8000/api/auth/login/",
         { username, password },
         { withCredentials: true } // Sends cookies to backend
       );

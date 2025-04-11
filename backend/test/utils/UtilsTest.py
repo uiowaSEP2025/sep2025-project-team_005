@@ -11,26 +11,47 @@ def file_type():
     return "image/jpeg"
 
 @pytest.fixture
-def mock_get_bucket_name(monkeypatch):
-    mock = MagicMock(return_value="mock-bucket")
-    monkeypatch.setattr("pages.utils.s3_utils.get_bucket_name", mock)
+def video_key():
+    return "user_0000/test.mp4"
+
+@pytest.fixture
+def video_type():
+    return "video/mp4"
+
+@pytest.fixture
+def mock_get_bucket_name(mocker):
+    mock = mocker.patch("pages.utils.s3_utils.get_bucket_name")
+    mock.return_value = "mock-bucket"
     return mock
 
 @pytest.fixture
-def mock_s3_client(monkeypatch):
-    mock = MagicMock()
-    mock.generate_presigned_url.return_value = "https://mock-presigned-url.com"
-    monkeypatch.setattr("pages.utils.s3_utils.get_s3_client", lambda: mock)
-    return mock
+def mock_get_s3_client(mocker):
+    mock_boto_client = mocker.patch("boto3.client")
+    
+    mock_s3_client = MagicMock()
+    mock_s3_client.generate_presigned_url.return_value = "https://mock-url.com/test.jpg"
+    
+    mock_boto_client.return_value = mock_s3_client
+    
+    return mock_s3_client
 
-def test_generate_s3_url(file_key, file_type, mock_get_bucket_name, mock_s3_client):
-    print("Starting the test...")
+@pytest.fixture(autouse=True)
+def mock_django_settings(monkeypatch):
+    monkeypatch.delenv("AWS_PROFILE", raising=False)
+    monkeypatch.setattr("pages.utils.s3_utils.settings", MagicMock(
+        AWS_ACCESS_KEY_ID="fake_id",
+        AWS_SECRET_ACCESS_KEY="fake_secret",
+        AWS_REGION="us-east-1",
+        AWS_IMAGE_BUCKET_NAME="mock-bucket",
+        AWS_VIDEO_BUCKET_NAME="mock-video-bucket"
+))
+
+def test_generate_s3_url(file_key, file_type, mock_get_s3_client, mock_get_bucket_name):
     s3_url = generate_s3_url(file_key, file_type)
-    print(f"Generated URL: {s3_url}")
 
-    assert s3_url == "https://mock-presigned-url.com"
-    mock_get_bucket_name.assert_called_once_with(file_type)
-    mock_s3_client.generate_presigned_url.assert_called_once_with(
+    assert s3_url == "https://mock-url.com/test.jpg"
+
+    mock_get_s3_client.generate_presigned_url.assert_called_once_with(
         "get_object",
         Params={"Bucket": "mock-bucket", "Key": file_key},
         ExpiresIn=3600,

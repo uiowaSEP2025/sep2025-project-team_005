@@ -56,6 +56,7 @@ export default function DiscoverProfile() {
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
+    const [isFollowing, setIsFollowing] = useState<boolean | null>(null);
 
     useEffect(() => {
         const fetchUserId = async () => {
@@ -84,12 +85,21 @@ export default function DiscoverProfile() {
     // Fetch Musician Profile
     useEffect(() => {
         const fetchProfile = async () => {
-            if (!userId) return;
+            if (!userId || !profile) return;
             try {
                 const response = await fetch(`http://localhost:8000/api/musician/${userId.user_id}/`, {
                     method: "GET",
                     credentials: "include",
+                    headers: {
+                        "Authorization": `Bearer ${Cookies.get("access_token")}`
+                    }
                 });
+
+                if (response.status === 403) {
+                    alert("The page you are trying to access doesn't axist");
+                    router.push(`/${profile.username}/`);
+                    return;
+                }
 
                 if (response.ok) {
                     const data = await response.json();
@@ -129,6 +139,59 @@ export default function DiscoverProfile() {
         fetchFollowCount();
     }, [userId]);
 
+    useEffect(() => {
+        const fetchFollowStatus = async () => {
+            if (!userId || !profile || userId.user_id === String(profile.id)) return;
+    
+            try {
+                const response = await fetch(`http://localhost:8000/api/is-following/${userId.user_id}/`, {
+                    method: "GET",
+                    credentials: "include",
+                    headers: {
+                        "Authorization": `Bearer ${Cookies.get("access_token")}`
+                    }
+                });
+    
+                if (response.ok) {
+                    const data = await response.json();
+                    setIsFollowing(data.is_following);
+                } else {
+                    console.error("Failed to fetch follow status");
+                }
+            } catch (error) {
+                console.error("Error fetching follow status:", error);
+            }
+        };
+    
+        fetchFollowStatus();
+    }, [userId, profile]);    
+    
+    const handleFollowToggle = async () => {
+        if (!userId) return;
+    
+        try {
+            const response = await fetch(`http://localhost:8000/api/follow/${userId.user_id}/`, {
+                method: isFollowing ? "DELETE" : "POST",
+                credentials: "include",
+                headers: {
+                    "Authorization": `Bearer ${Cookies.get("access_token")}`
+                }
+            });
+    
+            if (response.ok) {
+                setIsFollowing(prev => !prev);
+                setFollowCount(prev => prev ? {
+                    ...prev,
+                    follower_count: prev.follower_count + (isFollowing ? -1 : 1)
+                } : prev);
+            } else {
+                console.error("Failed to toggle follow status");
+            }
+        } catch (error) {
+            console.error("Error toggling follow status:", error);
+        }
+    };    
+
     const handleUpdateProfile = async () =>  {
         try {
             router.push("/settings/user");
@@ -138,7 +201,11 @@ export default function DiscoverProfile() {
     }
 
     const handleSettings = async () => {
-        // TODO: Create settings
+        try {
+            router.push("/settings");
+        } catch (error) {
+            console.error(error)
+        }
     }
 
     const handleLogout = async () => {
@@ -162,10 +229,27 @@ export default function DiscoverProfile() {
         }
     };
 
-    const handleBlockUser = () => {
-        // Add functionality for "Block User"
-        //console.log("User blocked");
-    };
+    const handleBlockUser = async () => {
+        if (!userId) return;
+    
+        try {
+            const response = await fetch(`http://localhost:8000/api/block/${userId.user_id}/`, {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Authorization": `Bearer ${Cookies.get("access_token")}`,
+                },
+            });
+    
+            if (response.ok) {
+                alert("User blocked.");
+            } else {
+                console.error("Failed to block user.");
+            }
+        } catch (error) {
+            console.error("Error blocking user:", error);
+        }
+    };    
 
     const handlePost = async () => {
         try {
@@ -286,8 +370,8 @@ export default function DiscoverProfile() {
                     <Image 
                         src="/savvy.png" 
                         alt={`${username}'s profile picture`} 
-                        width={120} 
-                        height={120} 
+                        width={130} 
+                        height={130} 
                         className={styles.profilePhoto}
                     />
                     <div className={styles.profileInfo}>
@@ -320,10 +404,16 @@ export default function DiscoverProfile() {
                                 <p className={styles.statLabel}>Following</p>
                             </div>
                         </div>
-                        {profile?.username !== username && (
+                        {profile?.username !== username && isFollowing !== null && (
                             <div className={styles.profileActions}>
-                                <button className={styles.followButton} data-testid="follow-button">Follow</button>
-                                <button className={styles.messageButton} data-testid="message-button">Message</button>
+                            <button 
+                                className={isFollowing ? styles.unfollowButton : styles.followButton}
+                                onClick={handleFollowToggle}
+                                data-testid="follow-button"
+                            >
+                                {isFollowing ? "Unfollow" : "Follow"}
+                            </button>                                
+                            <button className={styles.messageButton} data-testid="message-button">Message</button>
                             </div>
                         )}
                     </div>

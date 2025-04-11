@@ -33,8 +33,9 @@ def test_get_musician_detail(api_client, create_musician):
     """Test retrieving musician details."""
     user, musician = create_musician
     url = MUSICIAN_URL.format(user.id)
+    api_client.force_authenticate(user=user)
+    
     response = api_client.get(url)
-
     assert response.status_code == 200
     assert [inst["instrument_name"] for inst in response.data["instruments"]] == ["Guitar", "Piano"]
     assert [inst["years_played"] for inst in response.data["instruments"]] == [3, 2]
