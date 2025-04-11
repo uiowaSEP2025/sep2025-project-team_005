@@ -8,7 +8,6 @@ import { usePathname } from "next/navigation"
 import { fetch } from 'undici';  // For mocking fetch, as Jest does not provide a built-in fetch API
 import { act } from "react";
 import { userEvent } from '@testing-library/user-event';
-import exp from "constants";
 
 // Mock fetch since jest does not provide a built-in fetch API
 jest.mock('undici', () => ({

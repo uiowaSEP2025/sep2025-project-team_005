@@ -2,8 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
-from pages.serializers.follower_serializers import FollowCountSerializer
-from pages.serializers.user_serializers import UserSerializer
+from pages.serializers import FollowCountSerializer, UserSerializer
 from pages.models import User, Musician, Follower, BlockedUser
 from rest_framework.permissions import IsAuthenticated
 
