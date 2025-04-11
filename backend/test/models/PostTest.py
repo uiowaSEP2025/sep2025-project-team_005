@@ -25,8 +25,8 @@ class PostTest:
     def create_post(db, create_owner, create_tagged_users):
         post = Post.objects.create(
             owner=create_owner,
-            file_key="image/sample.png",
-            file_type="image/png",
+            file_keys=["image/sample.png"],
+            file_types=["image/png"],
             caption="Test caption"
         )
         #post.tagged_users.add(create_tagged_users[0],create_tagged_users[1])
@@ -42,8 +42,8 @@ class PostTest:
         assert post.id is not None
         assert post.caption == "Test caption"
         #assert post.tagged_users.count() == 2
-        assert post.file_key == "image/sample.png"
-        assert post.file_type == "image/png"
+        assert post.file_keys == ["image/sample.png"]
+        assert post.file_types == ["image/png"]
 
 #    def test_many_to_many_relationships(self, create_post, create_tagged_users):
 #        post = create_post
@@ -100,8 +100,8 @@ class PostTest:
     def test_blank_caption(self, create_owner):
         post = Post.objects.create(
             owner=create_owner,
-            file_key="image/sample.png",
-            file_type="image/png",
+            file_keys=["image/sample.png"],
+            file_types=["image/png"],
             caption=""
         )
         assert post.caption == ""

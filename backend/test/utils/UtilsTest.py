@@ -3,12 +3,12 @@ from unittest.mock import MagicMock
 from pages.utils import generate_s3_url
 
 @pytest.fixture
-def file_key():
-    return "user_0000/test.jpg"
+def file_keys():
+    return ["user_0000/test.jpg"]
 
 @pytest.fixture
-def file_type():
-    return "image/jpeg"
+def file_types():
+    return ["image/jpeg"]
 
 @pytest.fixture
 def video_key():
@@ -46,13 +46,13 @@ def mock_django_settings(monkeypatch):
         AWS_VIDEO_BUCKET_NAME="mock-video-bucket"
 ))
 
-def test_generate_s3_url(file_key, file_type, mock_get_s3_client, mock_get_bucket_name):
-    s3_url = generate_s3_url(file_key, file_type)
+def test_generate_s3_url(file_keys, file_types, mock_get_s3_client, mock_get_bucket_name):
+    s3_url = generate_s3_url(file_keys[0], file_types[0])
 
     assert s3_url == "https://mock-url.com/test.jpg"
 
     mock_get_s3_client.generate_presigned_url.assert_called_once_with(
         "get_object",
-        Params={"Bucket": "mock-bucket", "Key": file_key},
+        Params={"Bucket": "mock-bucket", "Key": file_keys[0]},
         ExpiresIn=3600,
     )

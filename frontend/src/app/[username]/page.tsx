@@ -261,7 +261,7 @@ export default function DiscoverProfile() {
             files.forEach((file) => {
                 formData.append("files", file);
             });
-            formData.append("caption", "");
+            formData.append("caption", "Test".repeat(100));
     
             const response = await axios.post("http://localhost:8000/api/post/create/", formData, {
                 headers: {

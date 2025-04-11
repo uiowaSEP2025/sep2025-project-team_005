@@ -5,7 +5,6 @@ import { Home, Search, Add, Chat, Settings } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 import { Sun, Moon } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
-import styles from "@/styles/Home.module.css";
 import { useAuth } from "@/context/ProfileContext";
 
 const Toolbar = () => {
@@ -22,11 +21,11 @@ const Toolbar = () => {
     };
     
     const handleJobsClick = () => {
-        router.push(`//`);
+        // router.push(`//`);
     };
     
     const handleMessagesClick = () => {
-        router.push(`//`);
+        // router.push(`//`);
     };
     
     const handleSettingsClick = () => {

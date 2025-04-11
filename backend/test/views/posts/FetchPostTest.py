@@ -21,8 +21,8 @@ def create_user(db):
 def create_post(db, create_user):
     post = Post.objects.create(
         owner=create_user,
-        file_key="user_0001/test.png",
-        file_type="image/png",
+        file_keys=["user_0001/test.png"],
+        file_types=["image/png"],
         caption="Test",
     )
     return post
@@ -48,15 +48,15 @@ def test_fetch_posts(api_client, create_user, create_post, mock_generate_s3_url)
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) > 0
-    assert response.data["results"][0]["file_key"] == "user_0001/test.png"
-    assert response.data["results"][0]["file_type"] == "image/png"
+    assert response.data["results"][0]["file_keys"][0] == "user_0001/test.png"
+    assert response.data["results"][0]["file_types"][0] == "image/png"
     assert response.data["results"][0]["caption"] == "Test"
 
 def test_fetch_posts_order(api_client, create_user, create_post, db, mock_generate_s3_url):
     post2 = Post.objects.create(
         owner=create_user,
-        file_key="user_0001/test2.jpg",
-        file_type="image/jpeg",
+        file_keys=["user_0001/test2.jpg"],
+        file_types=["image/jpeg"],
         caption="Test2"
     )
 
@@ -75,8 +75,8 @@ def test_post_serializer(mocker, create_post, mock_generate_s3_url):
 
     assert data["id"] == str(create_post.id)
     assert data["owner"] == create_post.owner.id
-    assert data["file_key"] == "user_0001/test.png"
-    assert data["file_type"] == "image/png"
+    assert data["file_keys"] == ["user_0001/test.png"]
+    assert data["file_types"] == ["image/png"]
     assert data["caption"] == "Test"
     assert data["s3_url"] == "https://mock-s3-url.com/user_0000/test.jpg"
 
