@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import DiscoverProfile from "@/app/[username]/page";
 import { AuthProvider } from "@/context/ProfileContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 import fetchMock from "jest-fetch-mock";
 
 import React from "react";
@@ -52,9 +53,11 @@ describe("Discover Profile Page", () => {
 
     const renderProfile = () => {
         render(
-            <AuthProvider>
-                <DiscoverProfile />
-            </AuthProvider>
+            <ThemeProvider>
+                <AuthProvider>
+                    <DiscoverProfile />
+                </AuthProvider>
+            </ThemeProvider>
         );
     };
 

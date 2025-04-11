@@ -194,7 +194,7 @@ export default function DiscoverProfile() {
 
     const handleUpdateProfile = async () =>  {
         try {
-            router.push("/settings/user");
+            router.push("/settings");
         } catch (error) {
             console.error(error)
         }
