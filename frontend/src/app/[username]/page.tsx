@@ -295,8 +295,8 @@ export default function DiscoverProfile() {
                     </div>
                     {profile?.username !== username && (
                         <div className={styles.profileActions}>
-                            <button className={styles.followButton}>Follow</button>
-                            <button className={styles.messageButton}>Message</button>
+                            <button className={styles.followButton} data-testid="follow-button">Follow</button>
+                            <button className={styles.messageButton} data-testid="message-button">Message</button>
                         </div>
                     )}
                 </div>
