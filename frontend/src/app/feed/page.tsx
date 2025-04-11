@@ -11,7 +11,7 @@ import debounce from "lodash.debounce";
 import Toolbar from '@/components/toolbars/toolbar';
 import Dropdown from '@/components/menus/dropdown';
 import { Box, Card, CardActions, CardActionArea, CardContent, CardMedia, Typography, Button, Avatar } from '@mui/material';
-import { ThumbUpOffAlt, ChatBubbleOutline } from '@mui/icons-material';
+import { ArrowBack, ArrowForward, ChatBubbleOutline, ThumbUpOutlined } from '@mui/icons-material';
 import { FaEllipsisV } from 'react-icons/fa';
 import Cookies from "js-cookie";
 
@@ -44,7 +44,9 @@ export default function Feed() {
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [hiddenPosts, setHiddenPosts] = useState<Set<string>>(new Set());
+    const [reportedPosts, setReportedPosts] = useState<Set<string>>(new Set());
     const [expandedPosts, setExpandedPosts] = useState<Set<string>>(new Set());
+    const [postImages, setPostImages] = useState<{ postId: string; imageIndex: number }[]>([]);
 
     useEffect(() => {
         if (!isLoading && profile) {
@@ -52,6 +54,17 @@ export default function Feed() {
             debouncedFetchPosts();
         }
     }, [isLoading, profile]);
+
+    useEffect(() => {
+        if (posts.length > 0) {
+            setPostImages(
+                posts.map(post => ({
+                postId: post.id,
+                imageIndex: 0,
+                }))
+            );
+        }
+    }, [posts]);
 
     const fetchFeed = async (pageNum = 1) => {
         if (!profile) return;
@@ -183,12 +196,17 @@ export default function Feed() {
         setHiddenPosts((prev) => new Set(prev.add(post.id)));
     }
 
-    const handleUnblock = async (post: Post) => {
+    const handleUnhide = async (post: Post) => {
         setHiddenPosts((prev) => {
             const newSet = new Set(prev);
             newSet.delete(post.id);
             return newSet;
         });    
+        setReportedPosts((prev) => {
+            const newSet = new Set(prev);
+            newSet.delete(post.id);
+            return newSet;
+        });   
     }
 
     const toggleDescription = (post: Post) => {
@@ -204,12 +222,43 @@ export default function Feed() {
     };
 
     const handleReport = async (post: Post) => {
-        // TODO
+        setReportedPosts((prev) => new Set(prev.add(post.id)));
+        // TODO: Actually report instead of hiding.
     }
 
     const handleProfile = async (username: string) => {
         router.push(`/${username}`)
     }
+
+    const handleNextImage = (postId: string) => {
+        setPostImages((prevImages) => 
+            prevImages.map((post) => {
+                const currentPost = posts.find((post) => post.id === postId);
+    
+                if (post.postId === postId && currentPost) {
+                    return {
+                        ...post,
+                        imageIndex: Math.min(post.imageIndex + 1, currentPost.s3_urls.length - 1),
+                    };
+                }
+                return post;
+            })
+        );
+    };
+
+    const handlePreviousImage = (postId: string) => {
+        setPostImages((prevImages) => 
+            prevImages.map((post) => {    
+                if (post.postId === postId) {
+                    return {
+                        ...post,
+                        imageIndex: Math.max(post.imageIndex - 1, 0),
+                    };
+                }
+                return post;
+            })
+        );
+    };
 
     if (isLoading) return <p className="description">Loading...</p>;
 
@@ -222,60 +271,104 @@ export default function Feed() {
                     <Box>
                         {posts.map((post) => (
                             !hiddenPosts.has(post.id) ? (
-                                <Card key={post.id} sx={{ marginBottom: '1rem', width: '50%', height: '50%', objectFit: 'cover' }}>
-                                    <Box sx={{ backgroundColor: 'black', color: 'white', padding: '0.5rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <Box display="flex" alignItems="center" gap={1}>
-                                            <CardActions onClick={() => handleProfile(post?.owner.username)} sx={{ cursor: 'pointer' }}>
-                                                <Avatar alt="User" src={"/savvy.png"} sx={{ width: 64, height: 64 }} />
-                                                <Typography variant="body1">{post.owner.username || 'Username'}</Typography>
-                                            </CardActions>
+                                !reportedPosts.has(post.id) ? (
+                                    <Card key={post.id} sx={{ marginBottom: '1rem', width: '50%', height: '50%', objectFit: 'cover' }}>
+                                        <Box sx={{ backgroundColor: 'black', color: 'white', padding: '0.5rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <Box display="flex" alignItems="center" gap={1}>
+                                                <CardActions onClick={() => handleProfile(post?.owner.username)} sx={{ cursor: 'pointer' }}>
+                                                    <Avatar alt="User" src={"/savvy.png"} sx={{ width: 64, height: 64 }} />
+                                                    <Typography variant="h6">{post.owner.username || 'Username'}</Typography>
+                                                </CardActions>
+                                            </Box>
+                                            <Box display="flex" gap={1}>
+                                                <Button size="small" variant="contained" onClick={() => handleFollow(post)}>Follow</Button>
+                                                <Dropdown buttonLabel={<FaEllipsisV size={24} />}menuItems=
+                                                    {[
+                                                        { label: "Hide Post", onClick: () => handleHide(post) },
+                                                        { label: "Report Post", onClick: () => handleReport(post) },
+                                                        { label: "Block User", onClick: () => handleBlock(post.owner) },
+                                                    ]}>
+                                                </Dropdown>
+                                            </Box>
                                         </Box>
-                                        <Box display="flex" gap={1}>
-                                            <Button size="small" variant="contained" onClick={() => handleFollow(post)}>Follow</Button>
-                                            <Dropdown buttonLabel={<FaEllipsisV size={24} />}menuItems=
-                                                {[
-                                                    { label: "Hide Post", onClick: () => handleHide(post) },
-                                                    { label: "Report Post", onClick: () => handleReport(post) },
-                                                    { label: "Block User", onClick: () => handleBlock(post.owner) },
-                                                ]}>
-                                            </Dropdown>
+                                        <Box sx={{ position: 'relative', display: 'inline-block' }}>
+                                            <CardActionArea onClick={() => handlePostClick(post)}>
+                                                <CardMedia
+                                                    component="img"
+                                                    image={post.s3_urls[postImages.find(p => p.postId === post.id)?.imageIndex ?? 0]}
+                                                    alt="Image"
+                                                    sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                                />
+                                            </CardActionArea>
+
+                                            {postImages.find(p => p.postId === post.id)?.imageIndex !== 0 && (
+                                                <Button
+                                                    onClick={() => handlePreviousImage(post.id)}
+                                                    sx={{
+                                                        position: 'absolute',
+                                                        top: '50%',
+                                                        left: 0,
+                                                        transform: 'translateY(-50%)',
+                                                        backgroundColor: 'black',
+                                                        opacity: 0.8,
+                                                    }}
+                                                >
+                                                    <ArrowBack />
+                                                </Button>
+                                            )}
+
+                                            {postImages.find(p => p.postId === post.id)?.imageIndex !== post.s3_urls.length - 1 && (
+                                                <Button
+                                                    onClick={() => handleNextImage(post.id)}
+                                                    sx={{
+                                                        position: 'absolute',
+                                                        top: '50%',
+                                                        right: 0,
+                                                        transform: 'translateY(-50%)',
+                                                        backgroundColor: 'black',
+                                                        opacity: 0.8,
+                                                    }}
+                                                >
+                                                    <ArrowForward />
+                                                </Button>
+                                            )}
                                         </Box>
-                                    </Box>
-                                    <CardActionArea onClick={() => handlePostClick(post)}>
-                                        <CardMedia
-                                            component="img"
-                                            image={post.s3_urls[1]}
-                                            alt="Image"
-                                        />
-                                    </CardActionArea>
-                                    <CardContent>
-                                        <Typography sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-                                        {`${post.owner.username}: ${
-                                            expandedPosts.has(post.id)
-                                            ? post.caption
-                                            : post.caption.length > 100
-                                                ? post.caption.slice(0, 100) + '...'
-                                                : post.caption
-                                        }`}
-                                        </Typography>
-                                        {post.caption.length > 100 && (
-                                            <Button onClick={() => toggleDescription(post)}>
-                                                {expandedPosts.has(post.id) ? "Show Less" : "Show More"}
-                                            </Button>
-                                        )}
-                                    </CardContent>
-                                    <CardActions>
-                                        {/* ThumbUpAlt for if liked */}
-                                        <Button startIcon={<ThumbUpOffAlt />} onClick={() => handleLikeToggle(post)}></Button>
-                                        <Button startIcon={<ChatBubbleOutline />} onClick={() => handleCommentClick(post)}></Button>
-                                        <Button variant="contained" onClick={() => handleShareClick(post)}>Share</Button>
-                                    </CardActions>
-                                </Card>
+                                        <CardContent>
+                                            <Typography sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                                            {`${post.owner.username}: ${
+                                                expandedPosts.has(post.id)
+                                                ? post.caption
+                                                : post.caption.length > 100
+                                                    ? post.caption.slice(0, 100) + '...'
+                                                    : post.caption
+                                            }`}
+                                            </Typography>
+                                            {post.caption.length > 100 && (
+                                                <Button onClick={() => toggleDescription(post)}>
+                                                    {expandedPosts.has(post.id) ? "Show Less" : "Show More"}
+                                                </Button>
+                                            )}
+                                        </CardContent>
+                                        <CardActions>
+                                            {/* ThumbUp for if liked */}
+                                            <Button onClick={() => handleLikeToggle(post)}><ThumbUpOutlined/></Button>
+                                            <Button onClick={() => handleCommentClick(post)}><ChatBubbleOutline/></Button>
+                                            <Button variant="contained" onClick={() => handleShareClick(post)}>Share</Button>
+                                        </CardActions>
+                                    </Card>
+                                ) : (
+                                    <Card key={post.id} sx={{ marginBottom: '1rem', width: '50%', height: '50%', objectFit: 'cover' }}>
+                                        <CardContent>
+                                            <Typography>Thank you for your feedback. Admins will be notified in a later sprint.</Typography>
+                                            <Button onClick={() => handleUnhide(post)}>Unhide</Button>
+                                        </CardContent>
+                                    </Card>
+                                )
                             ) : (
                                 <Card key={post.id} sx={{ marginBottom: '1rem', width: '50%', height: '50%', objectFit: 'cover' }}>
                                     <CardContent>
                                         <Typography>This post is hidden.</Typography>
-                                        <Button onClick={() => handleUnblock(post)}>Unhide</Button>
+                                        <Button onClick={() => handleUnhide(post)}>Unhide</Button>
                                     </CardContent>
                                 </Card>
                             )

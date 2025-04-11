@@ -30,7 +30,6 @@ class CreatePostView(APIView):
                 post.file_types = file_types
                 post.save()
                 form.save_m2m()
-                post = Post.objects.get(file_types=file_types)
                 return Response({"message": "Post created successfully!", "post_id": post.id}, status=status.HTTP_201_CREATED)
             
             return Response({"error": "Invalid form data", "details": form.errors}, status=status.HTTP_400_BAD_REQUEST)

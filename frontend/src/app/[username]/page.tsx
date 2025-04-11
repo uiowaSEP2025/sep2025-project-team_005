@@ -15,6 +15,8 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import debounce from "lodash.debounce";
 import Dropdown from '@/components/menus/dropdown';
+import { Button, styled } from '@mui/material';
+import { CloudUpload } from '@mui/icons-material';
 
 interface UserID {
     user_id: string;
@@ -54,12 +56,6 @@ export default function DiscoverProfile() {
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
-    // const [postImages, setPostImages] = useState<{ postId: string; imageIndex: number }[]>(
-    //     posts.map(post => ({
-    //     postId: post.id,
-    //     imageIndex: 0,
-    //     }))
-    // );
 
     useEffect(() => {
         const fetchUserId = async () => {
@@ -268,35 +264,17 @@ export default function DiscoverProfile() {
         }
     };
 
-    // const handleNextImage = (postId: string) => {
-    //     setPostImages((prevImages) => 
-    //         prevImages.map((post) => {
-    //             const currentPost = posts.find((post) => post.id === postId);
-    
-    //             if (post.postId === postId && currentPost) {
-    //                 return {
-    //                     ...post,
-    //                     imageIndex: Math.min(post.imageIndex + 1, currentPost.s3_urls.length - 1),
-    //                 };
-    //             }
-    //             return post;
-    //         })
-    //     );
-    // };
-
-    // const handlePreviousImage = (postId: string) => {
-    //     setPostImages((prevImages) => 
-    //         prevImages.map((post) => {    
-    //             if (post.postId === postId) {
-    //                 return {
-    //                     ...post,
-    //                     imageIndex: Math.max(post.imageIndex - 1, 0),
-    //                 };
-    //             }
-    //             return post;
-    //         })
-    //     );
-    // };
+    const VisuallyHiddenInput = styled('input')({
+        clip: 'rect(0 0 0 0)',
+        clipPath: 'inset(50%)',
+        height: 1,
+        overflow: 'hidden',
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        whiteSpace: 'nowrap',
+        width: 1,
+    });
 
     if (isLoading || !musicianProfile || !followCount) return <p className="description">Loading...</p>;
 
@@ -377,30 +355,38 @@ export default function DiscoverProfile() {
                         {profile?.username === username && (
                             <div>
                                 <button className={styles.editButton} onClick={handlePost} data-testid="post-button">Post</button>
-                                <input type="file" multiple onChange={handleFileUpload} />
                             </div>
                         )}
+                    </div>
+                    <div className={styles.postsHeader}>
+                    {/* TODO: remove upon post creation */}
+                    {profile?.username === username && (
+                        <div>
+                            <Button
+                                component="label"
+                                role={undefined}
+                                variant="contained"
+                                tabIndex={-1}
+                                startIcon={<CloudUpload />}
+                                >
+                                Upload files
+                                <VisuallyHiddenInput
+                                    type="file"
+                                    onChange={(event) => handleFileUpload(event)}
+                                    multiple
+                                />
+                            </Button>
+                        </div>
+                    )}
                     </div>
                     {loading && <p>Loading posts...</p>}
                     {posts.length > 0 ? (
                         <div className={styles.postsGrid}>
                             {posts.map((post) => (
                                 <div key={post.id} className={styles.imageContainer} onClick={() => handlePostClick(post)}>
-                                    {/* <button 
-                                        onClick={() => handlePreviousImage(post.id)} 
-                                        disabled={postImages.find(p => p.postId === post.id)?.imageIndex == 0}
-                                    >
-                                        Previous Image
-                                    </button> */}
                                     {post.s3_urls.map((s3_url, index) => (
                                         <img key={index} src={s3_url} alt={post.caption} />
                                     ))}                                    
-                                    {/* <button 
-                                        onClick={() => handleNextImage(post.id)} 
-                                        disabled={postImages.find(p => p.postId === post.id)?.imageIndex == post.s3_urls.length - 1}
-                                    >
-                                        Next Image
-                                    </button> */}
                                 </div>
                             ))}
                         </div>
