@@ -166,32 +166,7 @@ export default function DiscoverProfile() {
     };
 
     const handlePost = async () => {
-        try {
-            const formData = new FormData();
-            if (!file) {
-                console.error("Please upload a file");
-                return;
-            }
-            formData.append("file", file);
-            formData.append("caption", "Test");
-    
-            const response = await axios.post("http://localhost:8000/api/create-post/", formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                    "Authorization": `Bearer ${Cookies.get("access_token")}`
-                },
-                withCredentials: true
-            });
-            if (response.status >= 200 && response.status < 300) {
-                alert("Post created!");
-                console.log("Request successful:", response.data);
-            } else {
-                alert("Post creation failed. Please refresh the page and try again.");
-                console.error("Request failed:", response.status, response.statusText);
-            }
-        } catch (error) {
-            console.error(error)
-        }
+        router.push(`${username}/create-post`);
     };
 
     const handleNavigation = (user_id: string, type: "followers" | "following") => {
@@ -250,12 +225,6 @@ export default function DiscoverProfile() {
         if (hasMore && !loading) {
             fetchPosts(String(username), page + 1);
             setPage((prevPage) => prevPage + 1);
-        }
-    };
-
-    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.files && event.target.files.length > 0) {
-            setFile(event.target.files?.[0]);
         }
     };
 
@@ -340,8 +309,7 @@ export default function DiscoverProfile() {
                     <h2 className={styles.featureTitle}>Posts</h2>
                     {profile?.username === username && (
                         <div>
-                            <button className={styles.editButton} onClick={handlePost} data-testid="post-button">Post</button>
-                            <input type="file" onChange={handleFileUpload} />
+                            <button className={styles.editButton} onClick={handlePost} data-testid="post-button">+ New Post</button>
                         </div>
                     )}
                 </div>
@@ -349,7 +317,7 @@ export default function DiscoverProfile() {
                 {posts.length > 0 ? (
                     <div className={styles.postsGrid}>
                         {posts.map((post, index) => (
-                            <div key={index} className={styles.imageContainer} onClick={() => handlePostClick(post)}>
+                            <div key={index} className={styles.imageContainer} onClick={() => handleNewPostClick()}>
                                 <img src={post.s3_url} alt={post.caption}/>
                             </div>
                         ))}
