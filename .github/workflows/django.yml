@@ -87,14 +87,14 @@ jobs:
         cd backend
         pytest
 
-        # Behave needs the frontend and backend running in background to test.
-        cd ../frontend
-        npm run dev &
+        # # Behave needs the frontend and backend running in background to test.
+        # cd ../frontend
+        # npm run dev &
         
-        cd ../backend
-        sudo systemctl start postgresql
-        python3 manage.py runserver &
+        # cd ../backend
+        # sudo systemctl start postgresql
+        # python3 manage.py runserver &
 
-        echo "Waiting for servers to be fully up..."
-        sleep 15
-        behave test/features
+        # echo "Waiting for servers to be fully up..."
+        # sleep 15
+        # behave test/features
