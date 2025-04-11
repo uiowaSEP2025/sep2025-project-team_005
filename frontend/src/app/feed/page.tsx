@@ -45,7 +45,7 @@ export default function Feed() {
     const [hasMore, setHasMore] = useState(true);
     const [hiddenPosts, setHiddenPosts] = useState<Set<string>>(new Set());
     const [reportedPosts, setReportedPosts] = useState<Set<string>>(new Set());
-    const [expandedPosts, setExpandedPosts] = useState<Set<string>>(new Set());
+    const [expandedPostDescriptions, setExpandedPostDescriptions] = useState<Set<string>>(new Set());
     const [postImages, setPostImages] = useState<{ postId: string; imageIndex: number }[]>([]);
 
     useEffect(() => {
@@ -210,7 +210,7 @@ export default function Feed() {
     }
 
     const toggleDescription = (post: Post) => {
-        setExpandedPosts((prev) => {
+        setExpandedPostDescriptions((prev) => {
           const newSet = new Set(prev);
           if (newSet.has(post.id)) {
             newSet.delete(post.id);
@@ -335,17 +335,19 @@ export default function Feed() {
                                         </Box>
                                         <CardContent>
                                             <Typography sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-                                            {`${post.owner.username}: ${
-                                                expandedPosts.has(post.id)
-                                                ? post.caption
-                                                : post.caption.length > 100
-                                                    ? post.caption.slice(0, 100) + '...'
-                                                    : post.caption
+                                            {`${
+                                                post.caption.length === 0
+                                                    ? ""
+                                                    : expandedPostDescriptions.has(post.id)
+                                                        ? post.owner.username + ': ' + post.caption
+                                                        : post.caption.length > 100
+                                                            ? post.owner.username + ': ' + post.caption.slice(0, 100) + '...'
+                                                            : post.owner.username + ': ' + post.caption
                                             }`}
                                             </Typography>
                                             {post.caption.length > 100 && (
                                                 <Button onClick={() => toggleDescription(post)}>
-                                                    {expandedPosts.has(post.id) ? "Show Less" : "Show More"}
+                                                    {expandedPostDescriptions.has(post.id) ? "Show Less" : "Show More"}
                                                 </Button>
                                             )}
                                         </CardContent>
