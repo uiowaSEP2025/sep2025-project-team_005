@@ -37,7 +37,6 @@ export default function Feed() {
 
     const router = useRouter();
     // username is not a param - needs to get user from useAuth
-    const { username } = useParams();
     const { profile, isLoading, setProfile } = useAuth();
     const [userId, setUserId] = useState<UserID | null>(null);
     const [posts, setPosts] = useState<Post[]>([]);
@@ -48,35 +47,19 @@ export default function Feed() {
     const [expandedPosts, setExpandedPosts] = useState<Set<string>>(new Set());
 
     useEffect(() => {
-        const fetchUserId = async () => {
-            if (!username) return; // Ensure username is available
+        if (!isLoading && profile) {
+            fetchFeed();
+            debouncedFetchPosts();
+        }
+    }, [isLoading, profile]);
 
-            try {
-                const response = await fetch(`http://localhost:8000/api/user/${username}/`, {
-                    method: "GET",
-                    credentials: "include",
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    setUserId(data);
-                } else {
-                    console.error("Failed to fetch user ID", response.statusText);
-                }
-            } catch (error) {
-                console.error("Error fetching user ID:", error);
-            }
-        };
-
-        fetchUserId();
-    }, [username]);
-
-    const fetchFeed = async (username: string, pageNum = 1) => {
+    const fetchFeed = async (pageNum = 1) => {
+        if (!profile) return;
         setLoading(true);
         try {
             const response = await axios.get('http://localhost:8000/api/fetch-feed/', {
                 params: {
-                    username: username,
+                    username: profile.username,
                     page: pageNum
                 },
                 paramsSerializer: params => {
@@ -166,16 +149,12 @@ export default function Feed() {
 
     const debouncedFetchPosts = debounce(() => {
         setPage(1);
-        fetchFeed(String(username),1);
+        fetchFeed();
     }, 300);
-
-    useEffect(() => {
-        debouncedFetchPosts();
-    }, [username]);
 
     const loadMorePosts = () => {
         if (hasMore && !loading) {
-            fetchFeed(String(username), page + 1);
+            fetchFeed(page + 1);
             setPage((prevPage) => prevPage + 1);
         }
     };
