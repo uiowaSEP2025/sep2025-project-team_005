@@ -3,6 +3,9 @@
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useAuth, useRequireAuth } from "@/context/ProfileContext";
 import { useEffect, useState } from "react";
+import axios from "axios";
+import Cookies from "js-cookie";
+
 import Image from "next/image";
 import styles from "@/styles/FollowList.module.css";
 
@@ -42,11 +45,16 @@ export default function FollowPage() {
         try {
             const response = await fetch(
                 `http://localhost:8000/api/follow-list/${id}/?type=${type}&page=${pageNum}`,
-                { method: "GET", credentials: "include" }
+                { method: "GET", credentials: "include",
+                    headers: {
+                        "Authorization": `Bearer ${Cookies.get("access_token")}`
+                    }
+                }
             );
 
             if (response.ok) {
                 const data = await response.json();
+                console.log(data);
                 setUsers(prevUsers => (reset ? data.results : [...prevUsers, ...data.results]));
                 setHasMore(!!data.next);
             } else {
@@ -72,9 +80,12 @@ export default function FollowPage() {
 
     const handleFollowToggle = async (userId: string, isFollowing: boolean) => {
         try {
-            const response = await fetch(`http://localhost:8000/follow/${userId}/`, {
+            const response = await fetch(`http://localhost:8000/api/follow/${userId}/`, {
                 method: isFollowing ? "DELETE" : "POST",
                 credentials: "include",
+                headers: {
+                    "Authorization": `Bearer ${Cookies.get("access_token")}`
+                }
             });
             
             if (response.ok) {
@@ -119,12 +130,14 @@ export default function FollowPage() {
                                 <button className={styles.username} onClick={() => handleUserClick(user.username)}>
                                     {user.username}
                                 </button>
-                                <button 
-                                    className={styles.followButton} 
-                                    onClick={() => handleFollowToggle(user.id, user.isFollowing)}
-                                >
-                                    {user.isFollowing ? "Unfollow" : "Follow"}
-                                </button>
+                                {profile && user.id !== profile.id.toString() && (
+                                    <button 
+                                        className={user.isFollowing ? styles.unfollowButton : styles.followButton} 
+                                        onClick={() => handleFollowToggle(user.id, user.isFollowing)}
+                                    >
+                                        {user.isFollowing ? "Unfollow" : "Follow"}
+                                    </button>
+                                )}
                             </div>
                         </div>
                     ))}

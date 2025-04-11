@@ -17,9 +17,22 @@ jest.mock("next/navigation", () => ({
     }),
 }));
 
+// Mock the entire module
+jest.mock("@/context/ProfileContext", () => ({
+    useAuth: jest.fn(),
+    useRequireAuth: jest.fn(),
+}));
+
 describe("FollowPage", () => {
     beforeEach(() => {
         fetchMock.resetMocks();
+        const mockUseAuth = require("@/context/ProfileContext").useAuth;
+        mockUseAuth.mockReturnValue({
+          profile: { id: "2" },  // Mock profile with id "2"
+          setProfile: jest.fn(),
+          isLoading: false,
+          fetchProfile: jest.fn(),
+        });
     });
 
     afterEach(() => {
@@ -38,11 +51,7 @@ describe("FollowPage", () => {
             })
         );
 
-        render(
-            <AuthProvider>
-                <FollowPage />
-            </AuthProvider>
-        );
+        render(<FollowPage />);
 
         // Wait for the users to appear in the list
         await waitFor(() => screen.getByText("user1"));
@@ -63,11 +72,7 @@ describe("FollowPage", () => {
             })
         );
 
-        render(
-            <AuthProvider>
-                <FollowPage />
-            </AuthProvider>
-        );
+        render(<FollowPage />);
 
         await waitFor(() => screen.getByText("user1"));
 
@@ -91,11 +96,7 @@ describe("FollowPage", () => {
             })
         );
     
-        render(
-            <AuthProvider>
-                <FollowPage />
-            </AuthProvider>
-        );
+        render(<FollowPage />);
     
         await waitFor(() => screen.getByText("user1"));
     
@@ -131,43 +132,41 @@ describe("FollowPage", () => {
     });           
 
     it("handles follow/unfollow button click", async () => {
+        // Mock the `useRequireAuth` hook to prevent redirect or authentication issues
+        const mockUseRequireAuth = require("@/context/ProfileContext").useRequireAuth;
+        mockUseRequireAuth.mockImplementation(() => {}); // Do nothing on call
+      
+        // Mock API response for users
         fetchMock.mockResponseOnce(
-            JSON.stringify({
-                results: [
-                    { id: "1", username: "user1", profilePhoto: "/profile1.jpg", isFollowing: false },
-                ],
-                next: null,
-            })
+          JSON.stringify({
+            results: [
+              { id: "1", username: "user1", profilePhoto: "/profile1.jpg", isFollowing: false },
+            ],
+            next: null,
+          })
         );
-
-        render(
-            <AuthProvider>
-                <FollowPage />
-            </AuthProvider>
-        );
-
+      
+        render(<FollowPage />);
         await waitFor(() => screen.getByText("user1"));
-
+      
+        // Ensure the Follow button is rendered
         const followButton = screen.getByText("Follow");
-
-        // Simulate clicking on the follow button
+      
         fireEvent.click(followButton);
-
+      
         // Mock response for follow action
         fetchMock.mockResponseOnce(
-            JSON.stringify({ success: true })
+          JSON.stringify({ success: true })
         );
-
+      
         await waitFor(() => expect(followButton.textContent).toBe("Unfollow"));
-
-        // Simulate clicking on the unfollow button
+      
         fireEvent.click(followButton);
-
-        // Mock response for unfollow action
+        
         fetchMock.mockResponseOnce(
-            JSON.stringify({ success: true })
+          JSON.stringify({ success: true })
         );
-
+      
         await waitFor(() => expect(followButton.textContent).toBe("Follow"));
     });
 });
