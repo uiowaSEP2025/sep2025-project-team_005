@@ -342,46 +342,9 @@ export default function Discover() {
                             {genre} 
                             <button onClick={() => removeGenre(genre)}> X </button>
                         </span>
-                    ))}
+                    ))
+                }
                 </div>
-
-                {/* Genre Search Dropdown */}
-                {genres.map((genre, index) => (
-                    <div key={index} className={styles.instrumentRow}>
-                        <div className={styles.autocompleteWrapper}>
-                            <input
-                                type="text"
-                                placeholder="Genre"
-                                className={styles.inputField}
-                                value={genre.genre}
-                                onChange={(e) => handleGenreChange(index, e.target.value)}
-                            />
-                            {autocompleteResultsGenre[index] && autocompleteResultsGenre[index].length > 0 && (
-                                <div className={styles.autocompleteDropdown}>
-                                    {autocompleteResultsGenre[index].map((option, i) => (
-                                        <div
-                                            key={i}
-                                            className={styles.autocompleteItem}
-                                            onClick={() => handleGenreDropdownItemClick(option.genre)}
-                                        >
-                                            {option.genre}
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                ))}
-
-                    <div className={styles.selectedFilters}>
-                        {selectedGenres.map((genre, index) => (
-                            <span key={index} className={styles.selectedItem}>
-                                {genre} 
-                                <button onClick={() => removeGenre(genre)}> X </button>
-                            </span>
-                        ))}
-                    </div>
-                
                     {/* User List */}
                     <ul className={styles.userList}>
                         {users.length > 0 ? (
