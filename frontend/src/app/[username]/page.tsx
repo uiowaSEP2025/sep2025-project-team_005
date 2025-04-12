@@ -144,7 +144,7 @@ export default function DiscoverProfile() {
             if (!userId || !profile || userId.user_id === String(profile.id)) return;
     
             try {
-                const response = await fetch(`http://localhost:8000/api/is-following/${userId.user_id}/`, {
+                const response = await fetch(`https://savvy-note.com/api/is-following/${userId.user_id}/`, {
                     method: "GET",
                     credentials: "include",
                     headers: {
@@ -170,7 +170,7 @@ export default function DiscoverProfile() {
         if (!userId) return;
     
         try {
-            const response = await fetch(`http://localhost:8000/api/follow/${userId.user_id}/`, {
+            const response = await fetch(`https://savvy-note.com/api/follow/${userId.user_id}/`, {
                 method: isFollowing ? "DELETE" : "POST",
                 credentials: "include",
                 headers: {
@@ -233,7 +233,7 @@ export default function DiscoverProfile() {
         if (!userId) return;
     
         try {
-            const response = await fetch(`http://localhost:8000/api/block/${userId.user_id}/`, {
+            const response = await fetch(`https://savvy-note.com/api/block/${userId.user_id}/`, {
                 method: "POST",
                 credentials: "include",
                 headers: {

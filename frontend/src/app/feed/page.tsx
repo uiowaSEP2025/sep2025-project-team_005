@@ -70,7 +70,7 @@ export default function Feed() {
         if (!profile) return;
         setLoading(true);
         try {
-            const response = await axios.get('http://localhost:8000/api/fetch-feed/', {
+            const response = await axios.get('https://savvy-note.com/api/fetch-feed/', {
                 params: {
                     username: profile.username,
                     page: pageNum
@@ -111,7 +111,7 @@ export default function Feed() {
     //         const isLiked = post.liked_by_user;
     
     //         if (isLiked) {
-    //             response = await axios.delete('http://localhost:8000/api/post/like/', {
+    //             response = await axios.delete('https://savvy-note.com/api/post/like/', {
     //                 headers: {
     //                     Authorization: `Bearer ${Cookies.get("access_token")}`,
     //                 },
@@ -119,7 +119,7 @@ export default function Feed() {
     //             });
     //         } else {
     //             response = await axios.post(
-    //                 'http://localhost:8000/api/post/like/',
+    //                 'https://savvy-note.com/api/post/like/',
     //                 { post_id: post.id },
     //                 {
     //                     headers: {
@@ -145,7 +145,7 @@ export default function Feed() {
         if (!user) return;
     
         try {
-            const response = await axios.post(`http://localhost:8000/api/block/${user.id}/`, {
+            const response = await axios.post(`https://savvy-note.com/api/block/${user.id}/`, {
             });
     
             if (response.status >= 200 && response.status < 300) {
