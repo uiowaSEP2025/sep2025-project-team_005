@@ -576,7 +576,6 @@ export default function MusicianSignup() {
                 {error && <p className={styles.error}>{error}</p>} {/* Show error if invalid */}
                 <button type="submit" className={styles.submitButton}>Sign Up</button>
             </form>
-
         </div>
     );
 }

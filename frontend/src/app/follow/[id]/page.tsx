@@ -3,8 +3,12 @@
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useAuth, useRequireAuth } from "@/context/ProfileContext";
 import { useEffect, useState } from "react";
+import axios from "axios";
+import Cookies from "js-cookie";
+
 import Image from "next/image";
 import styles from "@/styles/FollowList.module.css";
+import Toolbar from '@/components/toolbars/toolbar';
 
 interface User {
     id: string;
@@ -42,11 +46,16 @@ export default function FollowPage() {
         try {
             const response = await fetch(
                 `https://savvy-note.com/api/follow-list/${id}/?type=${type}&page=${pageNum}`,
-                { method: "GET", credentials: "include" }
+                { method: "GET", credentials: "include",
+                    headers: {
+                        "Authorization": `Bearer ${Cookies.get("access_token")}`
+                    }
+                }
             );
 
             if (response.ok) {
                 const data = await response.json();
+                console.log(data);
                 setUsers(prevUsers => (reset ? data.results : [...prevUsers, ...data.results]));
                 setHasMore(!!data.next);
             } else {
@@ -72,9 +81,12 @@ export default function FollowPage() {
 
     const handleFollowToggle = async (userId: string, isFollowing: boolean) => {
         try {
-            const response = await fetch(`https://savvy-note.com/follow/${userId}/`, {
+            const response = await fetch(`https://savvy-note.com/api/follow/${userId}/`, {
                 method: isFollowing ? "DELETE" : "POST",
                 credentials: "include",
+                headers: {
+                    "Authorization": `Bearer ${Cookies.get("access_token")}`
+                }
             });
             
             if (response.ok) {
@@ -92,49 +104,54 @@ export default function FollowPage() {
     };
 
     return (
-        <div className={styles.container}>
-            <h1 className={styles.title}>{type === "following" ? "Following" : "Followers"}</h1>
-            
-            <input
-                type="text"
-                placeholder="Search users..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className={styles.searchBar}
-            />
+        <div>
+            <Toolbar />
+            <div className={styles.container}>
+                <h1 className={styles.title}>{type === "following" ? "Following" : "Followers"}</h1>
+                
+                <input
+                    type="text"
+                    placeholder="Search users..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className={styles.searchBar}
+                />
 
-            <div className={styles.userList}>
-                {users
-                    .filter(user => user.username.toLowerCase().includes(searchTerm.toLowerCase()))
-                    .map(user => (
-                        <div key={user.id} className={styles.userCard}>
-                            <div className={styles.userInfo}>
-                                <Image
-                                    src={user.profilePhoto || "/savvy.png"}
-                                    alt={`${user.username}'s profile photo`}
-                                    width={50}
-                                    height={50}
-                                    className={styles.profilePhoto}
-                                />
-                                <button className={styles.username} onClick={() => handleUserClick(user.username)}>
-                                    {user.username}
-                                </button>
-                                <button 
-                                    className={styles.followButton} 
-                                    onClick={() => handleFollowToggle(user.id, user.isFollowing)}
-                                >
-                                    {user.isFollowing ? "Unfollow" : "Follow"}
-                                </button>
+                <div className={styles.userList}>
+                    {users
+                        .filter(user => user.username.toLowerCase().includes(searchTerm.toLowerCase()))
+                        .map(user => (
+                            <div key={user.id} className={styles.userCard}>
+                                <div className={styles.userInfo}>
+                                    <Image
+                                        src={user.profilePhoto || "/savvy.png"}
+                                        alt={`${user.username}'s profile photo`}
+                                        width={50}
+                                        height={50}
+                                        className={styles.profilePhoto}
+                                    />
+                                    <button className={styles.username} onClick={() => handleUserClick(user.username)}>
+                                        {user.username}
+                                    </button>
+                                    {profile && user.id !== profile.id.toString() && (
+                                        <button 
+                                            className={user.isFollowing ? styles.unfollowButton : styles.followButton} 
+                                            onClick={() => handleFollowToggle(user.id, user.isFollowing)}
+                                        >
+                                            {user.isFollowing ? "Unfollow" : "Follow"}
+                                        </button>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    ))}
-            </div>
+                        ))}
+                </div>
 
-            {hasMore && (
-                <button className={styles.loadMore} onClick={loadMoreUsers} disabled={loading}>
-                    {loading ? "Loading..." : "Load More"}
-                </button>
-            )}
+                {hasMore && (
+                    <button className={styles.loadMore} onClick={loadMoreUsers} disabled={loading}>
+                        {loading ? "Loading..." : "Load More"}
+                    </button>
+                )}
+            </div>
         </div>
     );
 }
