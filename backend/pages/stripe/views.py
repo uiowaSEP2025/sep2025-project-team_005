@@ -7,8 +7,8 @@ from rest_framework import status
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 # Replace these with your actual Stripe Price IDs
-STRIPE_PRICE_MONTHLY = 'sub_1RCMMdJJ0feuvHiCbQE0Xg9n'
-STRIPE_PRICE_ANNUAL = 'sub_1RCMPxJJ0feuvHiCRDWUrVN3'
+STRIPE_PRICE_MONTHLY = 'price_1RCMEHJJ0feuvHiCkaSxAIOg'
+STRIPE_PRICE_ANNUAL = 'price_1RCMEnJJ0feuvHiCby39Hx0P'
 
 class CreateSubscriptionSessionView(APIView):
     def post(self, request, *args, **kwargs):

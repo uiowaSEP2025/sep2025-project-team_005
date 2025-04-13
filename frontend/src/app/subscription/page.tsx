@@ -1,6 +1,29 @@
+"use client";
+
 import styles from "@/styles/Subscription.module.css";
 
 import React from "react";
+import { loadStripe } from "@stripe/stripe-js";
+import axios from "axios";
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string);
+
+const handleCheckout = async (type: "monthly" | "annual") => {
+    const stripe = await stripePromise;
+
+    const res = await axios.post("http://localhost:8000/api/stripe/create-subscription-session/", {
+        type: type,
+    });
+
+    const sessionId = res.data.id;
+    const result = await stripe?.redirectToCheckout({
+        sessionId,
+    });
+
+    if (result?.error) {
+        alert(result.error.message);
+    }
+};
 
 export default function Subscription() {
     return (
@@ -24,7 +47,9 @@ export default function Subscription() {
                 <li className={styles.featureListItem}>✓ Manage all incoming applications</li>
                 <li className={styles.featureListItem}>✓ Contact applicants directly in-app</li>
                 </ul>
-                <a href="/signup?plan=monthly" className={styles.primaryButton}>Choose Monthly</a>
+                <button className={styles.primaryButton} onClick={() => handleCheckout("monthly")}>
+                    Choose Monthly
+                </button>
             </div>
 
             {/* Annual Plan */}
@@ -44,7 +69,9 @@ export default function Subscription() {
                     <li className={styles.featureListItem}>✓ Priority support</li>
                     <li className={styles.featureListItem}>✓ Early access to new features</li>
                 </ul>
-                <a href="/signup?plan=annual" className={styles.primaryButton}>Choose Annual</a>
+                <button className={styles.primaryButton} onClick={() => handleCheckout("annual")}>
+                    Choose Annual
+                </button>
             </div>
             </div>
 
