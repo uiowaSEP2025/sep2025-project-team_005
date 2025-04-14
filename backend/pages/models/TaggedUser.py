@@ -1,4 +1,4 @@
-from xml.dom import ValidationErr
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.core.validators import MaxValueValidator
 import uuid
@@ -18,7 +18,7 @@ class TaggedUser(models.Model):
         if self.image_index is not None:
             max_index = len(self.post.file_keys)
             if self.image_index > max_index:
-                raise ValidationErr({
+                raise ValidationError({
                     'image_index': f"Must be less than the number of file keys ({max_index})."
                 })
 
