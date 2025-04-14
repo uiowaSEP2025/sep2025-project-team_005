@@ -9,5 +9,6 @@ from .Follower import Follower
 from .MusicianInstrument import MusicianInstrument
 from .Comment import Comment
 from .BlockedUser import BlockedUser
+from .TaggedUser import TaggedUser
 
-__all__ = ["User", "Musician", "Business", "Instrument", "Genre", "Post", "Like", "Comment", "Follower", "MusicianInstrument", "BlockedUser"]
+__all__ = ["User", "Musician", "Business", "Instrument", "Genre", "Post", "Like", "Comment", "Follower", "MusicianInstrument", "BlockedUser", "TaggedUser"]

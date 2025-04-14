@@ -9,14 +9,14 @@ from .User import User
 
 class Post(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, related_name="owned_posts", on_delete=models.CASCADE)
     file_keys = ArrayField(
         models.CharField(max_length=255, validators=[MaxLengthValidator(255)]),
         size=10,
         verbose_name="S3 file keys",
         default=list,
     )
-    file_types = ArrayField(
+    file_types = ArrayField( 
         models.CharField(max_length=50, validators=[MaxLengthValidator(50)]),
         size=10,
         verbose_name="File types",
@@ -24,8 +24,8 @@ class Post(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     caption = models.TextField(validators=[MaxLengthValidator(500)], blank=True)
-    
-    tagged_users = models.ManyToManyField(User, related_name="tagged_users")
+
+    tagged_users = models.ManyToManyField(User, related_name="tagged_posts", through="TaggedUser")
     
     def like_count(self):
         return self.likes.count()
