@@ -5,12 +5,9 @@ import uuid
 from pages.models import Like
 from django.contrib.postgres.fields import ArrayField
 
-from .User import User
-
-
 class Post(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey('User', on_delete=models.CASCADE)
     file_keys = ArrayField(
         models.CharField(max_length=255, validators=[MaxLengthValidator(255)]),
         size=10,
@@ -26,10 +23,10 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     caption = models.TextField(validators=[MaxLengthValidator(500)], blank=True)
     
-    tagged_users = models.ManyToManyField(User, related_name="tagged_users")
+    tagged_users = models.ManyToManyField('User', related_name="tagged_users")
 
     is_banned = models.BooleanField(default=False)
-    ban_admin = models.ManyToManyField(User, related_name="banned_posts", blank=True)
+    ban_admin = models.ManyToManyField('User', related_name="banned_posts", blank=True)
     
     def clean(self):
         if self.is_banned and not self.ban_admin.exists():
