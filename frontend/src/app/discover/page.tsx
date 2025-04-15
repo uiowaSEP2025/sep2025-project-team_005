@@ -5,8 +5,10 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth, useRequireAuth } from "@/context/ProfileContext";
 import axios from "axios";
+import Cookies from "js-cookie";
 import debounce from "lodash.debounce";
 import Image from "next/image";
+import Toolbar from '@/components/toolbars/toolbar';
 
 interface GenreOption {
     id: string;
@@ -208,6 +210,9 @@ export default function Discover() {
                         }
                     });
                     return searchParams.toString();
+                },
+                headers: {
+                    "Authorization": `Bearer ${Cookies.get("access_token")}`
                 }
             });
     
@@ -247,161 +252,127 @@ export default function Discover() {
     };
 
     return (
-        <div className={styles.container}>
-            <div className={styles.header}>
-                <h1 className={styles.title}>Discover Musicians</h1>
-                <p className={styles.description}>Search for musicians and connect with them.</p>
-            </div>
-
-            <div className={styles.searchContainer}>
-                <input
-                    type="text"
-                    className={styles.searchInput}
-                    placeholder="Search usernames..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-
-                {/* Instrument Search Dropdown */}
-                {instruments.map((instrument, index) => (
-                    <div key={index} className={styles.instrumentRow}>
-                        <div className={styles.autocompleteWrapper}>
-                            <input
-                                type="text"
-                                placeholder="Instrument"
-                                className={styles.inputField}
-                                value={instrument.instrument}
-                                onChange={(e) => handleInstrumentChange(index, e.target.value)}
-                            />
-                            {autocompleteResultsInstruments[index] && autocompleteResultsInstruments[index].length > 0 && (
-                                <div className={styles.autocompleteDropdown}>
-                                    {autocompleteResultsInstruments[index].map((option, i) => (
-                                        <div
-                                            key={i}
-                                            className={styles.autocompleteItem}
-                                            data-testid={`instrument-option-${option.instrument}`}
-                                            onClick={() => handleInstrumentDropdownItemClick(option.instrument)}
-                                        >
-                                            {option.instrument}
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                ))}
-
-                {/* Display selected instruments below the search input */}
-                <div className={styles.selectedFilters}>
-                    {selectedInstruments.map((instrument, index) => (
-                        <span key={index} className={styles.selectedItem}>
-                            {instrument} 
-                            <button onClick={() => removeInstrument(instrument)}> X </button>
-                        </span>
-                    ))}
+        <div>
+            <Toolbar />
+            <div className={styles.container}>
+                <div className={styles.header}>
+                    <h1 className={styles.title}>Discover Musicians</h1>
+                    <p className={styles.description}>Search for musicians and connect with them.</p>
                 </div>
 
-                {/* Genre Search Dropdown */}
-                {genres.map((genre, index) => (
-                    <div key={index} className={styles.instrumentRow}>
-                        <div className={styles.autocompleteWrapper}>
-                            <input
-                                type="text"
-                                placeholder="Genre"
-                                className={styles.inputField}
-                                value={genre.genre}
-                                onChange={(e) => handleGenreChange(index, e.target.value)}
-                            />
-                            {autocompleteResultsGenre[index] && autocompleteResultsGenre[index].length > 0 && (
-                                <div className={styles.autocompleteDropdown}>
-                                    {autocompleteResultsGenre[index].map((option, i) => (
-                                        <div
-                                            key={i}
-                                            className={styles.autocompleteItem}
-                                            onClick={() => handleGenreDropdownItemClick(option.genre)}
-                                        >
-                                            {option.genre}
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                ))}
+                <div className={styles.searchContainer}>
+                    <input
+                        type="text"
+                        className={styles.searchInput}
+                        placeholder="Search usernames..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
 
-                <div className={styles.selectedFilters}>
-                    {selectedGenres.map((genre, index) => (
-                        <span key={index} className={styles.selectedItem}>
-                            {genre} 
-                            <button onClick={() => removeGenre(genre)}> X </button>
-                        </span>
-                    ))}
-                </div>
-
-                {/* Genre Search Dropdown */}
-                {genres.map((genre, index) => (
-                    <div key={index} className={styles.instrumentRow}>
-                        <div className={styles.autocompleteWrapper}>
-                            <input
-                                type="text"
-                                placeholder="Genre"
-                                className={styles.inputField}
-                                value={genre.genre}
-                                onChange={(e) => handleGenreChange(index, e.target.value)}
-                            />
-                            {autocompleteResultsGenre[index] && autocompleteResultsGenre[index].length > 0 && (
-                                <div className={styles.autocompleteDropdown}>
-                                    {autocompleteResultsGenre[index].map((option, i) => (
-                                        <div
-                                            key={i}
-                                            className={styles.autocompleteItem}
-                                            onClick={() => handleGenreDropdownItemClick(option.genre)}
-                                        >
-                                            {option.genre}
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                ))}
-
-                <div className={styles.selectedFilters}>
-                    {selectedGenres.map((genre, index) => (
-                        <span key={index} className={styles.selectedItem}>
-                            {genre} 
-                            <button onClick={() => removeGenre(genre)}> X </button>
-                        </span>
-                    ))}
-                </div>
-            
-                {/* User List */}
-                <ul className={styles.userList}>
-                    {users.length > 0 ? (
-                        users.map((user, index) => (
-                        <li key={index} className={styles.userCard} onClick={() => handleUserClick(user)} data-testid={`user-item-${user}`}>
-                            <div className={styles.profileImageContainer}>
-                                <Image
-                                    src={"/savvy.png"}
-                                    alt={`${user}'s profile photo`}
-                                    width={60}
-                                    height={60}
-                                    className={styles.profilePhoto}
+                    {/* Instrument Search Dropdown */}
+                    {instruments.map((instrument, index) => (
+                        <div key={index} className={styles.instrumentRow}>
+                            <div className={styles.autocompleteWrapper}>
+                                <input
+                                    type="text"
+                                    placeholder="Instrument"
+                                    className={styles.inputField}
+                                    value={instrument.instrument}
+                                    onChange={(e) => handleInstrumentChange(index, e.target.value)}
                                 />
+                                {autocompleteResultsInstruments[index] && autocompleteResultsInstruments[index].length > 0 && (
+                                    <div className={styles.autocompleteDropdown}>
+                                        {autocompleteResultsInstruments[index].map((option, i) => (
+                                            <div
+                                                key={i}
+                                                className={styles.autocompleteItem}
+                                                data-testid={`instrument-option-${option.instrument}`}
+                                                onClick={() => handleInstrumentDropdownItemClick(option.instrument)}
+                                            >
+                                                {option.instrument}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
-                            <span className={styles.username}>{user}</span>
-                        </li>
-                        ))
-                    ) : (
-                        <p>No users found.</p>
-                    )}
-                </ul>
+                        </div>
+                    ))}
 
-                {hasMore && (
-                    <button onClick={loadMoreUsers} disabled={loading} data-testid="load-more-button">
-                        Load More
-                    </button>
-                )}
+                    {/* Display selected instruments below the search input */}
+                    <div className={styles.selectedFilters}>
+                        {selectedInstruments.map((instrument, index) => (
+                            <span key={index} className={styles.selectedItem}>
+                                {instrument} 
+                                <button onClick={() => removeInstrument(instrument)}> X </button>
+                            </span>
+                        ))}
+                    </div>
+
+                    {/* Genre Search Dropdown */}
+                    {genres.map((genre, index) => (
+                        <div key={index} className={styles.instrumentRow}>
+                            <div className={styles.autocompleteWrapper}>
+                                <input
+                                    type="text"
+                                    placeholder="Genre"
+                                    className={styles.inputField}
+                                    value={genre.genre}
+                                    onChange={(e) => handleGenreChange(index, e.target.value)}
+                                />
+                                {autocompleteResultsGenre[index] && autocompleteResultsGenre[index].length > 0 && (
+                                    <div className={styles.autocompleteDropdown}>
+                                        {autocompleteResultsGenre[index].map((option, i) => (
+                                            <div
+                                                key={i}
+                                                className={styles.autocompleteItem}
+                                                onClick={() => handleGenreDropdownItemClick(option.genre)}
+                                            >
+                                                {option.genre}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    ))}
+
+                    <div className={styles.selectedFilters}>
+                    {selectedGenres.map((genre, index) => (
+                        <span key={index} className={styles.selectedItem}>
+                            {genre} 
+                            <button onClick={() => removeGenre(genre)}> X </button>
+                        </span>
+                    ))
+                }
+                </div>
+                    {/* User List */}
+                    <ul className={styles.userList}>
+                        {users.length > 0 ? (
+                            users.map((user, index) => (
+                            <li key={index} className={styles.userCard} onClick={() => handleUserClick(user)} data-testid={`user-item-${user}`}>
+                                <div className={styles.profileImageContainer}>
+                                    <Image
+                                        src={"/savvy.png"}
+                                        alt={`${user}'s profile photo`}
+                                        width={60}
+                                        height={60}
+                                        className={styles.profilePhoto}
+                                    />
+                                </div>
+                                <span className={styles.username}>{user}</span>
+                            </li>
+                            ))
+                        ) : (
+                            <p>No users found.</p>
+                        )}
+                    </ul>
+
+                    {hasMore && (
+                        <button onClick={loadMoreUsers} disabled={loading} data-testid="load-more-button">
+                            Load More
+                        </button>
+                    )}
+                </div>
             </div>
         </div>
     );

@@ -1,3 +1,4 @@
+
 import pytest
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -8,7 +9,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils.timezone import now, timedelta
 
 User = get_user_model()
-CREATE_URL = "/api/create-post/"
+CREATE_URL = "/api/post/create/"
 
 @pytest.fixture
 def create_user(db):
@@ -20,8 +21,8 @@ def create_user(db):
 def create_post(db, create_user):
     post = Post.objects.create(
         owner=create_user,
-        file_key="user_0001/test.png",
-        file_type="image/png",
+        file_keys=["user_0001/test.png"],
+        file_types=["image/png"],
         caption="Test",
     )
     return post
@@ -43,26 +44,26 @@ def mock_generate_s3_url(mocker):
 def test_fetch_posts(api_client, create_user, create_post, mock_generate_s3_url):
     api_client.force_authenticate(user=create_user)
 
-    response = api_client.get(f"/api/fetch-posts/?username={create_user.username}")
+    response = api_client.get(f"/api/post/fetch/?username={create_user.username}")
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) > 0
-    assert response.data["results"][0]["file_key"] == "user_0001/test.png"
-    assert response.data["results"][0]["file_type"] == "image/png"
+    assert response.data["results"][0]["file_keys"][0] == "user_0001/test.png"
+    assert response.data["results"][0]["file_types"][0] == "image/png"
     assert response.data["results"][0]["caption"] == "Test"
 
 def test_fetch_posts_order(api_client, create_user, create_post, db, mock_generate_s3_url):
     post2 = Post.objects.create(
         owner=create_user,
-        file_key="user_0001/test2.jpg",
-        file_type="image/jpeg",
+        file_keys=["user_0001/test2.jpg"],
+        file_types=["image/jpeg"],
         caption="Test2"
     )
 
     post2.created_at = now() - timedelta(days=1)
     post2.save()
 
-    response = api_client.get(f"/api/fetch-posts/?username={create_user.username}")
+    response = api_client.get(f"/api/post/fetch/?username={create_user.username}")
 
     assert response.status_code == status.HTTP_200_OK
     assert response.data["results"][0]["caption"] == "Test"
@@ -73,10 +74,10 @@ def test_post_serializer(mocker, create_post, mock_generate_s3_url):
     data = serializer.data
 
     assert data["id"] == str(create_post.id)
-    assert data["owner"] == create_post.owner.id
-    assert data["file_key"] == "user_0001/test.png"
-    assert data["file_type"] == "image/png"
+    assert data["owner"]["id"] == str(create_post.owner.id)
+    assert data["file_keys"] == ["user_0001/test.png"]
+    assert data["file_types"] == ["image/png"]
     assert data["caption"] == "Test"
-    assert data["s3_url"] == "https://mock-s3-url.com/user_0000/test.jpg"
+    assert data["s3_urls"] == ["https://mock-s3-url.com/user_0000/test.jpg"]
 
     mock_generate_s3_url.assert_called_once_with("user_0001/test.png", "image/png")
