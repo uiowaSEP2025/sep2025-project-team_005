@@ -2,7 +2,7 @@ from rest_framework import serializers
 from pages.models import Musician, MusicianInstrument, Genre
 
 
-# Serializer class for the intermediate model between musicians and instrumens
+# Serializer class for the intermediate model between musicians and instruments
 class MusicianInstrumentSerializer(serializers.ModelSerializer):
     instrument_name = serializers.CharField(source="instrument.instrument", read_only=True)
 

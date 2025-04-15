@@ -8,13 +8,14 @@ from django.contrib.postgres.fields import ArrayField
 class Post(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     owner = models.ForeignKey('User', on_delete=models.CASCADE)
+
     file_keys = ArrayField(
         models.CharField(max_length=255, validators=[MaxLengthValidator(255)]),
         size=10,
         verbose_name="S3 file keys",
         default=list,
     )
-    file_types = ArrayField(
+    file_types = ArrayField( 
         models.CharField(max_length=50, validators=[MaxLengthValidator(50)]),
         size=10,
         verbose_name="File types",
