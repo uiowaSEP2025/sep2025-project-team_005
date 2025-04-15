@@ -26,6 +26,9 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
       AWS_PROFILE: ${{ secrets.AWS_PROFILE }}
+
+      FRONTEND_API: ${{ secrets.FRONTEND_API }}
+      BACKEND_API: ${{ secrets.BACKEND_API }}
     strategy:
       max-parallel: 4
       matrix:
