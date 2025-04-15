@@ -29,8 +29,12 @@ const Toolbar = () => {
     };
     
     const handleSettingsClick = () => {
-        router.push(`/settings/user`);
+        router.push(`/settings/user/`);
     };
+
+    const handleAdminClick = () => {
+        router.push(`/admin/`)
+    }
 
     const handleProfile = () => {
         router.push(`/${profile?.username}`)
@@ -58,6 +62,7 @@ const Toolbar = () => {
             <Button variant="contained" startIcon={<Add />} onClick={handleJobsClick}>Jobs</Button>
             <Button variant="contained" startIcon={<Chat />} onClick={handleMessagesClick}>Messages</Button>
             <Button variant="contained" startIcon={<Settings />} onClick={handleSettingsClick}>Settings</Button>
+            <Button variant="contained" onClick={handleAdminClick}>Admin</Button>
             <Button aria-label="Toggle Theme" onClick={toggleTheme}>{theme === "light" ? <Moon size={26} /> : <Sun size={26} />}</Button>
         </Box>
     );
