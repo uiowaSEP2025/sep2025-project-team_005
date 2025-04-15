@@ -29,7 +29,7 @@ const Toolbar = () => {
     };
     
     const handleSettingsClick = () => {
-        router.push(`/settings/user/`);
+        router.push(`/settings/`);
     };
 
     const handleAdminClick = () => {
