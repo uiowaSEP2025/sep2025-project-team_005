@@ -31,6 +31,7 @@ export default function FollowPage() {
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [loading, setLoading] = useState(false);
+    const BACKEND_API = process.env.BACKEND_API;
 
     useEffect(() => {
         setUsers([]);
@@ -45,7 +46,7 @@ export default function FollowPage() {
         setLoading(true);
         try {
             const response = await fetch(
-                `http://localhost:8000/api/follow-list/${id}/?type=${type}&page=${pageNum}`,
+                `http://${BACKEND_API}/api/follow-list/${id}/?type=${type}&page=${pageNum}`,
                 { method: "GET", credentials: "include",
                     headers: {
                         "Authorization": `Bearer ${Cookies.get("access_token")}`
@@ -81,7 +82,7 @@ export default function FollowPage() {
 
     const handleFollowToggle = async (userId: string, isFollowing: boolean) => {
         try {
-            const response = await fetch(`http://localhost:8000/api/follow/${userId}/`, {
+            const response = await fetch(`http://${BACKEND_API}/api/follow/${userId}/`, {
                 method: isFollowing ? "DELETE" : "POST",
                 credentials: "include",
                 headers: {

@@ -15,6 +15,7 @@ function ResetPasswordForm() {
     const [passwordError, setPasswordError] = useState("");
     const [formError, setFormError] = useState("");
     const router = useRouter();
+    const BACKEND_API = process.env.BACKEND_API;
 
     useEffect(() => {
         setUid(searchParams.get("uid"));
@@ -63,7 +64,7 @@ function ResetPasswordForm() {
         setFormError("");
 
         try {
-            const response = await fetch("http://localhost:8000/api/auth/reset-password/", {       // Replace with an env variable for both local and Kubernetes deployment
+            const response = await fetch(`http://${BACKEND_API}/api/auth/reset-password/`, {       // Replace with an env variable for both local and Kubernetes deployment
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ password, confirmedPassword, uid, token }),

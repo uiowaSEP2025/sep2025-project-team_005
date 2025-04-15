@@ -47,6 +47,7 @@ export default function Feed() {
     const [reportedPosts, setReportedPosts] = useState<Set<string>>(new Set());
     const [expandedPostDescriptions, setExpandedPostDescriptions] = useState<Set<string>>(new Set());
     const [postImages, setPostImages] = useState<{ postId: string; imageIndex: number }[]>([]);
+    const BACKEND_API = process.env.BACKEND_API;
 
     useEffect(() => {
         if (!isLoading && profile) {
@@ -70,7 +71,7 @@ export default function Feed() {
         if (!profile) return;
         setLoading(true);
         try {
-            const response = await axios.get('http://localhost:8000/api/fetch-feed/', {
+            const response = await axios.get(`http://${BACKEND_API}/api/fetch-feed/`, {
                 params: {
                     username: profile.username,
                     page: pageNum
@@ -111,7 +112,7 @@ export default function Feed() {
     //         const isLiked = post.liked_by_user;
     
     //         if (isLiked) {
-    //             response = await axios.delete('http://localhost:8000/api/post/like/', {
+    //             response = await axios.delete(`http://${BACKEND_API}/api/post/like/`, {
     //                 headers: {
     //                     Authorization: `Bearer ${Cookies.get("access_token")}`,
     //                 },
@@ -119,7 +120,7 @@ export default function Feed() {
     //             });
     //         } else {
     //             response = await axios.post(
-    //                 'http://localhost:8000/api/post/like/',
+    //                 `http://${BACKEND_API}/api/post/like/`,
     //                 { post_id: post.id },
     //                 {
     //                     headers: {
@@ -145,7 +146,7 @@ export default function Feed() {
         if (!user) return;
     
         try {
-            const response = await axios.post(`http://localhost:8000/api/block/${user.id}/`, {
+            const response = await axios.post(`http://${BACKEND_API}/api/block/${user.id}/`, {
             });
     
             if (response.status >= 200 && response.status < 300) {

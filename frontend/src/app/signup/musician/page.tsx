@@ -59,13 +59,14 @@ export default function MusicianSignup() {
     }>({});
     const [instrumentOptions, setInstrumentOptions] = useState<InstrumentOption[]>([]);
     const [genreOptions, setGenreOptions] = useState<GenreOption[]>([]);
+    const BACKEND_API = process.env.BACKEND_API;
 
     // Fetch instruments and genres from the database when the component mounts
     useEffect(() => {
         // Fetch instrument options
         const fetchInstruments = async () => {
             try {
-                const response = await fetch('http://localhost:8000/api/instruments/all/', {
+                const response = await fetch(`http://${BACKEND_API}/api/instruments/all/`, {
                     method: 'GET',
                     headers: {
                       'Content-Type': 'application/json',
@@ -88,7 +89,7 @@ export default function MusicianSignup() {
         // Fetch genre options
         const fetchGenres = async () => {
             try {
-                const response = await fetch('http://localhost:8000/api/genres/all/', {
+                const response = await fetch(`http://${BACKEND_API}/api/genres/all/`, {
                     method: 'GET',
                     headers: {
                       'Content-Type': 'application/json',
@@ -368,7 +369,7 @@ export default function MusicianSignup() {
         };
 
         try {
-            const response = await fetch("http://localhost:8000/api/auth/signup/", {
+            const response = await fetch(`http://${BACKEND_API}/api/auth/signup/`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(userData),

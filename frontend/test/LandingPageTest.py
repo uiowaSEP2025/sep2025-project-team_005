@@ -40,7 +40,7 @@ service = Service(ChromeDriverManager().install())
 driver = webdriver.Chrome(service=service, options=options)
 
 # Open the landing page of the application
-driver.get("http://localhost:3000")
+driver.get(f"http://{env("FRONTEND_API")}")
 
 # Wait for the elements to load (wait up to 10 seconds for elements to be visible)
 WebDriverWait(driver, 10).until(

@@ -52,12 +52,13 @@ export default function Discover() {
     const [autocompleteResultsGenre, setAutocompleteResultsGenre] = useState<{[key: number]: GenreOption[];}>({});
     const [instrumentOptions, setInstrumentOptions] = useState<InstrumentOption[]>([]);
     const [genreOptions, setGenreOptions] = useState<GenreOption[]>([]);
+    const BACKEND_API = process.env.BACKEND_API;
 
     // Fetch instruments and genres from the database when the component mounts
     useEffect(() => {
         const fetchInstruments = async () => {
             try {
-                const response = await fetch('http://localhost:8000/api/instruments/all/', {
+                const response = await fetch(`http://${BACKEND_API}/api/instruments/all/`, {
                     method: 'GET',
                     headers: {
                       'Content-Type': 'application/json',
@@ -79,7 +80,7 @@ export default function Discover() {
 
         const fetchGenres = async () => {
             try {
-                const response = await fetch('http://localhost:8000/api/genres/all/', {
+                const response = await fetch(`http://${BACKEND_API}/api/genres/all/`, {
                     method: 'GET',
                     headers: {
                       'Content-Type': 'application/json',
@@ -193,7 +194,7 @@ export default function Discover() {
     const fetchUsers = async (query = "", selectedInstruments: string[], selectedGenres: string[], pageNum = 1) => {
         setLoading(true);
         try {
-            const response = await axios.get("http://localhost:8000/api/discover/", {
+            const response = await axios.get(`http://${BACKEND_API}/api/discover/`, {
                 params: {
                     search: query,
                     instrument: selectedInstruments,

@@ -13,7 +13,8 @@ export default function BusinessSignup() {
     const [password, setPassword] = useState("");
     const [passwordError, setPasswordError] = useState("");
     const [businessName, setBusinessName] = useState("");
-    const [industry, setIndustry] = useState("")
+    const [industry, setIndustry] = useState("");
+    const BACKEND_API = process.env.BACKEND_API;
 
     // On top of pre-existing HTML5 email validations, use regex to validate email on submission
     const validateEmail = (email: string) => {
@@ -71,7 +72,7 @@ export default function BusinessSignup() {
         }
 
         try {
-            const response = await fetch("http://localhost:8000/api/auth/signup/", {
+            const response = await fetch(`http://${BACKEND_API}/api/auth/signup/`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(userData)

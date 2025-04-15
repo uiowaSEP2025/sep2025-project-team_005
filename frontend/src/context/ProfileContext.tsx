@@ -28,6 +28,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
+    const BACKEND_API = process.env.BACKEND_API;
 
     const fetchProfile = async () => {
         setIsLoading(true);
@@ -38,7 +39,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
 
         try {
-            const response = await axios.get<UserProfile>("http://localhost:8000/api/auth/profile/", {
+            const response = await axios.get<UserProfile>(`http://${BACKEND_API}/api/auth/profile/`, {
                 headers: { Authorization: `Bearer ${accessToken}` },
                 withCredentials: true,
             });

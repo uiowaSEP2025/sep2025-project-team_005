@@ -6,9 +6,12 @@ import shutil
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service 
+import environ
+env = environ.Env()
+environ.Env.read_env()
 
 def before_all(context):
-    context.base_url = os.getenv("SAVVY_NOTE_URL", "http://localhost:3000")
+    context.base_url = os.getenv("SAVVY_NOTE_URL", env("FRONTEND_API"))
     
     chrome_options = Options()
     chrome_options.headless = True
