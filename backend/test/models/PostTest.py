@@ -14,12 +14,18 @@ class PostTest:
         return owner
     
     @pytest.fixture
+    def create_ban_admin(db):
+        admin = User.objects.create_user(username="admin", email="admin@test.com")
+        admin.full_clean()
+        return admin
+    
+    @pytest.fixture
     def create_tagged_users(db):
-        tagged_user = User.objects.create_user(username="testuser2", email="test2@test.com")
-        tagged_user.full_clean()
-        tagged_user2 = User.objects.create_user(username="testuser3", email="test3@test.com")
-        tagged_user2.full_clean()
-        return [tagged_user,tagged_user2]
+        user = User.objects.create_user(username="testuser2", email="test2@test.com")
+        user.full_clean()
+        user2 = User.objects.create_user(username="testuser3", email="test3@test.com")
+        user2.full_clean()
+        return [user,user2]
     
     @pytest.fixture
     def create_post(db, create_owner, create_tagged_users):
@@ -44,6 +50,7 @@ class PostTest:
         #assert post.tagged_users.count() == 2
         assert post.file_keys == ["image/sample.png"]
         assert post.file_types == ["image/png"]
+        assert post.is_banned == False
 
 #    def test_many_to_many_relationships(self, create_post, create_tagged_users):
 #        post = create_post
@@ -62,7 +69,6 @@ class PostTest:
 #        assert post.tagged_users.count() == 0
 
 
-    @pytest.mark.django_db
     def test_field_max_length(self, create_post):
         post = create_post
 
@@ -70,7 +76,6 @@ class PostTest:
         with pytest.raises(ValidationError):
             post.full_clean()
 
-    @pytest.mark.django_db
     def test_cascade_delete(self, create_owner, create_post):
         owner = create_owner
         post = create_post
@@ -78,7 +83,6 @@ class PostTest:
         owner.delete()
         assert Post.objects.filter(id=post.id).count() == 0
 
-    @pytest.mark.django_db
     def test_created_at(self, create_post):
         post = create_post
 
@@ -106,3 +110,28 @@ class PostTest:
         )
         assert post.caption == ""
 
+    def test_banned_without_admin_should_fail(self, create_post):
+        post = create_post
+        post.is_banned=True
+        with pytest.raises(ValidationError, match="A banned post must have at least one ban_admin"):
+            post.full_clean()
+
+    def test_banned_with_admin_should_pass(self, create_ban_admin, create_post):
+        post = create_post
+        post.is_banned=True
+        post.save()
+        post.ban_admin.add(create_ban_admin)
+        post.full_clean()
+
+    def test_not_banned_with_admin_should_fail(self, create_ban_admin, create_post):
+        post = create_post
+        post.is_banned=False
+        post.ban_admin.add(create_ban_admin)
+        with pytest.raises(ValidationError, match="A non-banned post should not have any ban_admins."):
+            post.full_clean()
+
+    def test_not_banned_without_admin_should_pass(self, create_post):
+        post = create_post
+        post.is_banned=False
+        post.save()
+        post.full_clean()

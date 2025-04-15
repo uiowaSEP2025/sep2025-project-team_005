@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.core.validators import MaxLengthValidator
 import uuid
@@ -26,6 +27,15 @@ class Post(models.Model):
     caption = models.TextField(validators=[MaxLengthValidator(500)], blank=True)
     
     tagged_users = models.ManyToManyField(User, related_name="tagged_users")
+
+    is_banned = models.BooleanField(default=False)
+    ban_admin = models.ManyToManyField(User, related_name="banned_posts", blank=True)
     
+    def clean(self):
+        if self.is_banned and not self.ban_admin.exists():
+            raise ValidationError("A banned post must have at least one ban_admin.")
+        if not self.is_banned and self.ban_admin.exists():
+            raise ValidationError("A non-banned post should not have any ban_admins.")
+
     def like_count(self):
         return self.likes.count()
