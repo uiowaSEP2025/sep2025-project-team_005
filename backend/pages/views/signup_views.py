@@ -72,6 +72,6 @@ def signup(request):
             # Debugging:
             print("Created business: ", business)
 
-        return Response({"message": "User created successfully", "id": user.id}, status=status.HTTP_201_CREATED)
+            return Response({"message": "User and business created successfully", "id": user.id}, status=status.HTTP_201_CREATED)
 
     return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)

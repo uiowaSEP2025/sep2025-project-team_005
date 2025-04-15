@@ -4,28 +4,31 @@ import styles from "@/styles/Subscription.module.css";
 
 import React from "react";
 import { loadStripe } from "@stripe/stripe-js";
+import { useParams } from "next/navigation";
 import axios from "axios";
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string);
-
-const handleCheckout = async (type: "monthly" | "annual") => {
-    const stripe = await stripePromise;
-
-    const res = await axios.post("http://localhost:8000/api/stripe/create-subscription-session/", {
-        type: type,
-    });
-
-    const sessionId = res.data.id;
-    const result = await stripe?.redirectToCheckout({
-        sessionId,
-    });
-
-    if (result?.error) {
-        alert(result.error.message);
-    }
-};
-
 export default function Subscription() {
+    const { userId } = useParams();
+    const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string);
+
+    const handleCheckout = async (type: "monthly" | "annual") => {
+        const stripe = await stripePromise;
+
+        const response = await axios.post("http://localhost:8000/api/stripe/create-subscription-session/", {
+            type: type,
+            user_id: userId,
+        });
+
+        const sessionId = response.data.id;
+        const result = await stripe?.redirectToCheckout({
+            sessionId,
+        });
+
+        if (result?.error) {
+            alert(result.error.message);
+        }
+    };
+
     return (
         <div className={styles.container}>
             <div className={styles.header}>

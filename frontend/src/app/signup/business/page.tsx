@@ -80,8 +80,8 @@ export default function BusinessSignup() {
             if (response.ok) {
                 const data = await response.json();
                 console.log("Response data: ", data);
-                alert("Signup successful! Redirecting to login...");
-                router.push("/login")
+                alert("Signup successful!");
+                router.push(`/subscription/${data.id}`);
             } else {
                 const errorData = await response.json();
                 setError(errorData.email || errorData.username || "Signup failed. Please try again.")
