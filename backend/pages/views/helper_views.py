@@ -1,11 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from pages.serializers.user_serializers import UserSerializer
-from pages.serializers.musician_serializers import MusicianSerializer, MusicianInstrumentSerializer
-from pages.serializers.instrument_serializers import InstrumentSerializer
-from pages.serializers.genre_serializers import GenreSerializer
-from pages.serializers.business_serializers import BusinessSerializer
+from pages.serializers import UserSerializer, MusicianSerializer, MusicianInstrumentSerializer, InstrumentSerializer, GenreSerializer, BusinessSerializer
 from pages.models import User, Musician, Instrument, MusicianInstrument, Genre, Business
 
 

@@ -60,12 +60,12 @@
 }
 
 .statNumber {
-    font-size: 1.5rem;
+    font-size: 1.65rem;
     font-weight: bold;
 }
 
 .statLabel {
-    font-size: 1.15rem;
+    font-size: 1.35rem;
     color: var(--text-muted);
 }
 
@@ -83,10 +83,10 @@
     cursor: pointer;
 }
 
-.followButton, .messageButton {
+.followButton, .unfollowButton, .messageButton {
     padding: 0.5rem 1.5rem;
     border-radius: 999px;
-    font-size: 1.15rem;
+    font-size: 1.25rem;
     font-weight: bold;
     cursor: pointer;
     transition: 0.3s;
@@ -94,7 +94,13 @@
 
 .followButton {
     background-color: var(--primary);
-    color: var(--text-dark);
+    color: white;
+    border: none;
+}
+
+.unfollowButton {
+    background-color: var(--secondary);
+    color: var(--text-light);
     border: none;
 }
 
@@ -106,6 +112,10 @@
 
 .followButton:hover {
     background-color: #1e40af;
+}
+
+.unfollowButton:hover {
+    background-color: #a8a8a8;
 }
 
 .messageButton:hover {
@@ -147,13 +157,13 @@
 .bioTitle, .featureTitle {
     text-align: center;
     flex-grow: 1;
-    font-size: 1.75rem;
+    font-size: 1.85rem;
     font-weight: bold;
     color: var(--text-light);
 }
 
 .description {
-    font-size: 1.15rem;
+    font-size: 1.25rem;
     padding-top: 0.25rem;
     color: var(--text-muted)
 }
@@ -220,7 +230,7 @@
     right: 1rem;
     background-color: white;
     border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     width: 150px;
     text-align: left;
     z-index: 10;

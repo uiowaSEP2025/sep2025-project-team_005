@@ -1,13 +1,15 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
-from pages.models import User, Musician, Instrument, Genre, MusicianInstrument
+from pages.models import User, Musician, Instrument, Genre, MusicianInstrument, BlockedUser
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 
 class GetUsersView(APIView, PageNumberPagination):
+    permission_classes = [IsAuthenticated]
     page_size = 5
 
     def get(self, request):
@@ -32,8 +34,11 @@ class GetUsersView(APIView, PageNumberPagination):
         if search_query:
             musicians = musicians.filter(user__username__icontains=search_query)
 
+        blocked_by_others = BlockedUser.objects.filter(blocked=request.user).values_list('blocker_id', flat=True)
+        discover_queryset = musicians.exclude(user__id__in=blocked_by_others)
+            
         # Get distinct users associated with filtered musicians
-        users = User.objects.filter(id__in=musicians.values("user_id"), role="musician").distinct()
+        users = User.objects.filter(id__in=discover_queryset.values("user_id"), role="musician").distinct()
         paginated_users = self.paginate_queryset(users, request)
 
         return self.get_paginated_response([user.username for user in paginated_users])
