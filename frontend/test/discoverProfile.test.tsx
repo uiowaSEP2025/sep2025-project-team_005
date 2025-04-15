@@ -385,7 +385,7 @@ describe("Discover Profile Page", () => {
 
         const BACKEND_API = process.env.BACKEND_API;
         await waitFor(() => expect(axios.post).toHaveBeenCalledWith(
-            `http://${BACKEND_API}/api/auth/logout/`, 
+            `${BACKEND_API}/api/auth/logout/`, 
             { credentials: "include" }
         ));
 

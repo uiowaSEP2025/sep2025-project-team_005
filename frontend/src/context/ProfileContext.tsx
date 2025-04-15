@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
 
         try {
-            const response = await axios.get<UserProfile>(`http://${BACKEND_API}/api/auth/profile/`, {
+            const response = await axios.get<UserProfile>(`${BACKEND_API}/api/auth/profile/`, {
                 headers: { Authorization: `Bearer ${accessToken}` },
                 withCredentials: true,
             });

@@ -32,7 +32,7 @@ export default function ForgotPassword() {
         // Clear form errors and then attempt API call
         setEmailError("");
         const response = await axios.post(
-            `http://${BACKEND_API}/api/auth/forgot-password/`, // Replace with an env variable
+            `${BACKEND_API}/api/auth/forgot-password/`, // Replace with an env variable
             { email },
             {
                 headers: {

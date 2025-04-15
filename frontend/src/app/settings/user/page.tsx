@@ -283,7 +283,7 @@ export default function UserSettings() {
         });
   
         try {
-          const response = await fetch(`http://${BACKEND_API}/api/musician/${profile.id}/`, {
+          const response = await fetch(`${BACKEND_API}/api/musician/${profile.id}/`, {
             method: "GET",
             credentials: "include",
           });
@@ -313,7 +313,7 @@ export default function UserSettings() {
   
   const handleSave = async () => {
     try {
-      const response = await fetch(`http://${BACKEND_API}/api/musician/${userData.id}/`, {
+      const response = await fetch(`${BACKEND_API}/api/musician/${userData.id}/`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -349,7 +349,7 @@ export default function UserSettings() {
     }
 
     try {
-      const response = await fetch(`http://${BACKEND_API}/api/change-password/`, {
+      const response = await fetch(`${BACKEND_API}/api/change-password/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

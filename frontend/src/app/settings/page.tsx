@@ -39,7 +39,7 @@ export default function SettingsPage() {
         setLoading(true);
         try {
             const response = await fetch(
-                `http://${BACKEND_API}/api/block-list/${profile.id}/?page=${pageNum}`,
+                `${BACKEND_API}/api/block-list/${profile.id}/?page=${pageNum}`,
                 { 
                     method: "GET", 
                     credentials: "include",
@@ -68,7 +68,7 @@ export default function SettingsPage() {
         setLoading(true); // Set loading to true while making the request
     
         try {
-            const response = await fetch(`http://${BACKEND_API}/api/block/${userId}/`, {
+            const response = await fetch(`${BACKEND_API}/api/block/${userId}/`, {
                 method: "DELETE",
                 headers: {
                     "Authorization": `Bearer ${Cookies.get("access_token")}`,

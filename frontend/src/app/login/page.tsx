@@ -22,7 +22,7 @@ export default function Login() {
     setLoggingIn(true);
     try {
       const response = await axios.post(
-        `http://${BACKEND_API}/api/auth/login/`,
+        `${BACKEND_API}/api/auth/login/`,
         { username, password },
         { withCredentials: true } // Sends cookies to backend
       );

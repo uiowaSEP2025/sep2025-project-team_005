@@ -46,7 +46,7 @@ export default function FollowPage() {
         setLoading(true);
         try {
             const response = await fetch(
-                `http://${BACKEND_API}/api/follow-list/${id}/?type=${type}&page=${pageNum}`,
+                `${BACKEND_API}/api/follow-list/${id}/?type=${type}&page=${pageNum}`,
                 { method: "GET", credentials: "include",
                     headers: {
                         "Authorization": `Bearer ${Cookies.get("access_token")}`
@@ -82,7 +82,7 @@ export default function FollowPage() {
 
     const handleFollowToggle = async (userId: string, isFollowing: boolean) => {
         try {
-            const response = await fetch(`http://${BACKEND_API}/api/follow/${userId}/`, {
+            const response = await fetch(`${BACKEND_API}/api/follow/${userId}/`, {
                 method: isFollowing ? "DELETE" : "POST",
                 credentials: "include",
                 headers: {
