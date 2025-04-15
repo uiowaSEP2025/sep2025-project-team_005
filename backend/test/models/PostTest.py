@@ -35,38 +35,38 @@ class PostTest:
             file_types=["image/png"],
             caption="Test caption"
         )
-        #post.tagged_users.add(create_tagged_users[0],create_tagged_users[1])
+        post.tagged_users.add(create_tagged_users[0],create_tagged_users[1])
         post.full_clean()
         return post
 
     def test_post_creation(self, create_post, create_tagged_users):
         post = create_post
         
-        #post.tagged_users.add(create_tagged_users[0],create_tagged_users[1])
+        post.tagged_users.add(create_tagged_users[0],create_tagged_users[1])
         post.full_clean()
 
         assert post.id is not None
         assert post.caption == "Test caption"
-        #assert post.tagged_users.count() == 2
+        assert post.tagged_users.count() == 2
         assert post.file_keys == ["image/sample.png"]
         assert post.file_types == ["image/png"]
         assert post.is_banned == False
 
-#    def test_many_to_many_relationships(self, create_post, create_tagged_users):
-#        post = create_post
-#
-#        assert create_tagged_users[0] in post.tagged_users.all()
-#        assert create_tagged_users[1] in post.tagged_users.all()
-#        assert post.tagged_users.count() == 2
+    def test_many_to_many_relationships(self, create_post, create_tagged_users):
+       post = create_post
+
+       assert create_tagged_users[0] in post.tagged_users.all()
+       assert create_tagged_users[1] in post.tagged_users.all()
+       assert post.tagged_users.count() == 2
         
-#    def test_no_tagged_users(self, create_owner):
-#        post = Post.objects.create(
-#            owner=create_owner,
-#            file_key="image/sample.png",
-#            file_type="image/png",
-#            caption="Valid caption"
-#        )
-#        assert post.tagged_users.count() == 0
+    def test_no_tagged_users(self, create_owner):
+       post = Post.objects.create(
+           owner=create_owner,
+           file_keys=["image/sample.png"],
+           file_types=["image/png"],
+           caption="Valid caption"
+       )
+       assert post.tagged_users.count() == 0
 
 
     def test_field_max_length(self, create_post):
