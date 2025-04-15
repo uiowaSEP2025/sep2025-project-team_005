@@ -8,7 +8,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service 
 
 def before_all(context):
-    context.base_url = os.getenv("SAVVY_NOTE_URL", "http://localhost:3000")
+    context.base_url = os.getenv("SAVVY_NOTE_URL", f"${os.environ.get('FRONTEND_API')}")
     
     chrome_options = Options()
     chrome_options.headless = True

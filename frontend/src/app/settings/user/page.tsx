@@ -282,7 +282,7 @@ export default function UserSettings() {
         });
   
         try {
-          const response = await fetch(`http://localhost:8000/api/musician/${profile.id}/`, {
+          const response = await fetch(`${process.env.BACKEND_API}/api/musician/${profile.id}/`, {
             method: "GET",
             credentials: "include",
           });
@@ -312,7 +312,7 @@ export default function UserSettings() {
   
   const handleSave = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/api/musician/${userData.id}/`, {
+      const response = await fetch(`${process.env.BACKEND_API}/api/musician/${userData.id}/`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -348,7 +348,7 @@ export default function UserSettings() {
     }
 
     try {
-      const response = await fetch("http://localhost:8000/api/change-password/", {
+      const response = await fetch(`${process.env.BACKEND_API}/api/change-password/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -384,7 +384,7 @@ describe("Discover Profile Page", () => {
         fireEvent.click(logoutButton);
 
         await waitFor(() => expect(axios.post).toHaveBeenCalledWith(
-            "http://localhost:8000/api/auth/logout/", 
+            `${process.env.BACKEND_API}/api/auth/logout/`, 
             { credentials: "include" }
         ));
 

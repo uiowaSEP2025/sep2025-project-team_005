@@ -71,7 +71,7 @@ export default function BusinessSignup() {
         }
 
         try {
-            const response = await fetch("http://localhost:8000/api/auth/signup/", {
+            const response = await fetch(`${process.env.BACKEND_API}/api/auth/signup/`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(userData)

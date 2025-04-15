@@ -57,7 +57,7 @@ export default function Discover() {
     useEffect(() => {
         const fetchInstruments = async () => {
             try {
-                const response = await fetch('http://localhost:8000/api/instruments/all/', {
+                const response = await fetch(`${process.env.BACKEND_API}/api/instruments/all/`, {
                     method: 'GET',
                     headers: {
                       'Content-Type': 'application/json',
@@ -79,7 +79,7 @@ export default function Discover() {
 
         const fetchGenres = async () => {
             try {
-                const response = await fetch('http://localhost:8000/api/genres/all/', {
+                const response = await fetch(`${process.env.REACT_APP_API_ENDPOINT}/api/genres/all/`, {
                     method: 'GET',
                     headers: {
                       'Content-Type': 'application/json',
@@ -193,7 +193,7 @@ export default function Discover() {
     const fetchUsers = async (query = "", selectedInstruments: string[], selectedGenres: string[], pageNum = 1) => {
         setLoading(true);
         try {
-            const response = await axios.get("http://localhost:8000/api/discover/", {
+            const response = await axios.get(`${process.env.REACT_APP_API_ENDPOINT}/api/discover/`, {
                 params: {
                     search: query,
                     instrument: selectedInstruments,

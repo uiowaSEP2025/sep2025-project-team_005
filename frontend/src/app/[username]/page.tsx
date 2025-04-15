@@ -63,7 +63,7 @@ export default function DiscoverProfile() {
             if (!username) return; // Ensure username is available
 
             try {
-                const response = await fetch(`http://localhost:8000/api/user/${username}/`, {
+                const response = await fetch(`${process.env.BACKEND_API}/api/user/${username}/`, {
                     method: "GET",
                     credentials: "include",
                 });
@@ -87,7 +87,7 @@ export default function DiscoverProfile() {
         const fetchProfile = async () => {
             if (!userId || !profile) return;
             try {
-                const response = await fetch(`http://localhost:8000/api/musician/${userId.user_id}/`, {
+                const response = await fetch(`${process.env.BACKEND_API}/api/musician/${userId.user_id}/`, {
                     method: "GET",
                     credentials: "include",
                     headers: {
@@ -120,7 +120,7 @@ export default function DiscoverProfile() {
         const fetchFollowCount = async () => {
             if (!userId) return;
             try {
-                const response = await fetch(`http://localhost:8000/api/follower/${userId.user_id}/`, {
+                const response = await fetch(`${process.env.BACKEND_API}/api/follower/${userId.user_id}/`, {
                     method: "GET",
                     credentials: "include",
                 });
@@ -144,7 +144,7 @@ export default function DiscoverProfile() {
             if (!userId || !profile || userId.user_id === String(profile.id)) return;
     
             try {
-                const response = await fetch(`http://localhost:8000/api/is-following/${userId.user_id}/`, {
+                const response = await fetch(`${process.env.BACKEND_API}/api/is-following/${userId.user_id}/`, {
                     method: "GET",
                     credentials: "include",
                     headers: {
@@ -170,7 +170,7 @@ export default function DiscoverProfile() {
         if (!userId) return;
     
         try {
-            const response = await fetch(`http://localhost:8000/api/follow/${userId.user_id}/`, {
+            const response = await fetch(`${process.env.BACKEND_API}/api/follow/${userId.user_id}/`, {
                 method: isFollowing ? "DELETE" : "POST",
                 credentials: "include",
                 headers: {
@@ -210,7 +210,7 @@ export default function DiscoverProfile() {
 
     const handleLogout = async () => {
         try {
-            await axios.post("http://localhost:8000/api/auth/logout/", {
+            await axios.post(`${process.env.BACKEND_API}/api/auth/logout/`, {
                 credentials: "include",
             });
 
@@ -233,7 +233,7 @@ export default function DiscoverProfile() {
         if (!userId) return;
     
         try {
-            const response = await fetch(`http://localhost:8000/api/block/${userId.user_id}/`, {
+            const response = await fetch(`${process.env.BACKEND_API}/api/block/${userId.user_id}/`, {
                 method: "POST",
                 credentials: "include",
                 headers: {
@@ -263,7 +263,7 @@ export default function DiscoverProfile() {
             });
             formData.append("caption", "Test".repeat(100));
     
-            const response = await axios.post("http://localhost:8000/api/post/create/", formData, {
+            const response = await axios.post(`${process.env.BACKEND_API}/api/post/create/`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                     "Authorization": `Bearer ${Cookies.get("access_token")}`
@@ -289,7 +289,7 @@ export default function DiscoverProfile() {
     const fetchPosts = async (username: string, pageNum = 1) => {
         setLoading(true);
         try {
-            const response = await axios.get('http://localhost:8000/api/post/fetch/', {
+            const response = await axios.get(`${process.env.BACKEND_API}/api/post/fetch/`, {
                 params: {
                     username: username,
                     page: pageNum
