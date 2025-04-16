@@ -38,7 +38,8 @@ export default function AdminPage() {
     const [activeSection, setActiveSection] = useState<keyof typeof sections>("activeReports");
     const [activeReports, setActiveReports] = useState<Post[]>([]);
     const [bannedPosts, setBannedPosts] = useState<Post[]>([]);
-    const [page, setPage] = useState(1);
+    const [reportPage, setReportPage] = useState(1);
+    const [banPage, setBanPage] = useState(1);
     const [hasMoreBans, setHasMoreBans] = useState(true);
     const [hasMoreReports, setHasMoreReports] = useState(true);
     const [loading, setLoading] = useState(false);
@@ -150,30 +151,19 @@ export default function AdminPage() {
         }
     }, [activeReports, activeSection]);
 
-    // const debouncedFetchPosts = debounce((isBanned: boolean) => {
-    //     if (isBanned)
-    //     {
-    //         setPage(1);
-    //     }
-    //     else
-    //     {
-    //         setPage(1);
-    //     }
-    // }, 300);
-
     const loadMorePosts = (isBanned: boolean) => {
         if (isBanned)
         {
             if (hasMoreBans && !loading) {
-                fetchBanList(page + 1);
-                setPage((prevPage) => prevPage + 1);
+                fetchBanList(banPage + 1);
+                setBanPage((prevPage) => prevPage + 1);
             }
         }
         else
         {
             if (hasMoreReports && !loading) {
-                fetchReportList(page + 1);
-                setPage((prevPage) => prevPage + 1);
+                fetchReportList(reportPage + 1);
+                setReportPage((prevPage) => prevPage + 1);
             }
         }
     };
@@ -182,10 +172,8 @@ export default function AdminPage() {
         console.log(isLoading, profile, activeSection)
         if (!isLoading && profile && activeSection === "activeReports") {
             fetchReportList(1);
-            // debouncedFetchPosts(false);
         } else if (!isLoading && profile && activeSection === "bannedPosts") {
             fetchBanList(1);
-            // debouncedFetchPosts(true);
         }
     }, [activeSection, profile]);
 

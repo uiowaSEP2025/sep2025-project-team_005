@@ -36,9 +36,7 @@ export default function Feed() {
     useRequireAuth();
 
     const router = useRouter();
-    // username is not a param - needs to get user from useAuth
     const { profile, isLoading, setProfile } = useAuth();
-    const [userId, setUserId] = useState<UserID | null>(null);
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
@@ -51,7 +49,6 @@ export default function Feed() {
     useEffect(() => {
         if (!isLoading && profile) {
             fetchFeed();
-            debouncedFetchPosts();
         }
     }, [isLoading, profile]);
 
@@ -159,11 +156,6 @@ export default function Feed() {
             console.error("Error blocking user:", error);
         }
     }; 
-
-    const debouncedFetchPosts = debounce(() => {
-        setPage(1);
-        fetchFeed();
-    }, 300);
 
     const loadMorePosts = () => {
         if (hasMore && !loading) {
@@ -416,7 +408,7 @@ export default function Feed() {
                                 ) : (
                                     <Card key={post.id} sx={{ marginBottom: '1rem', width: '50%', height: '50%', objectFit: 'cover' }}>
                                         <CardContent>
-                                            <Typography>Thank you for your feedback. Admins will be notified in a later sprint.</Typography>
+                                            <Typography>Thank you for your feedback. Admins will be notified.</Typography>
                                             <Button onClick={() => handleUnhide(post, true)}>Unhide</Button>
                                         </CardContent>
                                     </Card>
