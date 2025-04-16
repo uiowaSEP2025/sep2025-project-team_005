@@ -59,7 +59,7 @@ pages/serializers/post_serializers.py                                           
 pages/serializers/signup_serializers.py                                                                  19      2    89%   18, 20
 pages/serializers/user_serializers.py                                                                    18      0   100%
 pages/utils/__init__.py                                                                                   1      0   100%
-pages/utils/s3_utils.py                                                                                  25      9    64%   17-20, 25-38
+pages/utils/s3_utils.py                                                                                  25      0   100%
 pages/views/__init__.py                                                                                   0      0   100%
 pages/views/blocked_views.py                                                                             54      4    93%   40-41, 84-85
 pages/views/discover_views.py                                                                            41      4    90%   48-49, 53-54
@@ -69,4 +69,4 @@ pages/views/post_views.py                                                       
 pages/views/settings_views.py                                                                            83     14    83%   17, 35, 38, 71-72, 83-84, 88, 97-102
 pages/views/signup_views.py                                                                              35     16    54%   34-49, 55-56, 61-75
 -----------------------------------------------------------------------------------------------------------------------------------
-TOTAL                                                                                                  1137    168    85%
+TOTAL                                                                                                  1137    159    86%
