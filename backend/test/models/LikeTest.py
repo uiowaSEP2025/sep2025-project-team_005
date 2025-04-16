@@ -16,16 +16,16 @@ class LikeTest:
     def create_post(db, create_user):
         post1 = Post.objects.create(
             owner=create_user,
-            file_key="image/sample1.png",
-            file_type="image/png",
+            file_keys=["image/sample1.png"],
+            file_types=["image/png"],
             caption="Test caption1"
         )
         post1.full_clean()
         
         post2 = Post.objects.create(
             owner=create_user,
-            file_key="image/sample2.png",
-            file_type="image/png",
+            file_keys=["image/sample2.png"],
+            file_types=["image/png"],
             caption="Test caption2"
         )
         post2.full_clean()
