@@ -1,4 +1,5 @@
 
+import uuid
 import pytest
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -134,6 +135,14 @@ def test_fetch_feed(api_client, create_users, create_posts_other_user, mock_gene
     assert response.data["results"][0]["file_keys"][0] == "user_0002/test.png"
     assert response.data["results"][0]["owner"]["id"] == str(other_user.id)
     assert response.data["results"][0]["owner"]["username"] == other_user.username
+
+def test_fetch_feed_no_user(api_client, create_users, create_posts_other_user, mock_generate_s3_url):
+    api_client.force_authenticate(user=create_users[0])
+
+    response = api_client.get(FETCH_FEED_URL, {"user_id": uuid.uuid4()})
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.data["error"] == "User not found"
 
 def test_feed_correct_posts(api_client, create_users, create_posts, create_banned_posts, create_reported_posts, create_hidden_post, mock_generate_s3_url):
     api_client.force_authenticate(user=create_users[1])

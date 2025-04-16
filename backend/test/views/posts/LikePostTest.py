@@ -33,7 +33,7 @@ def authenticated_client(create_user):
     return client
 
 @pytest.mark.django_db
-def test_follow_user(authenticated_client, create_user, create_post):
+def test_like_post(authenticated_client, create_user, create_post):
     user = create_user
     post = create_post
 
@@ -55,6 +55,13 @@ def test_like_post_already_liked(authenticated_client, create_user, create_post)
     assert response.data["message"] == "Already liked"
 
 @pytest.mark.django_db
+def test_like_non_existent_post(authenticated_client, create_user, create_post):    
+    response = authenticated_client.post(LIKE_TOGGLE_URL, {"post_id": uuid.uuid4()})
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.data["error"] == "Post not found"
+
+@pytest.mark.django_db
 def test_unlike_post(authenticated_client, create_user, create_post):
     user = create_user
     post = create_post
@@ -71,3 +78,11 @@ def test_unlike_post_not_liked(authenticated_client, create_post):
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.data["error"] == "This post is not liked"
+
+@pytest.mark.django_db
+def test_unlike_non_existent_post(authenticated_client, create_user, create_post):    
+    response = authenticated_client.delete(LIKE_TOGGLE_URL, {"post_id": uuid.uuid4()})
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.data["error"] == "Post not found"
+    

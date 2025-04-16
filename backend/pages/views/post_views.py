@@ -187,7 +187,7 @@ class ReportView(APIView):
         except:
             user = None
         
-        if (ReportedPost.objects.filter(id=target_post.id).exists()):
+        if (ReportedPost.objects.filter(post=target_post).exists()):
             return Response({"error": "This post has already been reported"}, status=status.HTTP_400_BAD_REQUEST)
         
         try:
@@ -231,7 +231,7 @@ class UnbanView(APIView):
             return Response({"error": "Post not found, refresh the page"}, status=status.HTTP_404_NOT_FOUND)
         
         if not (target_post.is_banned):
-            return Response({"error": "This post is already banned"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "This post is already unbanned"}, status=status.HTTP_400_BAD_REQUEST)
         
         try:
             target_post.is_banned = False

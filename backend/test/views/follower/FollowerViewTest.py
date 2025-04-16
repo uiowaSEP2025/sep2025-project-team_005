@@ -169,6 +169,13 @@ class FollowerViewTest:
         assert response.data["error"] == "You cannot follow yourself"
 
     @pytest.mark.django_db
+    def test_follow_non_existent_user(self, authenticated_client):    
+        response = authenticated_client.post(FOLLOW_TOGGLE_URL.format(uuid.uuid4()))
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert response.data["error"] == "User not found"
+
+    @pytest.mark.django_db
     def test_unfollow_user(self, authenticated_client, create_user):
         """Test unfollowing a user."""
         target_user = User.objects.create_user(username="targetuser", email="target@test.com")
@@ -182,7 +189,7 @@ class FollowerViewTest:
         assert not Follower.objects.filter(follower=create_user, following=target_user).exists()
 
     @pytest.mark.django_db
-    def test_unfollow_user_not_following(self, authenticated_client, create_user):
+    def test_unfollow_user_not_following(self, authenticated_client):
         """Test attempting to unfollow a user who is not followed."""
         target_user = User.objects.create_user(username="targetuser", email="target@test.com")
         
@@ -190,6 +197,13 @@ class FollowerViewTest:
         response = authenticated_client.delete(FOLLOW_TOGGLE_URL.format(target_user.id))
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.data["error"] == "You are not following this user"
+
+    @pytest.mark.django_db
+    def test_unfollow_non_existent_user(self, authenticated_client):    
+        response = authenticated_client.delete(FOLLOW_TOGGLE_URL.format(uuid.uuid4()))
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert response.data["error"] == "User not found"
         
     @pytest.mark.django_db
     def test_follow_list_excludes_blocked_users(self, authenticated_client, create_user, create_follower, create_blocked_user):

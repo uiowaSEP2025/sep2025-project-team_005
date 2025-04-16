@@ -1,3 +1,4 @@
+import uuid
 import pytest
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -40,3 +41,26 @@ def test_report_post(api_client, create_user, create_post):
 
     assert response.status_code == status.HTTP_201_CREATED
     assert ReportedPost.objects.filter(user=user, post=post).exists()
+
+@pytest.mark.django_db
+def test_report_non_existent_post(api_client, create_user):  
+    user = create_user
+    api_client.force_authenticate(user=user)  
+    
+    response = api_client.post(REPORT_URL, {"post_id": uuid.uuid4(), "user_id": user.id})
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.data["error"] == "Post not found, refresh the page"
+
+@pytest.mark.django_db
+def test_report_reported_post(api_client, create_post, create_user):
+    user = create_user
+    post = create_post
+    reportedPost = ReportedPost.objects.create(user=user, post=post)
+    reportedPost.save()
+    api_client.force_authenticate(user=user)
+
+    response = api_client.post(REPORT_URL, {"post_id": post.id, "user_id": user.id})
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data["error"] == "This post has already been reported"
