@@ -98,4 +98,4 @@ jobs:
 
         echo "Waiting for servers to be fully up..."
         sleep 15
-        xvfb-run behave test/features
+        (cd backend && xvfb-run behave test/features)
