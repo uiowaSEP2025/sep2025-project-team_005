@@ -3,7 +3,7 @@ from django.urls import path, include
 from pages.views.discover_views import GetUsersView, InstrumentListView, GenreListView, UserByUsernameView
 from pages.views.settings_views import MusicianDetailView, ChangePasswordView
 from pages.views.follow_views import FollowingView, FollowListView, FollowToggleView, IsFollowingView
-from pages.views.post_views import CreatePostView, GetPostsView
+from pages.views.post_views import *
 from pages.views.blocked_views import BlockUserView, BlockedListView
 from pages.views.helper_views import create_genre, create_instrument, get_instruments, get_genres, get_musician_instruments, get_users, get_musicians, get_businesses
 from django.http import JsonResponse
@@ -19,8 +19,19 @@ urlpatterns = [
         path('auth/', include("pages.authentication.urls", namespace="authentication")),
         path('stripe/', include("pages.stripe.urls", namespace="stripe")),
         path('discover/', GetUsersView.as_view(), name="get_users"),
-        path('create-post/', CreatePostView.as_view(), name='create_post'),
-        path('fetch-posts/', GetPostsView.as_view(), name="get_posts"),
+        path('post/', include([
+            path('create/', CreatePostView.as_view(), name='create_post'),
+            path('fetch/', GetPostsView.as_view(), name="get_posts"),
+            path('like/', LikeToggleView.as_view(), name="like_post"),
+            path('ban/', BanView.as_view(), name="ban"),
+            path('unban/', UnbanView.as_view(), name="unban"),
+            path('report/', ReportView.as_view(), name="report"),
+            path('hide/', HideView.as_view(), name="hide"),
+            path('unhide/', UnhideView.as_view(), name="hide"),
+        ])),
+        path('fetch-feed/', GetFeedView.as_view(), name="get-feed"),
+        path('fetch-banned-posts/', GetBannedPostsView.as_view(), name="get-banned-posts"), 
+        path('fetch-reported-posts/', GetReportedPostsView.as_view(), name="get-reported-posts"),
         path('musician/<uuid:user_id>/', MusicianDetailView.as_view(), name='musician-detail'),
         path('change-password/', ChangePasswordView.as_view(), name="change-password"),
         path('user/<str:username>/', UserByUsernameView.as_view(), name='get-user-by-username'),
