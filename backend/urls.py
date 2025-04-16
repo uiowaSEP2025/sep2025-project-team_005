@@ -5,7 +5,7 @@ from pages.views.settings_views import MusicianDetailView, ChangePasswordView
 from pages.views.follow_views import FollowingView, FollowListView, FollowToggleView, IsFollowingView
 from pages.views.post_views import *
 from pages.views.blocked_views import BlockUserView, BlockedListView
-from pages.views.helper_views import create_genre, create_instrument, get_instruments, get_genres, get_musician_instruments, get_users, get_musicians, get_businesses
+from pages.views.dropdown_views import get_instruments, get_genres
 from django.http import JsonResponse
 
 # For debugging:
@@ -39,11 +39,6 @@ urlpatterns = [
         path('genres/', GenreListView.as_view(), name='genre-list'),
         path('instruments/all/', get_instruments, name="get-instruments"),
         path('genres/all/', get_genres, name="get-genres"),
-        path('users/all/', get_users, name="get-users"),
-        path('musicians/all/', get_musicians, name="get-musicians"),
-        path('businesses/all/', get_businesses, name="get-businesses"),
-        path('add-instrument/', create_instrument, name="add-instrument"),
-        path('add-genre/', create_genre, name="add-genre"),
         path('follow-list/<uuid:user_id>/', FollowListView.as_view(), name='follow-list'),
         path('follow/<uuid:user_id>/', FollowToggleView.as_view(), name='follow-toggle'),
         path('is-following/<uuid:user_id>/', IsFollowingView.as_view(), name='is-follow'),

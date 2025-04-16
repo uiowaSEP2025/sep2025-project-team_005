@@ -13,7 +13,7 @@ type UserData = {
   email: string;
   phone: string;
   instruments: { instrument_name: string; years_played: number }[];
-  genre: string[];
+  genres: string[];
   password: string;
   new_password: string;
   stage_name: string;
@@ -65,13 +65,13 @@ const EditableList = ({
   setYearsPlayedInput,
 }: {
   label: string;
-  field: "instruments" | "genre";
+  field: "instruments" | "genres";
   values: { instrument_name: string; years_played: number }[] | string[];
   showInput: boolean;
   inputValue: string;
   setInputValue: (value: string) => void;
-  onAdd: (field: "instruments" | "genre", value: string | { instrument_name: string; years_played: number }) => void;
-  onRemove: (field: "instruments" | "genre", index: number) => void;
+  onAdd: (field: "instruments" | "genres", value: string | { instrument_name: string; years_played: number }) => void;
+  onRemove: (field: "instruments" | "genres", index: number) => void;
   setShowInput: (show: boolean) => void;
   isEditing: boolean;
   instrumentInput: string;
@@ -98,7 +98,7 @@ const EditableList = ({
                 </button>
               )}
             </span>
-          ) : field === "genre" ? (
+          ) : field === "genres" ? (
             <span>
               {String(item)}
               {isEditing && (
@@ -137,7 +137,7 @@ const EditableList = ({
               value={instrumentInput} // Separate state for instrument name
               onChange={(e) => setInstrumentInput(e.target.value)}
               className={styles.inputField}
-              placeholder="Add instruments"
+              placeholder="Add Instrument"
             />
             <input
               type="number"
@@ -164,7 +164,7 @@ const EditableList = ({
         )}
 
 
-        {showInput && field === "genre" && (
+        {showInput && field === "genres" && (
           <div className={styles.instrumentInputContainer}>
             <input
               type="text"
@@ -238,7 +238,7 @@ export default function UserSettings() {
   const [editExperience, setEditExperience] = useState(false);
   const [editSecurity, setEditSecurity] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [showInputField, setShowInputField] = useState<"instruments" | "genre" | null>(null);
+  const [showInputField, setShowInputField] = useState<"instruments" | "genres" | null>(null);
   const [instrumentInput, setInstrumentInput] = useState("");
   const [yearsPlayedInput, setYearsPlayedInput] = useState("");
   const [genreInput, setGenreInput] = useState("");
@@ -249,7 +249,7 @@ export default function UserSettings() {
     email: "",
     phone: "",
     instruments: [],
-    genre: [],
+    genres: [],
     password: "",
     new_password: "",
     stage_name: "",
@@ -273,7 +273,7 @@ export default function UserSettings() {
           email: profile.email || "",
           phone: profile.phone || "",
           instruments: [],
-          genre: [],
+          genres: [],
           password: "",
           new_password: "",
           stage_name: "",
@@ -323,7 +323,7 @@ export default function UserSettings() {
           email: userData.email,
           phone: userData.phone,
           instruments: userData.instruments,
-          genre: userData.genre,
+          genre: userData.genres,
           stage_name: userData.stage_name,
           years_played: userData.years_played,
           home_studio: userData.home_studio,
@@ -383,7 +383,7 @@ export default function UserSettings() {
     setUserData((prev) => ({ ...prev, [field]: newValue }));
   };
 
-  const handleAddToList = (field: "instruments" | "genre", value: string | { instrument_name: string; years_played: number }) => {
+  const handleAddToList = (field: "instruments" | "genres", value: string | { instrument_name: string; years_played: number }) => {
     if (field === "instruments" && typeof value !== "string") {
       setUserData((prev) => ({
         ...prev,
@@ -397,10 +397,10 @@ export default function UserSettings() {
     }
   
     if (field === "instruments") setInstrumentInput("");
-    if (field === "genre") setGenreInput("");
+    if (field === "genres") setGenreInput("");
   };  
 
-  const handleRemoveFromList = (field: "instruments" | "genre", index: number) => {
+  const handleRemoveFromList = (field: "instruments" | "genres", index: number) => {
     setUserData((prev) => ({
       ...prev,
       [field]: prev[field].filter((_, i) => i !== index),
@@ -488,15 +488,15 @@ export default function UserSettings() {
             />
 
             <EditableList
-              label="Genre"
-              field="genre"
-              values={userData.genre}
-              showInput={showInputField === "genre"}
+              label="Genres"
+              field="genres"
+              values={userData.genres}
+              showInput={showInputField === "genres"}
               inputValue={genreInput}
               setInputValue={setGenreInput}
               onAdd={handleAddToList}
               onRemove={handleRemoveFromList}
-              setShowInput={(show) => setShowInputField(show ? "genre" : null)}
+              setShowInput={(show) => setShowInputField(show ? "genres" : null)}
               isEditing={editExperience}
               instrumentInput= {instrumentInput}
               setInstrumentInput= {setInstrumentInput}

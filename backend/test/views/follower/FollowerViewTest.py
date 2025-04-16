@@ -4,14 +4,13 @@ from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
 from pages.models import Musician, Follower, BlockedUser
 from rest_framework import status
-import uuid
 
 User = get_user_model()
 
 FOLLOW_LIST_URL = "/api/follow-list/{}/"
 FOLLOWER_URL = "/api/follower/{}/"
 FOLLOW_TOGGLE_URL = "/api/follow/{}/"
-
+IS_FOLLOWING_URL = "/api/is-following/{}/"
 
 @pytest.fixture
 def create_user():
@@ -138,91 +137,113 @@ class FollowerViewTest:
         assert "next" in response.data
         assert len(response.data["results"]) == 10
     
-@pytest.mark.django_db
-def test_follow_user(authenticated_client, create_user):
-    """Test following a user."""
-    target_user = User.objects.create_user(username="targetuser", email="target@test.com")
-    
-    # User follows target_user
-    response = authenticated_client.post(FOLLOW_TOGGLE_URL.format(target_user.id))
-    assert response.status_code == status.HTTP_201_CREATED
-    assert response.data["message"] == "Followed"
-    
-    # Check if the follower entry is created
-    assert Follower.objects.filter(follower=create_user, following=target_user).exists()
+    @pytest.mark.django_db
+    def test_follow_user(self, authenticated_client, create_user):
+        """Test following a user."""
+        target_user = User.objects.create_user(username="targetuser", email="target@test.com")
+        
+        # User follows target_user
+        response = authenticated_client.post(FOLLOW_TOGGLE_URL.format(target_user.id))
+        assert response.status_code == status.HTTP_201_CREATED
+        assert response.data["message"] == "Followed"
+        
+        # Check if the follower entry is created
+        assert Follower.objects.filter(follower=create_user, following=target_user).exists()
 
-@pytest.mark.django_db
-def test_follow_user_already_following(authenticated_client, create_user):
-    """Test attempting to follow a user already followed."""
-    target_user = User.objects.create_user(username="targetuser", email="target@test.com")
-    Follower.objects.create(follower=create_user, following=target_user)
-    
-    # User tries to follow the target_user again
-    response = authenticated_client.post(FOLLOW_TOGGLE_URL.format(target_user.id))
-    assert response.status_code == status.HTTP_200_OK
-    assert response.data["message"] == "Already following"
+    @pytest.mark.django_db
+    def test_follow_user_already_following(self, authenticated_client, create_user):
+        """Test attempting to follow a user already followed."""
+        target_user = User.objects.create_user(username="targetuser", email="target@test.com")
+        Follower.objects.create(follower=create_user, following=target_user)
+        
+        # User tries to follow the target_user again
+        response = authenticated_client.post(FOLLOW_TOGGLE_URL.format(target_user.id))
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["message"] == "Already following"
 
-@pytest.mark.django_db
-def test_follow_self(authenticated_client, create_user):
-    """Test attempting to follow oneself."""
-    response = authenticated_client.post(FOLLOW_TOGGLE_URL.format(create_user.id))
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.data["error"] == "You cannot follow yourself"
+    @pytest.mark.django_db
+    def test_follow_self(self, authenticated_client, create_user):
+        """Test attempting to follow oneself."""
+        response = authenticated_client.post(FOLLOW_TOGGLE_URL.format(create_user.id))
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.data["error"] == "You cannot follow yourself"
 
-@pytest.mark.django_db
-def test_unfollow_user(authenticated_client, create_user):
-    """Test unfollowing a user."""
-    target_user = User.objects.create_user(username="targetuser", email="target@test.com")
-    Follower.objects.create(follower=create_user, following=target_user)
-    
-    # User unfollows target_user
-    response = authenticated_client.delete(FOLLOW_TOGGLE_URL.format(target_user.id))
-    assert response.status_code == status.HTTP_204_NO_CONTENT
-    
-    # Check if the follower entry is deleted
-    assert not Follower.objects.filter(follower=create_user, following=target_user).exists()
+    @pytest.mark.django_db
+    def test_unfollow_user(self, authenticated_client, create_user):
+        """Test unfollowing a user."""
+        target_user = User.objects.create_user(username="targetuser", email="target@test.com")
+        Follower.objects.create(follower=create_user, following=target_user)
+        
+        # User unfollows target_user
+        response = authenticated_client.delete(FOLLOW_TOGGLE_URL.format(target_user.id))
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        
+        # Check if the follower entry is deleted
+        assert not Follower.objects.filter(follower=create_user, following=target_user).exists()
 
-@pytest.mark.django_db
-def test_unfollow_user_not_following(authenticated_client, create_user):
-    """Test attempting to unfollow a user who is not followed."""
-    target_user = User.objects.create_user(username="targetuser", email="target@test.com")
-    
-    # User tries to unfollow target_user without following them
-    response = authenticated_client.delete(FOLLOW_TOGGLE_URL.format(target_user.id))
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.data["error"] == "You are not following this user"
-    
-@pytest.mark.django_db
-def test_follow_list_excludes_blocked_users(authenticated_client, create_user, create_follower, create_blocked_user):
-    """
-    Ensure that users who have blocked the current user do not appear in the followers or following list.
-    """
-    current_user = create_user
-    blocked_user = create_blocked_user
-    follower_user = create_follower
-    
-    BlockedUser.objects.create(blocker=blocked_user, blocked=current_user)
+    @pytest.mark.django_db
+    def test_unfollow_user_not_following(self, authenticated_client, create_user):
+        """Test attempting to unfollow a user who is not followed."""
+        target_user = User.objects.create_user(username="targetuser", email="target@test.com")
+        
+        # User tries to unfollow target_user without following them
+        response = authenticated_client.delete(FOLLOW_TOGGLE_URL.format(target_user.id))
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.data["error"] == "You are not following this user"
+        
+    @pytest.mark.django_db
+    def test_follow_list_excludes_blocked_users(self, authenticated_client, create_user, create_follower, create_blocked_user):
+        """
+        Ensure that users who have blocked the current user do not appear in the followers or following list.
+        """
+        current_user = create_user
+        blocked_user = create_blocked_user
+        follower_user = create_follower
+        
+        BlockedUser.objects.create(blocker=blocked_user, blocked=current_user)
 
-    # Ensure the follower relationship doesn't exist before creating
-    if not Follower.objects.filter(follower=follower_user, following=current_user).exists():
-        Follower.objects.create(follower=follower_user, following=current_user)
+        # Ensure the follower relationship doesn't exist before creating
+        if not Follower.objects.filter(follower=follower_user, following=current_user).exists():
+            Follower.objects.create(follower=follower_user, following=current_user)
 
-    url = FOLLOW_LIST_URL.format(current_user.id)
-    response = authenticated_client.get(url, {"type": "followers"})
+        url = FOLLOW_LIST_URL.format(current_user.id)
+        response = authenticated_client.get(url, {"type": "followers"})
 
-    assert response.status_code == status.HTTP_200_OK
-    blocked_usernames = [blocked_user.username]
-    result_usernames = [user["username"] for user in response.data["results"]]
+        assert response.status_code == status.HTTP_200_OK
+        blocked_usernames = [blocked_user.username]
+        result_usernames = [user["username"] for user in response.data["results"]]
 
-    # Ensure the blocked user is not in the followers list
-    for username in blocked_usernames:
-        assert username not in result_usernames, f"{username} should not be visible to the blocked user"
+        # Ensure the blocked user is not in the followers list
+        for username in blocked_usernames:
+            assert username not in result_usernames, f"{username} should not be visible to the blocked user"
 
-    response = authenticated_client.get(url, {"type": "following"})
-    
-    assert response.status_code == status.HTTP_200_OK
-    result_usernames = [user["username"] for user in response.data["results"]]
+        response = authenticated_client.get(url, {"type": "following"})
+        
+        assert response.status_code == status.HTTP_200_OK
+        result_usernames = [user["username"] for user in response.data["results"]]
 
-    # Ensure the blocked user is not in the following list
-    for username in blocked_usernames:
-        assert username not in result_usernames, f"{username} should not be visible to the blocked user"
+        # Ensure the blocked user is not in the following list
+        for username in blocked_usernames:
+            assert username not in result_usernames, f"{username} should not be visible to the blocked user"
+
+    @pytest.mark.django_db
+    def test_get_true_follow_status(self, create_user, create_follower):
+        client = APIClient()
+        client.force_authenticate(user=create_follower)
+
+        response = client.get(IS_FOLLOWING_URL.format(create_user.id))
+
+        assert response.data["is_following"] == True
+
+    @pytest.mark.django_db
+    def test_get_false_follow_status(self, authenticated_client, create_follower):
+        response = authenticated_client.get(IS_FOLLOWING_URL.format(create_follower.id))
+
+        assert response.data["is_following"] == False
+
+    @pytest.mark.django_db
+    def test_no_user_follow_status(self, authenticated_client, create_follower):
+        response = authenticated_client.get(IS_FOLLOWING_URL.format(uuid.uuid4()))
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert response.data["error"] == "User not found"

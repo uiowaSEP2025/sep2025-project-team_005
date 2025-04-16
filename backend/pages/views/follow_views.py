@@ -31,7 +31,6 @@ class FollowListView(APIView, FollowPagination):
     permission_classes = [IsAuthenticated]
     
     def get(self, request, user_id):
-        print(f"Authenticated user: {request.user}")
         try:
             user = User.objects.get(id=user_id)
             

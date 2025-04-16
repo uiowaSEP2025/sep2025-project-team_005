@@ -79,7 +79,7 @@ def test_patch_musician(api_client, create_musician):
         "email": "updated@gmail.com",
         "phone": "1234567890",
         "instruments": [{"instrument_name": "Drums", "years_played": 2}],
-        "genre": ["Jazz"],
+        "genres": ["Jazz"],
         "home_studio": True
     }
     
@@ -94,13 +94,51 @@ def test_patch_musician(api_client, create_musician):
     assert list(musician.genres.values_list("genre", flat=True)) == ["Jazz"]
 
 @pytest.mark.django_db
-def test_patch_musician_not_found(api_client):
+def test_patch_user_not_found(api_client):
     """Test updating a musician profile that doesn't exist."""
     url = MUSICIAN_URL.format("00000000-0000-0000-0000-000000000000")
     response = api_client.patch(url, {}, format="json")
     
     assert response.status_code == 404
     assert response.data == {"error": "User not found"}
+
+@pytest.mark.django_db
+def test_patch_musician_not_found(api_client, db):
+    user = User.objects.create_user(username="testuser", email="test@gmail.com", password="Testpassword1!")
+    url = MUSICIAN_URL.format(user.id)
+    response = api_client.patch(url)
+    
+    assert response.status_code == 404
+    assert response.data == {"error": "Musician profile not found"}
+
+@pytest.mark.django_db
+def test_patch_instrument_not_found(api_client, db):
+    user = User.objects.create_user(username="testuser", email="test@gmail.com", password="Testpassword1!")
+    musician = Musician.objects.create(user=user, stage_name="Test Band", years_played=5, home_studio=True)
+    genre = Genre.objects.create(genre="Rock")
+    musician.genres.add(genre)
+    musician.save()
+
+    url = MUSICIAN_URL.format(user.id)
+    api_client.force_authenticate(user=user)
+    response = api_client.patch(url, {"instruments":[{"instrument_name": "instrument", "years_played": 3}], "genres": [genre.genre]}, format="json")
+    
+    assert response.status_code == 404
+    assert response.data == {"error": "Instrument not found"}
+    
+@pytest.mark.django_db
+def test_patch_genre_not_found(api_client, db):
+    user = User.objects.create_user(username="testuser", email="test@gmail.com", password="Testpassword1!")
+    musician = Musician.objects.create(user=user, stage_name="Test Band", years_played=5, home_studio=True)
+    instrument = Instrument.objects.create(instrument="Guitar")
+    musicianInstrument = MusicianInstrument.objects.create(musician=musician, instrument=instrument, years_played=3)
+
+    url = MUSICIAN_URL.format(user.id)
+    api_client.force_authenticate(user=user)
+    response = api_client.patch(url, {"instruments":[{"instrument_name": instrument.instrument, "years_played": musicianInstrument.years_played}], "genres":["genre"]}, format="json")
+    
+    assert response.status_code == 404
+    assert response.data == {"error": "Genre not found"}
 
 @pytest.mark.django_db
 def test_change_password(api_client, create_musician):

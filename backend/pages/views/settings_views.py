@@ -46,12 +46,12 @@ class MusicianDetailView(APIView):
             # Update musician data
             musician.stage_name = request.data.get("stage_name", musician.stage_name)
             musician.years_played = request.data.get("years_played", musician.years_played)
-            musician.home_studio = request.data.get("home_studio", musician.stage_name)
+            musician.home_studio = request.data.get("home_studio", musician.home_studio)
             musician.save()
             
             instruments = request.data.get("instruments", [])
-            genres = request.data.get("genre", [])
-
+            genres = request.data.get("genres", [])
+            
             # Update instruments with years_played
             if 'instruments' in request.data:
                 musician.instruments.clear()
@@ -69,38 +69,24 @@ class MusicianDetailView(APIView):
                         if created:
                             musician.instruments.add(instrument)
                     except Instrument.DoesNotExist:
-                        print(f"Instrument '{instrument_name}' not found")
+                        return Response({"error": "Instrument not found"}, status=status.HTTP_404_NOT_FOUND)
 
-            if 'genre' in request.data:
+            if 'genres' in request.data:
                 musician.genres.clear()  # Clear existing genres
 
-                missing_genres = []  # Track genres that were not found in the database
                 for genre_name in genres:
                     try:
                         genre = Genre.objects.get(genre=genre_name)
                         musician.genres.add(genre)
                     
                     except Genre.DoesNotExist:
-                        missing_genres.append(genre_name)
-
-                # Return a response indicating which genres weren't found in the database
-                if missing_genres:
-                    return Response(
-                        {"error": f"Genre(s) not found: {', '.join(missing_genres)}"},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-
+                        return Response({"error": "Genre not found"}, status=status.HTTP_404_NOT_FOUND)
 
             return Response({"message": "Profile updated successfully"}, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
         except Musician.DoesNotExist:
             return Response({"error": "Musician profile not found"}, status=status.HTTP_404_NOT_FOUND)
-        except Instrument.DoesNotExist:
-            return Response({"error": "Instrument not found"}, status=status.HTTP_404_NOT_FOUND)
-        except Genre.DoesNotExist:
-            return Response({"error": "Genre not found"}, status=status.HTTP_404_NOT_FOUND)
-
 
 class ChangePasswordView(APIView):
     permission_classes = [IsAuthenticated]
