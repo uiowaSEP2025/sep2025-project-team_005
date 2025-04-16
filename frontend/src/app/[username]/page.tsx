@@ -14,7 +14,6 @@ import styles from "@/styles/Profile.module.css";
 import axios from "axios";
 import Cookies from "js-cookie";
 import debounce from "lodash.debounce";
-import { signOut } from 'next-auth/react';
 import Dropdown from '@/components/menus/dropdown';
 import { Button, styled } from '@mui/material';
 import { CloudUpload } from '@mui/icons-material';
@@ -62,8 +61,6 @@ export default function DiscoverProfile() {
     useEffect(() => {
         const fetchUserId = async () => {
             if (!username) return; // Ensure username is available
-
-            console.log("Username param:", username);
 
             try {
                 const response = await fetch(`http://localhost:8000/api/user/${username}/`, {
@@ -224,9 +221,8 @@ export default function DiscoverProfile() {
             setProfile(null);
 
 
-            // Call next-auth sign out function to end next-auth session (google login) and remove next-auth.session-token from cookies
-            // Once done, redirect to login page
-            signOut({ callbackUrl: '/login' });
+            // Redirect to login page
+            router.push("/login");
         } 
         catch (error) {
             console.error("Logout failed", error);
