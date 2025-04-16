@@ -4,7 +4,7 @@ from django.core.validators import RegexValidator
 from django.db import models
 from pages.models.Follower import Follower
 import uuid
-
+ 
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     username = models.CharField(max_length=30, unique=True, validators=[MinLengthValidator(1)])
@@ -32,6 +32,9 @@ class User(AbstractUser):
     
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.0)  # Example: 4.5 rating
     created_at = models.DateTimeField(auto_now_add=True)
+
+    hidden_posts = models.ManyToManyField('Post', related_name="hidden_users")
+    reported_posts = models.ManyToManyField('Post', related_name="reported_users", through="ReportedPost")
 
     def set_password(self, raw_password):
         """Hash and securely store the password"""
