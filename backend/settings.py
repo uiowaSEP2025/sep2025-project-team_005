@@ -51,7 +51,7 @@ AWS_METADATA_BUCKET_NAME="savvy-note-metadata"
 
 # Stripe environment variables
 STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY")
-STRIPE_WEBHOOK_SECRET = env('STRIPE_WEBHOOK_SECRET')
+STRIPE_WEBHOOK_SECRET = env('STRIPE_WEBHOOK_SECRET', default='dummy_ci_value')
 
 # Use different prefixes for dev vs prod
 if env("DJANGO_ENV") == "production":
