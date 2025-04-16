@@ -17,6 +17,7 @@ class CreateSubscriptionSessionView(APIView):
     def post(self, request, *args, **kwargs):
         subscription_type = request.data.get('type')
         user_id = request.data.get('user_id')
+        print(user_id)
 
         if subscription_type == 'monthly':
             price_id = STRIPE_PRICE_MONTHLY
@@ -65,7 +66,8 @@ class StripeWebhookView(APIView):
             customer_id = session['customer']
             subscription_id = session['subscription']
             user_id = session['metadata'].get('user_id')
-            business = Business.objects.get(user=user_id)
+            user = User.objects.get(id=user_id)
+            business = Business.objects.get(user=user)
             plan = session['metadata'].get('type')
 
             try:
@@ -76,7 +78,7 @@ class StripeWebhookView(APIView):
                     plan=plan
                 )
             except Business.DoesNotExist:
-                # Optionally log this
-                pass
+                print(f"Business not found for user_id={user_id}")
+                return HttpResponse(status=400)
 
         return HttpResponse(status=200)

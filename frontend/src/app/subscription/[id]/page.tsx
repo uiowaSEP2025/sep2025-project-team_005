@@ -8,7 +8,7 @@ import { useParams } from "next/navigation";
 import axios from "axios";
 
 export default function Subscription() {
-    const { userId } = useParams();
+    const { id } = useParams();
     const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string);
 
     const handleCheckout = async (type: "monthly" | "annual") => {
@@ -16,7 +16,7 @@ export default function Subscription() {
 
         const response = await axios.post("http://localhost:8000/api/stripe/create-subscription-session/", {
             type: type,
-            user_id: userId,
+            user_id: id,
         });
 
         const sessionId = response.data.id;
