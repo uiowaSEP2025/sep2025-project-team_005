@@ -71,7 +71,7 @@ class GetFeedView(APIView, PageNumberPagination):
         return self.get_paginated_response(serialized_posts)
     
 class GetReportedPostsView(APIView, PageNumberPagination):
-    page_size = 1
+    page_size = 6
 
     def get(self, request):
         post_ids = ReportedPost.objects.values_list('post_id', flat=True).distinct()
@@ -86,12 +86,12 @@ class GetReportedPostsView(APIView, PageNumberPagination):
         return self.get_paginated_response(serialized_posts)
     
 class GetBannedPostsView(APIView, PageNumberPagination):
-    page_size = 1
+    page_size = 6
 
     def get(self, request):
         posts = Post.objects.filter(
             Q(is_banned=True)
-        ).distinct().order_by("created_at")
+        ).distinct().order_by("-created_at")
 
         paginated_posts = self.paginate_queryset(posts, request)
 
