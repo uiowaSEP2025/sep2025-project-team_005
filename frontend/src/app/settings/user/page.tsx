@@ -242,6 +242,7 @@ export default function UserSettings() {
   const [instrumentInput, setInstrumentInput] = useState("");
   const [yearsPlayedInput, setYearsPlayedInput] = useState("");
   const [genreInput, setGenreInput] = useState("");
+  const BACKEND_API = process.env.BACKEND_API;
 
   const [userData, setUserData] = useState<UserData>({
     id: "",

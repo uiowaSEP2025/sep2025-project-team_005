@@ -15,6 +15,7 @@ function ResetPasswordForm() {
     const [passwordError, setPasswordError] = useState("");
     const [formError, setFormError] = useState("");
     const router = useRouter();
+    const BACKEND_API = process.env.BACKEND_API;
 
     useEffect(() => {
         setUid(searchParams.get("uid"));

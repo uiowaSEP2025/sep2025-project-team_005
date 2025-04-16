@@ -383,6 +383,7 @@ describe("Discover Profile Page", () => {
         const logoutButton = screen.getByTestId("menu-item-logout");
         fireEvent.click(logoutButton);
 
+        const BACKEND_API = process.env.BACKEND_API;
         await waitFor(() => expect(axios.post).toHaveBeenCalledWith(
             `${process.env.BACKEND_API}/api/auth/logout/`, 
             { credentials: "include" }

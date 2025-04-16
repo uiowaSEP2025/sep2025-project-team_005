@@ -15,6 +15,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const router = useRouter();
   const [loggingIn, setLoggingIn] = useState(false);
+  const BACKEND_API = process.env.BACKEND_API;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

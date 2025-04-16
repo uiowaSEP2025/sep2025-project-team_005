@@ -59,6 +59,7 @@ export default function MusicianSignup() {
     }>({});
     const [instrumentOptions, setInstrumentOptions] = useState<InstrumentOption[]>([]);
     const [genreOptions, setGenreOptions] = useState<GenreOption[]>([]);
+    const BACKEND_API = process.env.BACKEND_API;
 
     // Fetch instruments and genres from the database when the component mounts
     useEffect(() => {

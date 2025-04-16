@@ -47,6 +47,7 @@ export default function Feed() {
     const [reportedPosts, setReportedPosts] = useState<Set<string>>(new Set());
     const [expandedPostDescriptions, setExpandedPostDescriptions] = useState<Set<string>>(new Set());
     const [postImages, setPostImages] = useState<{ postId: string; imageIndex: number }[]>([]);
+    const BACKEND_API = process.env.BACKEND_API;
 
     useEffect(() => {
         if (!isLoading && profile) {

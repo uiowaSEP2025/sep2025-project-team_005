@@ -28,6 +28,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
+    const BACKEND_API = process.env.BACKEND_API;
 
     const fetchProfile = async () => {
         setIsLoading(true);

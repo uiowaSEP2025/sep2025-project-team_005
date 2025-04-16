@@ -31,6 +31,7 @@ export default function FollowPage() {
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [loading, setLoading] = useState(false);
+    const BACKEND_API = process.env.BACKEND_API;
 
     useEffect(() => {
         setUsers([]);

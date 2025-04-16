@@ -6,6 +6,9 @@ import shutil
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service 
+import environ
+env = environ.Env()
+environ.Env.read_env()
 
 def before_all(context):
     context.base_url = os.getenv("SAVVY_NOTE_URL", f"${os.environ.get('FRONTEND_API')}")

@@ -31,6 +31,7 @@ export default function SettingsPage() {
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [loading, setLoading] = useState(false);
+    const BACKEND_API = process.env.BACKEND_API;
 
     const fetchBlockList = async (pageNum = 1, reset = false) => {
         if (!hasMore || loading || !profile) return;

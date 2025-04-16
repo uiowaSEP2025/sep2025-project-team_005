@@ -9,6 +9,7 @@ import { useState } from "react";
 export default function ForgotPassword() {
     const [email, setEmail] = useState("");
     const [emailError, setEmailError] = useState("");
+    const BACKEND_API = process.env.BACKEND_API;
 
     const validateEmail = async (email: string): Promise<boolean> => {
         // TODO: add email regex validation

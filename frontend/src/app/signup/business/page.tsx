@@ -13,7 +13,8 @@ export default function BusinessSignup() {
     const [password, setPassword] = useState("");
     const [passwordError, setPasswordError] = useState("");
     const [businessName, setBusinessName] = useState("");
-    const [industry, setIndustry] = useState("")
+    const [industry, setIndustry] = useState("");
+    const BACKEND_API = process.env.BACKEND_API;
 
     // On top of pre-existing HTML5 email validations, use regex to validate email on submission
     const validateEmail = (email: string) => {
