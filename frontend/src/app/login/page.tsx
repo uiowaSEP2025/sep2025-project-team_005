@@ -7,6 +7,8 @@ import Link from "next/link";
 import Image from "next/image";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
+import { FcGoogle } from "react-icons/fc";
 
 export default function Login() {
   const { profile, isLoading, fetchProfile } = useAuth();
@@ -40,6 +42,13 @@ export default function Login() {
     }
   }, [profile, isLoading, router]);
 
+  // Function to handle clicking login with google button
+  const handleGoogleLogin = () => {
+    // Call next-auth sign in function with the provider (google) and callback URL
+    signIn("google", { callbackUrl: "/google-auth" });
+  };
+
+  
   return (
     <div className={styles.container}>
       <header className={styles.header}>
@@ -62,6 +71,11 @@ export default function Login() {
           Don't have an account? <Link href="/signup" className={styles.link}>Sign Up</Link>
         </p>
       </form>
+
+      <button onClick={handleGoogleLogin} className={styles.googleButton}>
+        <FcGoogle className={styles.googleIcon} />
+          Sign in with Google
+      </button>
 
       <footer className={styles.footer}>
         &copy; {new Date().getFullYear()} SavvyNote. All rights reserved.

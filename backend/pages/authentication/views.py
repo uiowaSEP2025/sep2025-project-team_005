@@ -77,7 +77,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         )
         response.set_cookie(
             "refresh_token", str(refresh), secure=True, samesite="Lax"
-)
+        )
         return response
         
         
@@ -182,3 +182,48 @@ def reset_password(request):
     return Response(
         {"message": "Successfully reset the password!"}, status=status.HTTP_200_OK
     )
+
+
+# Views function to handle login via google
+@api_view(["POST"])
+def google_login(request):
+    email = request.data.get("email")
+    google_id = request.data.get("google_id")
+
+    if not email or not google_id:
+        return Response({"error": "Missing email or Google ID"}, status=400)
+
+    # Look for existing user by email
+    user = User.objects.filter(email=email).first()
+
+    if user is None:
+        # No user exists yet — send 202 to trigger signup flow
+        return Response(
+            {"message": "user_not_found", "email": email},
+            status=202
+        )
+
+    # If user exists, generate JWT tokens
+    refresh = RefreshToken.for_user(user)
+    access_token = str(refresh.access_token)
+
+    response = Response({
+        "access": access_token,
+        "refresh": str(refresh),
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "email": user.email,
+            "phone": user.phone,
+            "role": user.role,
+        }
+    }, status=200)
+    response.set_cookie(
+        "access_token", access_token, secure=True, samesite="Lax"
+    )
+    response.set_cookie(
+        "refresh_token", str(refresh), secure=True, samesite="Lax"
+    )
+    return response
