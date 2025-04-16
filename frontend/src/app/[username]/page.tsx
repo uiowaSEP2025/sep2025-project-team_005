@@ -405,17 +405,9 @@ export default function DiscoverProfile() {
                         <h2 className={styles.featureTitle}>Posts</h2>
                         {profile?.username === username && (
                             <div>
-                                <button className={styles.editButton} onClick={handlePost} data-testid="post-button">Post</button>
+                                <button className={styles.editButton} onClick={handleNewPost} data-testid="post-button">Post</button>
                             </div>
                         )}
-                    </div>
-                    <div className={styles.postsHeader}>
-                    {/* TODO: remove upon post creation */}
-                    {profile?.username === username && (
-                        <div>
-                            <button className={styles.editButton} onClick={handleNewPost} data-testid="post-button">+ New Post</button>
-                        </div>
-                    )}
                     </div>
                     {loading && <p>Loading posts...</p>}
                     {posts.length > 0 ? (
