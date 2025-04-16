@@ -96,6 +96,8 @@ jobs:
         
         (cd backend && sudo systemctl start postgresql && python3 manage.py runserver &)
 
+        export CHROME_OPTIONS="--headless --no-sandbox --disable-dev-shm-usage --remote-debugging-port=9222"
+
         echo "Waiting for servers to be fully up..."
         sleep 15
         (cd backend && xvfb-run behave test/features)
