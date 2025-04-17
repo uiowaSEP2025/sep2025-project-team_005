@@ -5,7 +5,7 @@ from pages.models import Post, ReportedPost
 
 class PostSerializer(serializers.ModelSerializer):
     s3_urls = serializers.SerializerMethodField()
-    owner = UserSerializer(read_only=True)
+    owner = serializers.SerializerMethodField()
     is_reported = serializers.SerializerMethodField()
     is_banned = serializers.BooleanField(read_only=True)
 
@@ -16,6 +16,10 @@ class PostSerializer(serializers.ModelSerializer):
             'created_at', 'caption', 'tagged_users',
             's3_urls', 'is_reported', 'is_banned'
         ]
+
+    def get_owner(self, obj):
+        auth_user = self.context.get('auth_user')
+        return UserSerializer(obj.owner, context={'auth_user': auth_user}).data
 
     def get_s3_urls(self, obj):
         return [

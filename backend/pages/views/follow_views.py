@@ -52,7 +52,6 @@ class FollowListView(APIView, FollowPagination):
         
         except User.DoesNotExist:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-        
 
 class FollowToggleView(APIView):
     permission_classes = [IsAuthenticated]

@@ -14,6 +14,7 @@ import { Box, Card, CardActions, CardActionArea, CardContent, CardMedia, Typogra
 import { ArrowBack, ArrowForward, ChatBubbleOutline, ThumbUpOutlined } from '@mui/icons-material';
 import { FaEllipsisV } from 'react-icons/fa';
 import Cookies from "js-cookie";
+import { blueGrey } from '@mui/material/colors';
 
 interface UserID {
     user_id: string;
@@ -22,6 +23,7 @@ interface UserID {
 interface User {
     username: string;
     id: string;
+    isFollowing: boolean;
   }
 
 interface Post {
@@ -90,7 +92,6 @@ export default function Feed() {
             } else {
                 setPosts((prevPosts) => [...prevPosts, ...response.data.results]);
             }
-
             setHasMore(response.data.next !== null);
         } catch (error) {
             console.error("Error fetching posts:", error);
@@ -180,9 +181,32 @@ export default function Feed() {
         router.push("") // TODO: replace with route to individual share view
     }
 
-    const handleFollow = async (post: Post) => {
-        //
-    }
+    const handleFollowToggle = async (user: User, isFollowing: boolean) => {
+        if(!user) {
+            return;
+        } try {
+            const url = `http://localhost:8000/api/follow/${user.id}/`;
+            const method = isFollowing ? "delete" : "post";
+        
+            const response = await axios({
+                url,
+                method,
+                withCredentials: true,
+                headers: {
+                    "Authorization": `Bearer ${Cookies.get("access_token")}`
+                }
+            });
+            if (response.status >= 200 && response.status < 300) {
+                setPosts(prev =>
+                    prev.map(post => post.owner.id === user.id
+                        ? { ...post, owner: { ...post.owner, isFollowing: !isFollowing } }
+                        : post)
+                );
+            }
+        } catch (error) {
+            console.error("Error toggling follow status:", error);
+        }
+    };
 
     const handleHide = async (post: Post) => {
         setHiddenPosts((prev) => new Set(prev.add(post.id)));
@@ -328,7 +352,9 @@ export default function Feed() {
                                                 </CardActions>
                                             </Box>
                                             <Box display="flex" gap={1}>
-                                                <Button size="small" variant="contained" onClick={() => handleFollow(post)}>Follow</Button>
+                                                <Button size="small" variant="contained" sx={{backgroundColor: post.owner.isFollowing ? blueGrey[400] : 'primary.main'}} onClick={() => handleFollowToggle(post.owner, post.owner.isFollowing)}>
+                                                    {post.owner.isFollowing ? 'Unfollow' : 'Follow'}
+                                                </Button>
                                                 <Dropdown buttonLabel={<FaEllipsisV size={24} />}menuItems=
                                                     {[
                                                         { label: "Hide Post", onClick: () => handleHide(post) },

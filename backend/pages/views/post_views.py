@@ -67,7 +67,7 @@ class GetFeedView(APIView, PageNumberPagination):
 
         paginated_posts = self.paginate_queryset(posts, request)
 
-        serialized_posts = PostSerializer(paginated_posts, many=True).data
+        serialized_posts = PostSerializer(paginated_posts, many=True, context={'auth_user': user}).data
         return self.get_paginated_response(serialized_posts)
     
 class GetReportedPostsView(APIView, PageNumberPagination):
