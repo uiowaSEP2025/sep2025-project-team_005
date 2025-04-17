@@ -3,8 +3,6 @@ from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
 from django.core import mail
 from rest_framework import status
-from django.utils.http import urlsafe_base64_encode
-from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 
 User = get_user_model()
@@ -25,6 +23,15 @@ def create_user(db):
         password="Password1!",
         role="musician"
     )
+
+# Imports in fixture to ensure pytest identifies urlsafe_base64_encode and force_bytes as libraries and not fixtures
+@pytest.fixture
+def encoded_uid():
+    def _encode(user_id):
+        from django.utils.http import urlsafe_base64_encode
+        from django.utils.encoding import force_bytes
+        return urlsafe_base64_encode(force_bytes(user_id))
+    return _encode
 
 # Forgot Password Tests
 @pytest.mark.django_db
@@ -50,8 +57,8 @@ def test_forgot_password_missing_email(api_client):
 
 # Reset Password Tests
 @pytest.mark.django_db
-def test_reset_password_success(api_client, create_user):
-    uid = urlsafe_base64_encode(force_bytes(create_user.id))
+def test_reset_password_success(api_client, create_user, encoded_uid):
+    uid = encoded_uid(create_user.id)
     token = token_generator.make_token(create_user)
     
     data = {
@@ -69,8 +76,8 @@ def test_reset_password_success(api_client, create_user):
     assert create_user.check_password(data["password"])
 
 @pytest.mark.django_db
-def test_reset_password_invalid_token(api_client, create_user):
-    uid = urlsafe_base64_encode(force_bytes(create_user.id))
+def test_reset_password_invalid_token(api_client, create_user, encoded_uid):
+    uid = encoded_uid(create_user.id)
     invalid_token = "invalid-token"
 
     data = {
@@ -85,8 +92,8 @@ def test_reset_password_invalid_token(api_client, create_user):
     assert "error" in response.data
 
 @pytest.mark.django_db
-def test_reset_password_passwords_dont_match(api_client, create_user):
-    uid = urlsafe_base64_encode(force_bytes(create_user.id))
+def test_reset_password_passwords_dont_match(api_client, create_user, encoded_uid):
+    uid = encoded_uid(create_user.id)
     token = token_generator.make_token(create_user)
 
     data = {
@@ -107,8 +114,8 @@ def test_reset_password_missing_fields(api_client):
     assert response.data["error"] == "Make sure all fields are filled out."
 
 @pytest.mark.django_db
-def test_reset_password_weak_password(api_client, create_user):
-    uid = urlsafe_base64_encode(force_bytes(create_user.id))
+def test_reset_password_weak_password(api_client, create_user, encoded_uid):
+    uid = encoded_uid(create_user.id)
     token = token_generator.make_token(create_user)
 
     data = {

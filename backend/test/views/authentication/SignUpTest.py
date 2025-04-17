@@ -82,7 +82,7 @@ def test_signup_invalid_instrument(api_client):
 @pytest.mark.django_db
 def test_signup_missing_fields(api_client):
     data = {
-        "username": "",  # empty username
+        "username": "",
         "email": "nope@example.com",
         "password": "",
         "role": "musician"
