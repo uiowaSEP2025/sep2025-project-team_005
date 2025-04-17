@@ -82,7 +82,7 @@ export default function FollowPage() {
 
     const handleFollowToggle = async (userId: string, isFollowing: boolean) => {
         try {
-            const response = await fetch(`${process.env.REACT_APP_API_ENDPOINT}/api/follow/${userId}/`, {
+            const response = await fetch(`${process.env.BACKEND_API}/api/follow/${userId}/`, {
                 method: isFollowing ? "DELETE" : "POST",
                 credentials: "include",
                 headers: {
