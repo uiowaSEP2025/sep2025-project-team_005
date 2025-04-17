@@ -190,7 +190,7 @@ export default function Feed() {
         if (!profile) return;
     
         try {
-            const response = await axios.post('http://localhost:8000/api/post/hide/', {
+            const response = await axios.post(`${process.env.BACKEND_API}/api/post/hide/`, {
                 post_id: post.id,
                 user_id: profile.id,
             });
@@ -224,7 +224,7 @@ export default function Feed() {
             if (!profile) return;
         
             try {
-                const response = await axios.delete('http://localhost:8000/api/post/unhide/', {
+                const response = await axios.delete(`${process.env.BACKEND_API}/api/post/unhide/`, {
                     data: {
                       post_id: post.id,
                       user_id: profile.id,
@@ -259,7 +259,7 @@ export default function Feed() {
         if (!profile) return;
     
         try {
-            const response = await axios.post('http://localhost:8000/api/post/report/', {
+            const response = await axios.post(`${process.env.BACKEND_API}/api/post/report/`, {
                 post_id: post.id,
                 user_id: profile.id,
             });

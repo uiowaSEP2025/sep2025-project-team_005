@@ -11,7 +11,7 @@ env = environ.Env()
 environ.Env.read_env()
 
 def before_all(context):
-    context.base_url = os.getenv("SAVVY_NOTE_URL", f"${os.environ.get('FRONTEND_API')}")
+    context.base_url = os.getenv("SAVVY_NOTE_URL", "http://localhost:3000")
     
     chrome_options = Options()
     chrome_options.headless = True
