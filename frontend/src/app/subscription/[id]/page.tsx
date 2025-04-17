@@ -25,7 +25,7 @@ export default function Subscription() {
         });
 
         if (result?.error) {
-            alert(result.error.message);
+            alert("Something went wrong while redirecting to the checkout. Please try again or contact admin.");
         }
     };
 
