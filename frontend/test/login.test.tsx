@@ -3,6 +3,7 @@ import Login from "@/app/login/page";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import "@testing-library/jest-dom";
+import { signIn } from "next-auth/react";
 
 // Mock next/router
 jest.mock("next/navigation", () => ({
@@ -16,6 +17,11 @@ jest.mock("axios");
 jest.mock("@/context/ProfileContext", () => ({
     useAuth: jest.fn(),
 }));
+
+// Mock next-auth signIn (google login)
+jest.mock("next-auth/react", () => ({
+    signIn: jest.fn(),
+  }));
 
 import { useAuth } from "@/context/ProfileContext";
 
@@ -77,5 +83,14 @@ describe("Login Component", () => {
         await waitFor(() => {
             expect(screen.getByText("Invalid username or password")).toBeInTheDocument();
         });
+    });
+
+    test("clicking 'Sign in with Google' triggers Google login", () => {
+        render(<Login />);
+    
+        fireEvent.click(screen.getByText("Sign in with Google"));
+    
+        // Ensure that the signIn function is called with the correct provider and callback URL
+        expect(signIn).toHaveBeenCalledWith("google", { callbackUrl: "/google-auth" });
     });
 });

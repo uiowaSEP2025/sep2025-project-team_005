@@ -16,10 +16,10 @@ jest.mock('undici', () => ({
 
 (global as any).fetch = fetch;
 
-// Mock the useRouter hook and usePathname
 jest.mock("next/navigation", () => ({
   useRouter: jest.fn(),
   usePathname: jest.fn(),
+  useSearchParams: jest.fn(() => new URLSearchParams()),
 }));
 
 // Sign up option page testing (page where you select your role)
