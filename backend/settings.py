@@ -79,11 +79,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'pages',
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
-    'storages'
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -95,6 +96,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
 
 ROOT_URLCONF = 'urls'

@@ -2,8 +2,8 @@
 
 import styles from "@/styles/Signup.module.css";
 import Image from "next/image";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function BusinessSignup() {
     const [error, setError] = useState("");
@@ -15,6 +15,20 @@ export default function BusinessSignup() {
     const [businessName, setBusinessName] = useState("");
     const [industry, setIndustry] = useState("");
     const BACKEND_API = process.env.BACKEND_API;
+    const searchParams = useSearchParams();     // Used to obtain email if passed from google login to role selection page to here
+
+    useEffect(() => {
+        // Get the email from the query parameter (if it exists)
+        const email = searchParams.get("email");
+        if (email) {
+            // If an email was passed as a query parameter (google login -> sign up), set the email to pre-fill the email field
+            setEmail(email);
+
+            console.log(email);
+        } else {
+            console.log("No email passed");
+        }
+    }, [searchParams]);
 
     // On top of pre-existing HTML5 email validations, use regex to validate email on submission
     const validateEmail = (email: string) => {

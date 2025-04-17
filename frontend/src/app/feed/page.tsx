@@ -36,9 +36,7 @@ export default function Feed() {
     useRequireAuth();
 
     const router = useRouter();
-    // username is not a param - needs to get user from useAuth
     const { profile, isLoading, setProfile } = useAuth();
-    const [userId, setUserId] = useState<UserID | null>(null);
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
@@ -52,7 +50,6 @@ export default function Feed() {
     useEffect(() => {
         if (!isLoading && profile) {
             fetchFeed();
-            debouncedFetchPosts();
         }
     }, [isLoading, profile]);
 
@@ -73,7 +70,7 @@ export default function Feed() {
         try {
             const response = await axios.get(`${process.env.BACKEND_API}/api/fetch-feed/`, {
                 params: {
-                    username: profile.username,
+                    user_id: profile.id,
                     page: pageNum
                 },
                 paramsSerializer: params => {
@@ -161,11 +158,6 @@ export default function Feed() {
         }
     }; 
 
-    const debouncedFetchPosts = debounce(() => {
-        setPage(1);
-        fetchFeed();
-    }, 300);
-
     const loadMorePosts = () => {
         if (hasMore && !loading) {
             fetchFeed(page + 1);
@@ -195,19 +187,59 @@ export default function Feed() {
 
     const handleHide = async (post: Post) => {
         setHiddenPosts((prev) => new Set(prev.add(post.id)));
+        if (!profile) return;
+    
+        try {
+            const response = await axios.post('http://localhost:8000/api/post/hide/', {
+                post_id: post.id,
+                user_id: profile.id,
+            });
+    
+            if (response.status >= 200 && response.status < 300) {
+                console.log("Request successful:", response.data);
+            } else {
+                console.error("Request failed:", response.status, response.statusText);
+            }
+        } catch (error) {
+            console.error("Error hiding post:", error);
+        }
     }
 
-    const handleUnhide = async (post: Post) => {
-        setHiddenPosts((prev) => {
-            const newSet = new Set(prev);
-            newSet.delete(post.id);
-            return newSet;
-        });    
-        setReportedPosts((prev) => {
-            const newSet = new Set(prev);
-            newSet.delete(post.id);
-            return newSet;
-        });   
+    const handleUnhide = async (post: Post, isReport: Boolean) => {
+        if(isReport)
+        {
+            setReportedPosts((prev) => {
+                const newSet = new Set(prev);
+                newSet.delete(post.id);
+                return newSet;
+            });   
+        }
+        else
+        {
+            setHiddenPosts((prev) => {
+                const newSet = new Set(prev);
+                newSet.delete(post.id);
+                return newSet;
+            });
+            if (!profile) return;
+        
+            try {
+                const response = await axios.delete('http://localhost:8000/api/post/unhide/', {
+                    data: {
+                      post_id: post.id,
+                      user_id: profile.id,
+                    },
+                });
+        
+                if (response.status >= 200 && response.status < 300) {
+                    console.log("Request successful:", response.data);
+                } else {
+                    console.error("Request failed:", response.status, response.statusText);
+                }
+            } catch (error) {
+                console.error("Error unhiding post:", error);
+            }
+        } 
     }
 
     const toggleDescription = (post: Post) => {
@@ -224,7 +256,22 @@ export default function Feed() {
 
     const handleReport = async (post: Post) => {
         setReportedPosts((prev) => new Set(prev.add(post.id)));
-        // TODO: Actually report instead of hiding.
+        if (!profile) return;
+    
+        try {
+            const response = await axios.post('http://localhost:8000/api/post/report/', {
+                post_id: post.id,
+                user_id: profile.id,
+            });
+    
+            if (response.status >= 200 && response.status < 300) {
+                console.log("Report successful:", response.data);
+            } else {
+                console.error("Report failed:", response.status, response.statusText);
+            }
+        } catch (error) {
+            console.error("Error reporting post:", error);
+        }
     }
 
     const handleProfile = async (username: string) => {
@@ -362,8 +409,8 @@ export default function Feed() {
                                 ) : (
                                     <Card key={post.id} sx={{ marginBottom: '1rem', width: '50%', height: '50%', objectFit: 'cover' }}>
                                         <CardContent>
-                                            <Typography>Thank you for your feedback. Admins will be notified in a later sprint.</Typography>
-                                            <Button onClick={() => handleUnhide(post)}>Unhide</Button>
+                                            <Typography>Thank you for your feedback. Admins will be notified.</Typography>
+                                            <Button onClick={() => handleUnhide(post, true)}>Unhide</Button>
                                         </CardContent>
                                     </Card>
                                 )
@@ -371,7 +418,7 @@ export default function Feed() {
                                 <Card key={post.id} sx={{ marginBottom: '1rem', width: '50%', height: '50%', objectFit: 'cover' }}>
                                     <CardContent>
                                         <Typography>This post is hidden.</Typography>
-                                        <Button onClick={() => handleUnhide(post)}>Unhide</Button>
+                                        <Button onClick={() => handleUnhide(post, false)}>Unhide</Button>
                                     </CardContent>
                                 </Card>
                             )

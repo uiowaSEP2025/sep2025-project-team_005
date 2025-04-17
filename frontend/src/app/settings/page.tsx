@@ -6,6 +6,7 @@ import Cookies from "js-cookie";
 
 import Image from "next/image";
 import styles from "@/styles/AccountSettings.module.css";
+import { Button } from "@mui/material";
 
 interface User {
     id: string;
@@ -96,6 +97,13 @@ export default function SettingsPage() {
             fetchBlockList(1, true);
         }
     }, [activeSection]);
+
+    const loadMoreUsers = () => {
+        if (hasMore && !loading) {
+            fetchBlockList(page + 1);
+            setPage((prevPage) => prevPage + 1);
+        }
+    };
     
     // Render page based on side bar selection
     const renderSection = () => {
@@ -142,6 +150,9 @@ export default function SettingsPage() {
                                 </div>
                             ))
                         )}
+                        {hasMore && (
+                            <Button onClick={loadMoreUsers} disabled={loading}>Load More</Button>
+                        )}   
                     </div>
                 </>
             );
@@ -159,31 +170,31 @@ export default function SettingsPage() {
 
     return (
         <div className={styles.container}>
-        <div className={styles.header}>
-            <h1 className={styles.title}>Account Settings</h1>
-            <p className={styles.description}>Manage your account, preferences, and privacy</p>
-        </div>
+            <div className={styles.header}>
+                <h1 className={styles.title}>Account Settings</h1>
+                <p className={styles.description}>Manage your account, preferences, and privacy</p>
+            </div>
 
-        <div className={styles.settingsLayout}>
-            {/* Sidebar */}
-            <aside className={styles.settingsSidebar}>
-            <ul className={styles.menu}>
-                {Object.entries(sections).map(([key, label]) => (
-                <li key={key}>
-                    <button
-                        onClick={() => setActiveSection(key as keyof typeof sections)}
-                        className={`${styles.menuItem} ${activeSection === key ? styles.activeItem : ""}`}
-                        >
-                        <span className={styles.menuText}>{label}</span>
-                    </button>
-                </li>
-                ))}
-            </ul>
-            </aside>
+            <div className={styles.settingsLayout}>
+                {/* Sidebar */}
+                <aside className={styles.settingsSidebar}>
+                <ul className={styles.menu}>
+                    {Object.entries(sections).map(([key, label]) => (
+                    <li key={key}>
+                        <button
+                            onClick={() => setActiveSection(key as keyof typeof sections)}
+                            className={`${styles.menuItem} ${activeSection === key ? styles.activeItem : ""}`}
+                            >
+                            <span className={styles.menuText}>{label}</span>
+                        </button>
+                    </li>
+                    ))}
+                </ul>
+                </aside>
 
-            {/* Main Content */}
-            <main className={styles.settingsMain}>{renderSection()}</main>
-        </div>
+                {/* Main Content */}
+                <main className={styles.settingsMain}>{renderSection()}</main>
+            </div>
         </div>
     );
 }
