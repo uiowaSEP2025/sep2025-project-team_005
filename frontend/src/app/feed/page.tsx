@@ -1,24 +1,18 @@
 "use client";
 
 import React from 'react';
-import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useAuth, useRequireAuth } from "@/context/ProfileContext";
 import { useEffect, useState } from "react";
 
 import axios from "axios";
-import debounce from "lodash.debounce";
 import Toolbar from '@/components/toolbars/toolbar';
 import Dropdown from '@/components/menus/dropdown';
 import { Box, Card, CardActions, CardActionArea, CardContent, CardMedia, Typography, Button, Avatar } from '@mui/material';
-import { ArrowBack, ArrowForward, ChatBubbleOutline, ThumbUpOutlined } from '@mui/icons-material';
+import { ArrowBack, ArrowForward, ChatBubbleOutline, ThumbUp, ThumbUpOutlined } from '@mui/icons-material';
 import { FaEllipsisV } from 'react-icons/fa';
 import Cookies from "js-cookie";
 import { blueGrey } from '@mui/material/colors';
-
-interface UserID {
-    user_id: string;
-}
 
 interface User {
     username: string;
@@ -32,6 +26,8 @@ interface Post {
     created_at: string;
     caption: string;
     s3_urls: string[];
+    is_liked: boolean;
+    like_count: number;
 }
 
 export default function Feed() {
@@ -101,42 +97,46 @@ export default function Feed() {
     };
 
     const handleLikeToggle = async (post: Post) => {
-    //     if (!userId) return;
+        if (!post) return;
     
-    //     try {
-    //         let response;
-    
-    //         const isLiked = post.liked_by_user;
-    
-    //         if (isLiked) {
-    //             response = await axios.delete('http://localhost:8000/api/post/like/', {
-    //                 headers: {
-    //                     Authorization: `Bearer ${Cookies.get("access_token")}`,
-    //                 },
-    //                 data: { post_id: post.id },
-    //             });
-    //         } else {
-    //             response = await axios.post(
-    //                 'http://localhost:8000/api/post/like/',
-    //                 { post_id: post.id },
-    //                 {
-    //                     headers: {
-    //                         Authorization: `Bearer ${Cookies.get("access_token")}`,
-    //                     },
-    //                 }
-    //             );
-    //         }
-    
-    //         if (response.status >= 200 && response.status < 300) {
-    //             alert(isLiked ? "Like removed!" : "Like created!");
-    //             console.log("Request successful:", response.data);
-    //         } else {
-    //             alert("Like request failed. Please refresh the page and try again.");
-    //             console.error("Request failed:", response.status, response.statusText);
-    //         }
-    //     } catch (error) {
-    //         console.error("Error toggling like status:", error);
-    //     }
+        try {
+            let response;
+        
+            if (post.is_liked) {
+                response = await axios.delete('http://localhost:8000/api/post/like/', {
+                    data: { post_id: post.id },
+                    headers: {
+                        Authorization: `Bearer ${Cookies.get("access_token")}`,
+                    },
+                });
+            } else {
+                response = await axios.post(
+                    'http://localhost:8000/api/post/like/',
+                    { post_id: post.id },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${Cookies.get("access_token")}`,
+                        },
+                    }
+                );
+            }
+            if (response.status >= 200 && response.status < 300) {
+                setPosts(prev =>
+                    prev.map(p =>
+                        p.id === post.id
+                        ? {...p,
+                            is_liked: !p.is_liked,
+                            like_count: p.is_liked ? p.like_count - 1 : p.like_count + 1}
+                        : p
+                    )
+                );
+            } else {
+                alert("Like request failed. Please refresh the page and try again.");
+                console.error("Request failed:", response.status, response.statusText);
+            }
+        } catch (error) {
+            console.error("Error toggling like status:", error);
+        }
     };
 
     const handleBlock = async (user: User) => {
@@ -425,10 +425,14 @@ export default function Feed() {
                                             )}
                                         </CardContent>
                                         <CardActions>
-                                            {/* ThumbUp for if liked */}
-                                            <Button onClick={() => handleLikeToggle(post)}><ThumbUpOutlined/></Button>
+                                            {post.is_liked ? (
+                                                <Button startIcon={<ThumbUp/>} onClick={() => handleLikeToggle(post)}>{post.like_count}</Button>
+                                            ) : (
+                                                <Button startIcon={<ThumbUpOutlined/>} onClick={() => handleLikeToggle(post)}>{post.like_count}</Button>
+                                            )}
                                             <Button onClick={() => handleCommentClick(post)}><ChatBubbleOutline/></Button>
                                             <Button variant="contained" onClick={() => handleShareClick(post)}>Share</Button>
+                                            
                                         </CardActions>
                                     </Card>
                                 ) : (

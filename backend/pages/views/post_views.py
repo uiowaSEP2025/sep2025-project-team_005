@@ -100,7 +100,8 @@ class GetBannedPostsView(APIView, PageNumberPagination):
     
 class LikeToggleView(APIView):
     def post(self, request):
-        post_id = request.POST.get("post_id")
+        post_id = request.data.get("post_id")
+        print(post_id)
         try:
             target_post = Post.objects.get(id=post_id)
         except Post.DoesNotExist:
@@ -114,7 +115,8 @@ class LikeToggleView(APIView):
         return Response({"message": "Liked"}, status=status.HTTP_201_CREATED)
 
     def delete(self, request):
-        post_id = request.POST.get("post_id")
+        post_id = request.data.get("post_id")
+        print(post_id)
         try:
             target_post = Post.objects.get(id=post_id)
         except Post.DoesNotExist:

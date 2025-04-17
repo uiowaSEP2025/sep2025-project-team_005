@@ -378,7 +378,7 @@ export default function AdminPage() {
         case "bannedPosts":
             return (
                 <>
-                    <h2 className={styles.sectionTitle}>Blocked Users</h2>
+                    <h2 className={styles.sectionTitle}>Banned Posts</h2>
                     <Box sx={{ marginLeft: '20%', padding: '1rem' }}>
                         {loading && <p>Loading posts...</p>}
                         {bannedPosts.length > 0 ? (
