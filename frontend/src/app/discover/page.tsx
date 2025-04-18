@@ -80,7 +80,7 @@ export default function Discover() {
 
         const fetchGenres = async () => {
             try {
-                const response = await fetch(`${process.env.BACKEND}/api/genres/all/`, {
+                const response = await fetch(`${process.env.BACKEND_API}/api/genres/all/`, {
                     method: 'GET',
                     headers: {
                       'Content-Type': 'application/json',
@@ -194,7 +194,7 @@ export default function Discover() {
     const fetchUsers = async (query = "", selectedInstruments: string[], selectedGenres: string[], pageNum = 1) => {
         setLoading(true);
         try {
-            const response = await axios.get(`${process.env.BACKEND}/api/discover/`, {
+            const response = await axios.get(`${process.env.BACKEND_API}/api/discover/`, {
                 params: {
                     search: query,
                     instrument: selectedInstruments,
