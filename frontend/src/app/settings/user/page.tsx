@@ -242,7 +242,7 @@ export default function UserSettings() {
   const [instrumentInput, setInstrumentInput] = useState("");
   const [yearsPlayedInput, setYearsPlayedInput] = useState("");
   const [genreInput, setGenreInput] = useState("");
-  const BACKEND_API = process.env.BACKEND_API;
+  const NEXT_PUBLIC_BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
   const [userData, setUserData] = useState<UserData>({
     id: "",
@@ -283,7 +283,7 @@ export default function UserSettings() {
         });
   
         try {
-          const response = await fetch(`${process.env.BACKEND_API}/api/musician/${profile.id}/`, {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/musician/${profile.id}/`, {
             method: "GET",
             credentials: "include",
           });
@@ -313,7 +313,7 @@ export default function UserSettings() {
   
   const handleSave = async () => {
     try {
-      const response = await fetch(`${process.env.BACKEND_API}/api/musician/${userData.id}/`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/musician/${userData.id}/`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -349,7 +349,7 @@ export default function UserSettings() {
     }
 
     try {
-      const response = await fetch(`${process.env.BACKEND_API}/api/change-password/`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/change-password/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

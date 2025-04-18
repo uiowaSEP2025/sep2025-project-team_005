@@ -9,7 +9,7 @@ import { useState } from "react";
 export default function ForgotPassword() {
     const [email, setEmail] = useState("");
     const [emailError, setEmailError] = useState("");
-    const BACKEND_API = process.env.BACKEND_API;
+    const NEXT_PUBLIC_BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
     const validateEmail = async (email: string): Promise<boolean> => {
         // TODO: add email regex validation
@@ -32,7 +32,7 @@ export default function ForgotPassword() {
         // Clear form errors and then attempt API call
         setEmailError("");
         const response = await axios.post(
-            `${process.env.BACKEND_API}/api/auth/forgot-password/`,
+            `${process.env.NEXT_PUBLIC_BACKEND_API}/api/auth/forgot-password/`,
             { email },
             {
                 headers: {

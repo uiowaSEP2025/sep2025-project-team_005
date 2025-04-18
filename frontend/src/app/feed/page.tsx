@@ -45,7 +45,7 @@ export default function Feed() {
     const [reportedPosts, setReportedPosts] = useState<Set<string>>(new Set());
     const [expandedPostDescriptions, setExpandedPostDescriptions] = useState<Set<string>>(new Set());
     const [postImages, setPostImages] = useState<{ postId: string; imageIndex: number }[]>([]);
-    const BACKEND_API = process.env.BACKEND_API;
+    const NEXT_PUBLIC_BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
     useEffect(() => {
         if (!isLoading && profile) {
@@ -68,7 +68,7 @@ export default function Feed() {
         if (!profile) return;
         setLoading(true);
         try {
-            const response = await axios.get(`${process.env.BACKEND_API}/api/fetch-feed/`, {
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/fetch-feed/`, {
                 params: {
                     user_id: profile.id,
                     page: pageNum
@@ -109,7 +109,7 @@ export default function Feed() {
     //         const isLiked = post.liked_by_user;
     
     //         if (isLiked) {
-    //             response = await axios.delete(`${process.env.BACKEND_API}/api/post/like/`, {
+    //             response = await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/post/like/`, {
     //                 headers: {
     //                     Authorization: `Bearer ${Cookies.get("access_token")}`,
     //                 },
@@ -117,7 +117,7 @@ export default function Feed() {
     //             });
     //         } else {
     //             response = await axios.post(
-    //                 `${process.env.BACKEND_API}/api/post/like/`,
+    //                 `${process.env.NEXT_PUBLIC_BACKEND_API}/api/post/like/`,
     //                 { post_id: post.id },
     //                 {
     //                     headers: {
@@ -143,7 +143,7 @@ export default function Feed() {
         if (!user) return;
     
         try {
-            const response = await axios.post(`${process.env.BACKEND_API}/api/block/${user.id}/`, {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/block/${user.id}/`, {
             });
     
             if (response.status >= 200 && response.status < 300) {
@@ -190,7 +190,7 @@ export default function Feed() {
         if (!profile) return;
     
         try {
-            const response = await axios.post(`${process.env.BACKEND_API}/api/post/hide/`, {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/post/hide/`, {
                 post_id: post.id,
                 user_id: profile.id,
             });
@@ -224,7 +224,7 @@ export default function Feed() {
             if (!profile) return;
         
             try {
-                const response = await axios.delete(`${process.env.BACKEND_API}/api/post/unhide/`, {
+                const response = await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/post/unhide/`, {
                     data: {
                       post_id: post.id,
                       user_id: profile.id,
@@ -259,7 +259,7 @@ export default function Feed() {
         if (!profile) return;
     
         try {
-            const response = await axios.post(`${process.env.BACKEND_API}/api/post/report/`, {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/post/report/`, {
                 post_id: post.id,
                 user_id: profile.id,
             });

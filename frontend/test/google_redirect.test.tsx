@@ -47,7 +47,7 @@ describe("Google Authentication Redirect", () => {
     
         await waitFor(() => {
           expect(axios.post).toHaveBeenCalledWith(
-            `${process.env.BACKEND_API}/api/auth/google-login/`,
+            `${process.env.NEXT_PUBLIC_BACKEND_API}/api/auth/google-login/`,
             {
               email: "test@example.com",
               google_id: "google-id",

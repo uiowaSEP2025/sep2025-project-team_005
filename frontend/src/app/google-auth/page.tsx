@@ -17,7 +17,7 @@ export default function GoogleAuthRedirect() {
     const completeLogin = async () => {
       if (status === "authenticated" && session?.user?.email && session?.user?.id) {
         try {
-          const response = await axios.post(`${process.env.BACKEND_API}/api/auth/google-login/`, {
+          const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/auth/google-login/`, {
             email: session.user.email,
             google_id: session.user.id,
             credentials: "include",

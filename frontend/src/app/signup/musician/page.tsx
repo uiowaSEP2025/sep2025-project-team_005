@@ -59,7 +59,7 @@ export default function MusicianSignup() {
     }>({});
     const [instrumentOptions, setInstrumentOptions] = useState<InstrumentOption[]>([]);
     const [genreOptions, setGenreOptions] = useState<GenreOption[]>([]);
-    const BACKEND_API = process.env.BACKEND_API;
+    const NEXT_PUBLIC_BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
     const searchParams = useSearchParams();     // Used to obtain email if passed from google login to role selection page to here
     
         useEffect(() => {
@@ -80,7 +80,7 @@ export default function MusicianSignup() {
         // Fetch instrument options
         const fetchInstruments = async () => {
             try {
-                const response = await fetch(`${process.env.BACKEND_API}/api/instruments/all/`, {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/instruments/all/`, {
                     method: 'GET',
                     headers: {
                       'Content-Type': 'application/json',
@@ -103,7 +103,7 @@ export default function MusicianSignup() {
         // Fetch genre options
         const fetchGenres = async () => {
             try {
-                const response = await fetch(`${process.env.BACKEND_API}/api/genres/all/`, {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/genres/all/`, {
                     method: 'GET',
                     headers: {
                       'Content-Type': 'application/json',
@@ -383,7 +383,7 @@ export default function MusicianSignup() {
         };
 
         try {
-            const response = await fetch(`${process.env.BACKEND_API}/api/auth/signup/`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/auth/signup/`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(userData),
