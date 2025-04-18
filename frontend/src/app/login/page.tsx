@@ -36,7 +36,10 @@ export default function Login() {
   useEffect(() => {
     if (!isLoading && profile && loggingIn) {
       setLoggingIn(false);
+      if(profile.role == "musician")
         router.push(`/${profile.username}`);
+      else 
+        router.push(`/${profile.username}/business`);
     }
   }, [profile, isLoading, router]);
 

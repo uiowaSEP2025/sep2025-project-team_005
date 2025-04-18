@@ -1,8 +1,9 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from pages.models import Musician, User, Genre, Instrument, MusicianInstrument, BlockedUser
+from pages.models import Musician, User, Genre, Instrument, MusicianInstrument, BlockedUser, Business
 from pages.serializers import MusicianSerializer
+from pages.serializers import BusinessSerializer
 from django.contrib.auth.hashers import check_password
 from rest_framework.permissions import IsAuthenticated
 
@@ -117,4 +118,19 @@ class ChangePasswordView(APIView):
         user.save()
 
         return Response({"message": "Password changed successfully"}, status=200)
-
+    
+class BusinessDetailView(APIView):
+    def get(self, request, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+            business = Business.objects.get(user=user)
+            serializer = BusinessSerializer(business)
+            
+            if BlockedUser.objects.filter(blocked=request.user, blocker=user_id).exists():
+                return Response({"detail": "You are blocked from viewing this profile."}, status=403)
+            
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Musician.DoesNotExist:
+            return Response({"error": "Business profile not found"}, status=status.HTTP_404_NOT_FOUND)
