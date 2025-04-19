@@ -55,7 +55,7 @@ export default function BusinessProfile() {
             if (!username) return; // Ensure username is available
 
             try {
-                const response = await fetch(`http://localhost:8000/api/user/${username}/`, {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/user/${username}/`, {
                     method: "GET",
                     credentials: "include",
                 });
@@ -79,7 +79,7 @@ export default function BusinessProfile() {
         const fetchProfile = async () => {
             if (!userId || !profile) return;
             try {
-                const response = await fetch(`http://localhost:8000/api/business/${userId.user_id}/`, {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/business/${userId.user_id}/`, {
                     method: "GET",
                     credentials: "include",
                     headers: {
@@ -112,7 +112,7 @@ export default function BusinessProfile() {
         const fetchFollowCount = async () => {
             if (!userId) return;
             try {
-                const response = await fetch(`http://localhost:8000/api/follower/${userId.user_id}/`, {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/follower/${userId.user_id}/`, {
                     method: "GET",
                     credentials: "include",
                 });
@@ -136,7 +136,7 @@ export default function BusinessProfile() {
             if (!userId || !profile || userId.user_id === String(profile.id)) return;
     
             try {
-                const response = await fetch(`http://localhost:8000/api/is-following/${userId.user_id}/`, {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/is-following/${userId.user_id}/`, {
                     method: "GET",
                     credentials: "include",
                     headers: {
@@ -162,7 +162,7 @@ export default function BusinessProfile() {
         if (!userId) return;
     
         try {
-            const response = await fetch(`http://localhost:8000/api/follow/${userId.user_id}/`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/follow/${userId.user_id}/`, {
                 method: isFollowing ? "DELETE" : "POST",
                 credentials: "include",
                 headers: {
@@ -184,9 +184,9 @@ export default function BusinessProfile() {
         }
     };    
 
-    const handleUpdateProfile = async () =>  {  //*********** Will need updated
+    const handleUpdateProfile = async () =>  {
         try {
-            router.push("/settings/user");
+            router.push("/settings/business");
         } catch (error) {
             console.error(error)
         }
@@ -202,7 +202,7 @@ export default function BusinessProfile() {
 
     const handleLogout = async () => {
         try {
-            await axios.post("http://localhost:8000/api/auth/logout/", {
+            await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/auth/logout/`, {
                 credentials: "include",
             });
 
@@ -225,7 +225,7 @@ export default function BusinessProfile() {
         if (!userId) return;
     
         try {
-            const response = await fetch(`http://localhost:8000/api/block/${userId.user_id}/`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/block/${userId.user_id}/`, {
                 method: "POST",
                 credentials: "include",
                 headers: {
@@ -297,7 +297,76 @@ export default function BusinessProfile() {
 
     return (
         <div>
-            Business Profile
+            <Toolbar />
+            <div className={styles.container}>
+                <div className={styles.profileHeader}>
+                    <Image 
+                        src="/savvy.png" 
+                        alt={`${username}'s profile picture`} 
+                        width={130} 
+                        height={130} 
+                        className={styles.profilePhoto}
+                    />
+                    <div className={styles.profileInfo}>
+                        <div className={styles.headerWithDots}>
+                            <h1 className={styles.title}>{username}</h1>
+                            <Dropdown 
+                                buttonLabel={<FaEllipsisV size={24} />} 
+                                data-testid="dropdown-button"
+                                sx={{ 
+                                    position: 'absolute', 
+                                    right: 0, 
+                                    cursor: 'pointer', 
+                                }}
+                                menuItems={[
+                                    profile?.username === username ? { label: "Settings", onClick: handleSettings } : null,
+                                    profile?.username === username ? { label: "Logout", onClick: handleLogout } : null,
+                                    profile?.username !== username ? { label: "Block User", onClick: handleBlockUser } : null,
+                                ]}
+                            >
+                            </Dropdown>
+                        </div>
+
+                        <div className={styles.followStats}>
+                            <div className={styles.statCard}>
+                                <button className={styles.statNumber} onClick={() => userId && handleNavigation(userId.user_id, "followers")}>{followCount.follower_count}</button>
+                                <p className={styles.statLabel}>Followers</p>
+                            </div>
+                            <div className={styles.statCard}>
+                            <button className={styles.statNumber} onClick={() => userId && handleNavigation(userId.user_id, "following")}>{followCount.following_count}</button>
+                                <p className={styles.statLabel}>Following</p>
+                            </div>
+                        </div>
+                        {profile?.username !== username && isFollowing !== null && (
+                            <div className={styles.profileActions}>
+                            <button 
+                                className={isFollowing ? styles.unfollowButton : styles.followButton}
+                                onClick={handleFollowToggle}
+                                data-testid="follow-button"
+                            >
+                                {isFollowing ? "Unfollow" : "Follow"}
+                            </button>                                
+                            <button className={styles.messageButton} data-testid="message-button">Message</button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                <div className={styles.bioSection}>
+                    {profile?.username === username && (
+                        <button className={styles.editButton} onClick={handleUpdateProfile} data-testid="edit-button"><Edit size={24}/></button>
+                    )}
+                    <h2 className={styles.bioTitle}>About</h2>
+                    <p className={styles.description}><strong>Business Name:</strong> {businessProfile.business_name}</p>
+                    <p className={styles.description}><strong>Industry:</strong> {businessProfile.industry}</p>
+                </div>
+                
+                <div className={styles.postsSection}>
+                    <div className={styles.postsHeader}>
+                        <h2 className={styles.featureTitle}>Job Listings</h2>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

@@ -11,7 +11,6 @@ class FollowingView(APIView):
     def get(self, request, user_id):
         try:
             user = User.objects.get(id=user_id)
-            musician = Musician.objects.get(user=user)
 
             # Serialize follower count data
             follower_data = FollowCountSerializer(user).data  
