@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from pages.views.discover_views import GetUsersView, InstrumentListView, GenreListView, UserByUsernameView
-from pages.views.settings_views import MusicianDetailView, ChangePasswordView
+from pages.views.settings_views import MusicianDetailView, ChangePasswordView, BusinessDetailView
 from pages.views.follow_views import FollowingView, FollowListView, FollowToggleView, IsFollowingView
 from pages.views.post_views import *
 from pages.views.blocked_views import BlockUserView, BlockedListView
@@ -17,6 +17,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include([
         path('auth/', include("pages.authentication.urls", namespace="authentication")),
+        path('stripe/', include("pages.stripe.urls", namespace="stripe")),
         path('discover/', GetUsersView.as_view(), name="get_users"),
         path('post/', include([
             path('create/', CreatePostView.as_view(), name='create_post'),
@@ -32,6 +33,7 @@ urlpatterns = [
         path('fetch-banned-posts/', GetBannedPostsView.as_view(), name="get-banned-posts"), 
         path('fetch-reported-posts/', GetReportedPostsView.as_view(), name="get-reported-posts"),
         path('musician/<uuid:user_id>/', MusicianDetailView.as_view(), name='musician-detail'),
+        path('business/<uuid:user_id>/', BusinessDetailView.as_view(), name='business-detail'),
         path('change-password/', ChangePasswordView.as_view(), name="change-password"),
         path('user/<str:username>/', UserByUsernameView.as_view(), name='get-user-by-username'),
         path('follower/<uuid:user_id>/', FollowingView.as_view(), name='follow-count'),

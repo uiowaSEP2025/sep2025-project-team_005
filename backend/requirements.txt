@@ -32,8 +32,10 @@ requests
 selenium
 six
 sniffio
+social-auth-app-django
 sortedcontainers
 sqlparse
+stripe
 trio
 trio-websocket
 typing_extensions

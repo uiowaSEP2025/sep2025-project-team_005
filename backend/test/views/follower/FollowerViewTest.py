@@ -63,15 +63,6 @@ class FollowerViewTest:
 
         assert response.status_code == 404
         assert response.data["error"] == "User not found"
-
-    def test_following_view_musician_not_found(self, create_user):
-        """Test when the musician profile does not exist for a valid user."""
-        client = APIClient()
-        url = FOLLOWER_URL.format(create_user.id)
-        response = client.get(url)
-
-        assert response.status_code == 404
-        assert response.data["error"] == "Musician profile not found"
         
     def test_following_view_with_followers(self, create_user, create_musician):
         """Test that the follower and following count are correctly recorded when a user has followers."""

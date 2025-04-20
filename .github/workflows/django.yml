@@ -18,7 +18,6 @@ jobs:
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       DB_HOST: ${{ secrets.DB_HOST }}
       DB_PORT: ${{ secrets.DB_PORT }}
-      NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
       EMAIL_USER: ${{ secrets.EMAIL_USER }}
       EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
       
@@ -26,6 +25,12 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
       AWS_PROFILE: ${{ secrets.AWS_PROFILE }}
+
+      STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+      
+      NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+      NEXT_PUBLIC_FRONTEND_API: ${{ secrets.NEXT_PUBLIC_FRONTEND_API }}
+      NEXT_PUBLIC_BACKEND_API: ${{ secrets.NEXT_PUBLIC_BACKEND_API }}
     strategy:
       max-parallel: 4
       matrix:
@@ -47,16 +52,19 @@ jobs:
         cd backend
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-    - name: Install Chromium and ChromeDriver
+    - name: Install Browser Dependencies (Chromium, ChromeDriver, XVFB, and Libraries)
       run: |
         sudo apt-get update
-        sudo apt-get install -y chromium-browser
-        sudo apt-get install -y jq
+        sudo apt-get install -y chromium-browser jq xvfb
+        sudo apt-get install -y libnss3 libxi6 libxcursor1 libxcomposite1 libxrandr2 libatk1.0-0 libatk-bridge2.0-0 libcups2
         CHROME_VERSION=$(chromium-browser --version | grep -oP "\d+\.\d+\.\d+\.\d+" | head -1)
+        echo "Chromium version: ${CHROME_VERSION}"
         
         # Get matching ChromeDriver version
-        DRIVER_VERSION=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json" | jq -r --arg ver "$CHROME_VERSION" '.channels.Stable.version')
+        DRIVER_VERSION=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json" | jq -r '.channels.Stable.version')
+        echo "ChromeDriver version: ${DRIVER_VERSION}"
         DRIVER_URL="https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${DRIVER_VERSION}/linux64/chromedriver-linux64.zip"
+        echo "Downloading Chromedriver from: ${DRIVER_URL}"
 
         # Download and install ChromeDriver
         wget -q $DRIVER_URL -O /tmp/chromedriver.zip
@@ -86,15 +94,15 @@ jobs:
         docker compose up -d
         cd backend
         pytest
-
-        # # Behave needs the frontend and backend running in background to test.
-        # cd ../frontend
-        # npm run dev &
+    - name: Run Behave Tests
+      run: |
+        # Behave needs the frontend and backend running in background to test.
+        (cd frontend && npm run dev &)
         
-        # cd ../backend
-        # sudo systemctl start postgresql
-        # python3 manage.py runserver &
+        (cd backend && sudo systemctl start postgresql && python3 manage.py runserver &)
 
-        # echo "Waiting for servers to be fully up..."
-        # sleep 15
-        # behave test/features
+        export CHROME_OPTIONS="--headless --no-sandbox --disable-dev-shm-usage --remote-debugging-port=9222"
+
+        echo "Waiting for servers to be fully up..."
+        sleep 15
+        (cd backend && xvfb-run behave test/features)

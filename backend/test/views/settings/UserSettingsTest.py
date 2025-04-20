@@ -1,11 +1,12 @@
 import pytest
 from rest_framework.test import APIClient
 from django.contrib.auth import get_user_model
-from pages.models import Musician, Instrument, Genre, MusicianInstrument
+from pages.models import Musician, Instrument, Genre, MusicianInstrument, Business
 import json
 
 User = get_user_model()
 MUSICIAN_URL = "/api/musician/{}/"
+BUSINESS_URL = "/api/business/{}/"
 CHANGE_PASSWORD_URL = "/api/change-password/"
 
 @pytest.fixture
@@ -28,6 +29,14 @@ def create_musician(db):
     musician.save()
     return user, musician
 
+@pytest.fixture
+def create_business(db):
+    """Creates a test user with a business name and industry."""
+    user = User.objects.create_user(username="testuser", email="business@gmail.com", password="Testpassword1!")
+    business = Business.objects.create(user=user, business_name="Test Business", industry="Test Industry")
+
+    return user, business
+
 @pytest.mark.django_db
 def test_get_musician_detail(api_client, create_musician):
     """Test retrieving musician details."""
@@ -49,6 +58,12 @@ def test_get_user_not_found(api_client):
     url = MUSICIAN_URL.format("00000000-0000-0000-0000-000000000000")
     response = api_client.get(url)
 
+    assert response.status_code == 404
+    assert response.data == {"error": "User not found"}
+    
+    url = BUSINESS_URL.format("00000000-0000-0000-0000-000000000000")
+    response = api_client.get(url)
+    
     assert response.status_code == 404
     assert response.data == {"error": "User not found"}
 
@@ -173,3 +188,60 @@ def test_change_password_invalid(api_client, create_musician):
     
     assert response.status_code == 400
     assert response.data == {"error": "Current password is incorrect"}
+
+@pytest.mark.django_db
+def test_get_business_detail(api_client, create_business):
+    """Test retrieving business details."""
+    user, business = create_business
+    url = BUSINESS_URL.format(user.id)
+    api_client.force_authenticate(user=user)
+    
+    response = api_client.get(url)
+    assert response.status_code == 200
+    assert response.data["business_name"] == "Test Business"
+    assert response.data["industry"] == "Test Industry"
+    
+@pytest.mark.django_db
+def test_get_business_not_found(api_client, db):
+    """Test retrieving a business profile when the user exists but business does not."""
+    user = User.objects.create_user(username="testuser", email="test@gmail.com", password="Testpassword1!")
+    url = BUSINESS_URL.format(user.id)
+    response = api_client.get(url)
+    
+    assert response.status_code == 404
+    assert response.data == {"error": "Business profile not found"}
+    
+@pytest.mark.django_db
+def test_patch_business(api_client, create_business):
+    """Test updating business profile."""
+    user, business = create_business
+    url = BUSINESS_URL.format(user.id)
+    api_client.force_authenticate(user=user)
+    
+    updated_data = {
+        "username": "updateduser",
+        "email": "updated@gmail.com",
+        "phone": "1234567890",
+        "business_name": "New Business",
+        "industry": "New Industry",
+    }
+    
+    response = api_client.patch(url, json.dumps(updated_data), content_type="application/json")
+    
+    assert response.status_code == 200
+    assert response.data == {"message": "Profile updated successfully"}
+    user.refresh_from_db()
+    business.refresh_from_db()
+    assert user.username == "updateduser"
+    assert user.email == "updated@gmail.com"
+    assert business.business_name == "New Business"
+    assert business.industry == "New Industry"
+    
+@pytest.mark.django_db
+def test_patch_business_not_found(api_client):
+    """Test updating a business profile that doesn't exist."""
+    url = BUSINESS_URL.format("00000000-0000-0000-0000-000000000000")
+    response = api_client.patch(url, {}, format="json")
+    
+    assert response.status_code == 404
+    assert response.data == {"error": "User not found"}

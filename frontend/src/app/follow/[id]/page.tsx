@@ -13,6 +13,7 @@ import Toolbar from '@/components/toolbars/toolbar';
 interface User {
     id: string;
     username: string;
+    role: string;
     profilePhoto: string;
     isFollowing: boolean;
 }
@@ -31,6 +32,7 @@ export default function FollowPage() {
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [loading, setLoading] = useState(false);
+    const NEXT_PUBLIC_BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
     useEffect(() => {
         setUsers([]);
@@ -45,7 +47,7 @@ export default function FollowPage() {
         setLoading(true);
         try {
             const response = await fetch(
-                `http://localhost:8000/api/follow-list/${id}/?type=${type}&page=${pageNum}`,
+                `${process.env.NEXT_PUBLIC_BACKEND_API}/api/follow-list/${id}/?type=${type}&page=${pageNum}`,
                 { method: "GET", credentials: "include",
                     headers: {
                         "Authorization": `Bearer ${Cookies.get("access_token")}`
@@ -75,13 +77,16 @@ export default function FollowPage() {
         }
     };
 
-    const handleUserClick = (username: string) => {
-        router.push(`/${username}`);
+    const handleUserClick = (user: User) => {
+        if(user.role == "musician")
+            router.push(`/${user.username}`);
+        else
+            router.push(`/${user.username}/business`);
     };
 
     const handleFollowToggle = async (userId: string, isFollowing: boolean) => {
         try {
-            const response = await fetch(`http://localhost:8000/api/follow/${userId}/`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/follow/${userId}/`, {
                 method: isFollowing ? "DELETE" : "POST",
                 credentials: "include",
                 headers: {
@@ -130,7 +135,7 @@ export default function FollowPage() {
                                         height={50}
                                         className={styles.profilePhoto}
                                     />
-                                    <button className={styles.username} onClick={() => handleUserClick(user.username)}>
+                                    <button className={styles.username} onClick={() => handleUserClick(user)}>
                                         {user.username}
                                     </button>
                                     {profile && user.id !== profile.id.toString() && (
