@@ -132,7 +132,7 @@ class BusinessDetailView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-        except Musician.DoesNotExist:
+        except Business.DoesNotExist:
             return Response({"error": "Business profile not found"}, status=status.HTTP_404_NOT_FOUND)
         
     def patch(self, request, user_id):
@@ -155,7 +155,7 @@ class BusinessDetailView(APIView):
             user.phone = request.data.get("phone", user.phone)
             user.save()
 
-            # Update musician data
+            # Update business data
             business.business_name = request.data.get("business_name", business.business_name)
             business.industry = request.data.get("industry", business.industry)
             business.save()
@@ -163,5 +163,5 @@ class BusinessDetailView(APIView):
             return Response({"message": "Profile updated successfully"}, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-        except Musician.DoesNotExist:
+        except Business.DoesNotExist:
             return Response({"error": "Business profile not found"}, status=status.HTTP_404_NOT_FOUND)
