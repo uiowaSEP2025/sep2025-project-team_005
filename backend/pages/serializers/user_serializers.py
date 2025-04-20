@@ -9,7 +9,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'isFollowing', 'isBlocked']
+        fields = ['id', 'username', 'role', 'isFollowing', 'isBlocked']
         
     def get_isFollowing(self, obj):
         auth_user = self.context.get('auth_user')
