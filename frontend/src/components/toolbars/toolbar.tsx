@@ -37,7 +37,11 @@ const Toolbar = () => {
     }
 
     const handleProfile = () => {
-        router.push(`/${profile?.username}`)
+        if (!profile) return <p className="description">Loading...</p>;
+            if (profile.role == "musician")
+                router.push(`/${profile?.username}`)
+            else
+                router.push(`/${profile?.username}/business`)
     }
 
     return (

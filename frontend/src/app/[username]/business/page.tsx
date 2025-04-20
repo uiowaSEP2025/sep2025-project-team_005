@@ -22,12 +22,9 @@ interface UserID {
     user_id: string;
 }
 
-interface MusicianProfile {
-    stage_name: string;
-    years_played: number;
-    home_studio: boolean;
-    genres: string[];
-    instruments: { instrument_name: string; years_played: number }[];
+interface BusinessProfile {
+    business_name: string;
+    industry: number;
 }
 
 interface FollowCount {
@@ -35,23 +32,18 @@ interface FollowCount {
     following_count: number;
 }
 
-interface Post {
-    id: string;
-    created_at: string;
-    caption: string;
-    s3_urls: string[];
-}
+interface JobListing {}
 
-export default function DiscoverProfile() {
+export default function BusinessProfile() {
     useRequireAuth();
 
     const router = useRouter();
     const { username } = useParams();
     const { profile, isLoading, setProfile } = useAuth();
-    const [musicianProfile, setMusicianProfile] = useState<MusicianProfile | null>(null);
+    const [businessProfile, setBusinessProfile] = useState<BusinessProfile | null>(null);
     const [followCount, setFollowCount] = useState<FollowCount | null>(null);
     const [userId, setUserId] = useState<UserID | null>(null);
-    const [posts, setPosts] = useState<Post[]>([]);
+    const [jobListing, setJobListing] = useState<JobListing[]>([]);
     const [files, setFiles] = useState<File[]>();
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
@@ -82,12 +74,12 @@ export default function DiscoverProfile() {
         fetchUserId();
     }, [username]);
 
-    // Fetch Musician Profile
+    // Fetch business Profile
     useEffect(() => {
         const fetchProfile = async () => {
             if (!userId || !profile) return;
             try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/musician/${userId.user_id}/`, {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/business/${userId.user_id}/`, {
                     method: "GET",
                     credentials: "include",
                     headers: {
@@ -103,19 +95,19 @@ export default function DiscoverProfile() {
 
                 if (response.ok) {
                     const data = await response.json();
-                    setMusicianProfile(data);
+                    setBusinessProfile(data);
                 } else {
-                    console.error("Failed to fetch musician profile", response.statusText);
+                    console.error("Failed to fetch business profile", response.statusText);
                 }
             } catch (error) {
-                console.error("Error fetching musician profile:", error);
+                console.error("Error fetching business profile:", error);
             }
         };
 
         fetchProfile();
     }, [userId]);
 
-    // Fetch Follow Count
+    // Fetch Follow Count  ********* Needs updates
     useEffect(() => {
         const fetchFollowCount = async () => {
             if (!userId) return;
@@ -194,7 +186,7 @@ export default function DiscoverProfile() {
 
     const handleUpdateProfile = async () =>  {
         try {
-            router.push("/settings/user");
+            router.push("/settings/business");
         } catch (error) {
             console.error(error)
         }
@@ -251,100 +243,41 @@ export default function DiscoverProfile() {
         }
     };    
 
-    const handlePost = async () => {
-        try {
-            const formData = new FormData();
-            if (!files) {
-                console.error("Please upload a file");
-                return;
-            }
-            files.forEach((file) => {
-                formData.append("files", file);
-            });
-            formData.append("caption", "Test".repeat(100));
-    
-            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/post/create/`, formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                    "Authorization": `Bearer ${Cookies.get("access_token")}`
-                },
-                withCredentials: true
-            });
-            if (response.status >= 200 && response.status < 300) {
-                alert("Post created!");
-                console.log("Request successful:", response.data);
-            } else {
-                alert("Post creation failed. Please refresh the page and try again.");
-                console.error("Request failed:", response.status, response.statusText);
-            }
-        } catch (error) {
-            console.error(error)
-        }
+    const handleJobListing = async () => {
+        
     };
 
     const handleNavigation = (user_id: string, type: "followers" | "following") => {
         router.push(`/follow/${user_id}?type=${type}`);
     };
 
-    const fetchPosts = async (username: string, pageNum = 1) => {
+    const fetchJobListings = async (username: string, pageNum = 1) => {
         setLoading(true);
         try {
-            const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/post/fetch/`, {
-                params: {
-                    username: username,
-                    page: pageNum
-                },
-                paramsSerializer: params => {
-                    const searchParams = new URLSearchParams();
-                    Object.keys(params).forEach(key => {
-                        if (Array.isArray(params[key])) {
-                            params[key].forEach(val => searchParams.append(key, val));
-                        } else {
-                            searchParams.append(key, params[key]);
-                        }
-                    });
-                    return searchParams.toString();
-                }
-            });
-
-            if (pageNum === 1) {
-                setPosts(response.data.results);
-            } else {
-                setPosts((prevPosts) => [...prevPosts, ...response.data.results]);
-            }
-
-            setHasMore(response.data.next !== null);
-        } catch (error) {
-            console.error("Error fetching posts:", error);
-        } finally {
+            
+        } 
+        finally {
             setLoading(false);
         }
     };
 
-    const handlePostClick = async (post: Post) => {
-        router.push("") // TODO: replace with route to individual post view
+    const handleJobListingClick = async (post: JobListing) => {
+        router.push("") // TODO: replace with route to individual JobListing view
     }
 
-    const debouncedFetchPosts = debounce(() => {
+    const debouncedFetchJobListings = debounce(() => {
         setPage(1);
-        fetchPosts(String(username),1);
+        fetchJobListings(String(username),1);
     }, 300);
 
     useEffect(() => {
-        debouncedFetchPosts();
+        debouncedFetchJobListings();
     }, [username]);
 
-    const loadMorePosts = () => {
+    const loadMoreJobListings = () => {
         if (hasMore && !loading) {
-            fetchPosts(String(username), page + 1);
+            fetchJobListings(String(username), page + 1);
             setPage((prevPage) => prevPage + 1);
-        }
-    };
-
-    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.files && event.target.files.length > 0) {
-            const files = event.target.files ? Array.from(event.target.files).slice(0, 10) : [];
-            setFiles(files);
         }
     };
 
@@ -360,7 +293,7 @@ export default function DiscoverProfile() {
         width: 1,
     });
 
-    if (isLoading || !musicianProfile || !followCount) return <p className="description">Loading...</p>;
+    if (isLoading || !businessProfile || !followCount) return <p className="description">Loading...</p>;
 
     return (
         <div>
@@ -376,7 +309,7 @@ export default function DiscoverProfile() {
                     />
                     <div className={styles.profileInfo}>
                         <div className={styles.headerWithDots}>
-                            <h1 className={styles.title}>{musicianProfile.stage_name || username}</h1>
+                            <h1 className={styles.title}>{username}</h1>
                             <Dropdown 
                                 buttonLabel={<FaEllipsisV size={24} />} 
                                 data-testid="dropdown-button"
@@ -424,70 +357,14 @@ export default function DiscoverProfile() {
                         <button className={styles.editButton} onClick={handleUpdateProfile} data-testid="edit-button"><Edit size={24}/></button>
                     )}
                     <h2 className={styles.bioTitle}>About</h2>
-                    <p className={styles.description}><strong>Home Studio:</strong> {musicianProfile.home_studio ? "Yes" : "No"}</p>
-                    <p className={styles.description}><strong>Genres:</strong> {musicianProfile.genres.join(", ")}</p>
-                    <p className={styles.description}>
-                        <strong>Instruments: </strong>
-                        <span>
-                            {musicianProfile.instruments.map((instr, index) => (
-                                <React.Fragment key={index}>
-                                    {instr.instrument_name} - {instr.years_played} years
-                                    {index < musicianProfile.instruments.length - 1 && <br />}
-                                </React.Fragment>
-                            ))}
-                        </span>
-                    </p>
+                    <p className={styles.description}><strong>Business Name:</strong> {businessProfile.business_name}</p>
+                    <p className={styles.description}><strong>Industry:</strong> {businessProfile.industry}</p>
                 </div>
                 
                 <div className={styles.postsSection}>
                     <div className={styles.postsHeader}>
-                        <h2 className={styles.featureTitle}>Posts</h2>
-                        {profile?.username === username && (
-                            <div>
-                                <button className={styles.editButton} onClick={handlePost} data-testid="post-button">Post</button>
-                            </div>
-                        )}
+                        <h2 className={styles.featureTitle}>Job Listings</h2>
                     </div>
-                    <div className={styles.postsHeader}>
-                    {/* TODO: remove upon post creation */}
-                    {profile?.username === username && (
-                        <div>
-                            <Button
-                                component="label"
-                                role={undefined}
-                                variant="contained"
-                                tabIndex={-1}
-                                startIcon={<CloudUpload />}
-                                >
-                                Upload files
-                                <VisuallyHiddenInput
-                                    type="file"
-                                    onChange={(event) => handleFileUpload(event)}
-                                    multiple
-                                />
-                            </Button>
-                        </div>
-                    )}
-                    </div>
-                    {loading && <p>Loading posts...</p>}
-                    {posts.length > 0 ? (
-                        <div className={styles.postsGrid}>
-                            {posts.map((post) => (
-                                <div key={post.id} className={styles.imageContainer} onClick={() => handlePostClick(post)}>
-                                    {post.s3_urls.map((s3_url, index) => (
-                                        <img key={index} src={s3_url} alt={post.caption} />
-                                    ))}                                    
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <p>No posts found.</p>
-                    )}
-                    {hasMore && (
-                        <button onClick={loadMorePosts} disabled={loading}>
-                            Load More
-                        </button>
-                    )}
                 </div>
             </div>
         </div>

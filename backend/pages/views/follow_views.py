@@ -11,7 +11,6 @@ class FollowingView(APIView):
     def get(self, request, user_id):
         try:
             user = User.objects.get(id=user_id)
-            musician = Musician.objects.get(user=user)
 
             # Serialize follower count data
             follower_data = FollowCountSerializer(user).data  
@@ -19,8 +18,6 @@ class FollowingView(APIView):
             return Response(follower_data, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-        except Musician.DoesNotExist:
-            return Response({"error": "Musician profile not found"}, status=status.HTTP_404_NOT_FOUND)
         
 class FollowPagination(PageNumberPagination):
     page_size = 5
