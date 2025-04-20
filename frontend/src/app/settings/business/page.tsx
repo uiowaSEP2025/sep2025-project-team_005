@@ -154,7 +154,7 @@ export default function UserSettings() {
   
   const handleSave = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/api/musician/${userData.id}/`, {
+      const response = await fetch(`http://localhost:8000/api/business/${userData.id}/`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
