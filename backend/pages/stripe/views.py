@@ -1,3 +1,4 @@
+import os
 import stripe
 from django.conf import settings
 from rest_framework.views import APIView
@@ -34,8 +35,8 @@ class CreateSubscriptionSessionView(APIView):
                     'price': price_id,
                     'quantity': 1,
                 }],
-                success_url='http://localhost:3000/subscription/success?session_id={CHECKOUT_SESSION_ID}',
-                cancel_url='http://localhost:3000/subscription/cancel',
+                success_url = f"{os.getenv('NEXT_PUBLIC_FRONTEND_API')}/subscription/success?session_id={{CHECKOUT_SESSION_ID}}",
+                cancel_url=f"{os.getenv('NEXT_PUBLIC_FRONTEND_API')}/subscription/cancel",
                 metadata={
                     'user_id': user_id,
                     'type': subscription_type

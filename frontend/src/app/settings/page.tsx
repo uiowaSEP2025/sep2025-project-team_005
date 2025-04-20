@@ -154,7 +154,7 @@ export default function SettingsPage() {
     
         setLoading(true);
         try {
-            const response = await axios.get('http://localhost:8000/api/fetch-liked-posts/', {
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/fetch-liked-posts/`, {
                 params: {
                     user_id: profile.id,
                     page: pageNum
@@ -236,7 +236,7 @@ export default function SettingsPage() {
         if(!user) {
             return;
         } try {
-            const url = `http://localhost:8000/api/follow/${user.id}/`;
+            const url = `${process.env.NEXT_PUBLIC_BACKEND_API}/api/follow/${user.id}/`;
             const method = isFollowing ? "delete" : "post";
         
             const response = await axios({

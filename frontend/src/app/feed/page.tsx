@@ -182,7 +182,7 @@ export default function Feed() {
         if(!user) {
             return;
         } try {
-            const url = `http://localhost:8000/api/follow/${user.id}/`;
+            const url = `${process.env.NEXT_PUBLIC_BACKEND_API}/api/follow/${user.id}/`;
             const method = isFollowing ? "delete" : "post";
         
             const response = await axios({
