@@ -52,7 +52,7 @@ export default function AdminPage() {
         setLoading(true);
         try {
             const response = await fetch(
-                `http://localhost:8000/api/fetch-reported-posts/?page=${pageNum}`,
+                `${process.env.NEXT_PUBLIC_BACKEND_API}/api/fetch-reported-posts/?page=${pageNum}`,
                 { 
                     method: "GET", 
                     credentials: "include",
@@ -91,7 +91,7 @@ export default function AdminPage() {
     
         setLoading(true);
         try {
-            const response = await axios.get('http://localhost:8000/api/fetch-banned-posts/', {
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/fetch-banned-posts/`, {
                 params: {
                     user_id: profile.id,
                     page: pageNum
@@ -182,7 +182,7 @@ export default function AdminPage() {
         setLoading(true);
     
         try {
-            const response = await axios.post(`http://localhost:8000/api/post/unban/`, {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/post/unban/`, {
                 post_id: post.id,
             });
     
@@ -206,7 +206,7 @@ export default function AdminPage() {
         setLoading(true);
     
         try {
-            const response = await axios.post(`http://localhost:8000/api/post/ban/`, {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/post/ban/`, {
                 post_id: post.id,
                 admin_id: profile.id,
             });

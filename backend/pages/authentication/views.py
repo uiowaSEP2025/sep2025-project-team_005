@@ -17,8 +17,10 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.core.mail import send_mail
-
 import logging
+import environ
+env = environ.Env()
+environ.Env.read_env()
 
 logger = logging.getLogger(__name__)
 tokenGenerator = PasswordResetTokenGenerator()
@@ -102,7 +104,7 @@ def forgot_password_email(request):
             uid = urlsafe_base64_encode(force_bytes(user.id))
             token = tokenGenerator.make_token(user)
 
-            resetUrl = (f"http://localhost:3000/reset-password/?uid={uid}&token={token}")
+            resetUrl = (f"{env('NEXT_PUBLIC_FRONTEND_API')}/reset-password/?uid={uid}&token={token}")
 
             send_mail(
                 # TODO SN5-84: Move HTML into separate files and parse them. Personalize email.

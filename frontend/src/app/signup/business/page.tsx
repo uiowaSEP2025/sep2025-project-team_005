@@ -14,6 +14,7 @@ export default function BusinessSignup() {
     const [passwordError, setPasswordError] = useState("");
     const [businessName, setBusinessName] = useState("");
     const [industry, setIndustry] = useState("");
+    const NEXT_PUBLIC_BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
     const searchParams = useSearchParams();     // Used to obtain email if passed from google login to role selection page to here
 
     useEffect(() => {
@@ -85,7 +86,7 @@ export default function BusinessSignup() {
         }
 
         try {
-            const response = await fetch("http://localhost:8000/api/auth/signup/", {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/auth/signup/`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(userData)

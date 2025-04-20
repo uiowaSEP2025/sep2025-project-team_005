@@ -32,6 +32,7 @@ export default function SettingsPage() {
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [loading, setLoading] = useState(false);
+    const NEXT_PUBLIC_BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
     const fetchBlockList = async (pageNum = 1, reset = false) => {
         if (!hasMore || loading || !profile) return;
@@ -39,7 +40,7 @@ export default function SettingsPage() {
         setLoading(true);
         try {
             const response = await fetch(
-                `http://localhost:8000/api/block-list/${profile.id}/?page=${pageNum}`,
+                `${process.env.NEXT_PUBLIC_BACKEND_API}/api/block-list/${profile.id}/?page=${pageNum}`,
                 { 
                     method: "GET", 
                     credentials: "include",
@@ -68,7 +69,7 @@ export default function SettingsPage() {
         setLoading(true); // Set loading to true while making the request
     
         try {
-            const response = await fetch(`http://localhost:8000/api/block/${userId}/`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/block/${userId}/`, {
                 method: "DELETE",
                 headers: {
                     "Authorization": `Bearer ${Cookies.get("access_token")}`,

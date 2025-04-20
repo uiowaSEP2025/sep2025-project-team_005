@@ -17,13 +17,14 @@ export default function Login() {
   const [error, setError] = useState("");
   const router = useRouter();
   const [loggingIn, setLoggingIn] = useState(false);
+  const NEXT_PUBLIC_BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoggingIn(true);
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/auth/login/",
+        `${process.env.NEXT_PUBLIC_BACKEND_API}/api/auth/login/`,
         { username, password },
         { withCredentials: true } // Sends cookies to backend
       );
