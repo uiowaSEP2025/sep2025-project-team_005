@@ -12,6 +12,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddConstraint(
             model_name='follower',
-            constraint=models.CheckConstraint(check=models.Q(('follower', models.F('following')), _negated=True), name='prevent_self_follow'),
+            constraint=models.CheckConstraint(check=~models.Q(('follower', models.F('following')), _negated=True), name='prevent_self_follow'),
         ),
     ]

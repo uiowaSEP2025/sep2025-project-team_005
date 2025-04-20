@@ -7,6 +7,8 @@ import Link from "next/link";
 import Image from "next/image";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
+import { FcGoogle } from "react-icons/fc";
 
 export default function Login() {
   const { profile, isLoading, fetchProfile } = useAuth();
@@ -15,13 +17,14 @@ export default function Login() {
   const [error, setError] = useState("");
   const router = useRouter();
   const [loggingIn, setLoggingIn] = useState(false);
+  const NEXT_PUBLIC_BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoggingIn(true);
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/auth/login/",
+        `${process.env.NEXT_PUBLIC_BACKEND_API}/api/auth/login/`,
         { username, password },
         { withCredentials: true } // Sends cookies to backend
       );
@@ -40,6 +43,13 @@ export default function Login() {
     }
   }, [profile, isLoading, router]);
 
+  // Function to handle clicking login with google button
+  const handleGoogleLogin = () => {
+    // Call next-auth sign in function with the provider (google) and callback URL
+    signIn("google", { callbackUrl: "/google-auth" });
+  };
+
+  
   return (
     <div className={styles.container}>
       <header className={styles.header}>
@@ -62,6 +72,11 @@ export default function Login() {
           Don't have an account? <Link href="/signup" className={styles.link}>Sign Up</Link>
         </p>
       </form>
+
+      <button onClick={handleGoogleLogin} className={styles.googleButton}>
+        <FcGoogle className={styles.googleIcon} />
+          Sign in with Google
+      </button>
 
       <footer className={styles.footer}>
         &copy; {new Date().getFullYear()} SavvyNote. All rights reserved.

@@ -3,7 +3,7 @@
 import styles from "@/styles/Signup.module.css";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 
 // Ensures that the genres read from the database are explicitly types
@@ -59,13 +59,28 @@ export default function MusicianSignup() {
     }>({});
     const [instrumentOptions, setInstrumentOptions] = useState<InstrumentOption[]>([]);
     const [genreOptions, setGenreOptions] = useState<GenreOption[]>([]);
+    const NEXT_PUBLIC_BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
+    const searchParams = useSearchParams();     // Used to obtain email if passed from google login to role selection page to here
+    
+        useEffect(() => {
+            // Get the email from the query parameter (if it exists)
+            const email = searchParams.get("email");
+            if (email) {
+                // If an email was passed as a query parameter (google login -> sign up), set the email to pre-fill the email field
+                setEmail(email);
+    
+                console.log(email);
+            } else {
+                console.log("No email passed");
+            }
+        }, [searchParams]);
 
     // Fetch instruments and genres from the database when the component mounts
     useEffect(() => {
         // Fetch instrument options
         const fetchInstruments = async () => {
             try {
-                const response = await fetch('http://localhost:8000/api/instruments/all/', {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/instruments/all/`, {
                     method: 'GET',
                     headers: {
                       'Content-Type': 'application/json',
@@ -88,7 +103,7 @@ export default function MusicianSignup() {
         // Fetch genre options
         const fetchGenres = async () => {
             try {
-                const response = await fetch('http://localhost:8000/api/genres/all/', {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/genres/all/`, {
                     method: 'GET',
                     headers: {
                       'Content-Type': 'application/json',
@@ -368,7 +383,7 @@ export default function MusicianSignup() {
         };
 
         try {
-            const response = await fetch("http://localhost:8000/api/auth/signup/", {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/auth/signup/`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(userData),

@@ -383,8 +383,9 @@ describe("Discover Profile Page", () => {
         const logoutButton = screen.getByTestId("menu-item-logout");
         fireEvent.click(logoutButton);
 
+        const NEXT_PUBLIC_BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
         await waitFor(() => expect(axios.post).toHaveBeenCalledWith(
-            "http://localhost:8000/api/auth/logout/", 
+            `${process.env.NEXT_PUBLIC_BACKEND_API}/api/auth/logout/`, 
             { credentials: "include" }
         ));
 
