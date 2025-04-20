@@ -286,12 +286,13 @@ export default function DiscoverProfile() {
         router.push(`/follow/${user_id}?type=${type}`);
     };
 
-    const fetchPosts = async (username: string, pageNum = 1) => {
+    const fetchPosts = async (pageNum = 1) => {
+        if(!profile) return;
         setLoading(true);
         try {
             const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/post/fetch/`, {
                 params: {
-                    username: username,
+                    user_id: profile.id,
                     page: pageNum
                 },
                 paramsSerializer: params => {
@@ -325,18 +326,14 @@ export default function DiscoverProfile() {
         router.push("") // TODO: replace with route to individual post view
     }
 
-    const debouncedFetchPosts = debounce(() => {
-        setPage(1);
-        fetchPosts(String(username),1);
-    }, 300);
-
     useEffect(() => {
-        debouncedFetchPosts();
+        setPage(1);
+        fetchPosts(1);
     }, [username]);
 
     const loadMorePosts = () => {
         if (hasMore && !loading) {
-            fetchPosts(String(username), page + 1);
+            fetchPosts(page + 1);
             setPage((prevPage) => prevPage + 1);
         }
     };

@@ -40,13 +40,17 @@ class GetPostsView(APIView, PageNumberPagination):
     page_size = 6
 
     def get(self, request):
-        username = request.GET.get("username")
+        user_id = request.GET.get("user_id")
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        posts = Post.objects.filter(owner__username=username, is_banned=False).distinct().order_by("-created_at")
+        posts = Post.objects.filter(owner__username=user.username, is_banned=False).distinct().order_by("-created_at")
 
         paginated_posts = self.paginate_queryset(posts, request)
 
-        serialized_posts = PostSerializer(paginated_posts, many=True).data
+        serialized_posts = PostSerializer(paginated_posts, many=True, context={'auth_user': user}).data
         return self.get_paginated_response(serialized_posts)
     
 class GetFeedView(APIView, PageNumberPagination):
@@ -64,6 +68,26 @@ class GetFeedView(APIView, PageNumberPagination):
             ~Q(id__in=user.reported_posts.values('id')),
             Q(is_banned=False)
         ).distinct().order_by("-created_at")
+
+        paginated_posts = self.paginate_queryset(posts, request)
+
+        serialized_posts = PostSerializer(paginated_posts, many=True, context={'auth_user': user}).data
+        return self.get_paginated_response(serialized_posts)
+    
+class GetLikedPostsView(APIView, PageNumberPagination):
+    page_size = 6
+
+    def get(self, request):
+        user_id = request.GET.get("user_id")
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        liked_post_ids = Like.objects.filter(user=user).values_list('post_id', flat=True).distinct()
+        posts = Post.objects.filter(
+            Q(id__in=liked_post_ids),
+            Q(is_banned=False)
+        ).distinct().order_by("created_at")
 
         paginated_posts = self.paginate_queryset(posts, request)
 

@@ -32,6 +32,7 @@ urlpatterns = [
         path('fetch-feed/', GetFeedView.as_view(), name="get-feed"),
         path('fetch-banned-posts/', GetBannedPostsView.as_view(), name="get-banned-posts"), 
         path('fetch-reported-posts/', GetReportedPostsView.as_view(), name="get-reported-posts"),
+        path('fetch-liked-posts/', GetLikedPostsView.as_view(), name="get-liked-posts"),
         path('musician/<uuid:user_id>/', MusicianDetailView.as_view(), name='musician-detail'),
         path('business/<uuid:user_id>/', BusinessDetailView.as_view(), name='business-detail'),
         path('change-password/', ChangePasswordView.as_view(), name="change-password"),

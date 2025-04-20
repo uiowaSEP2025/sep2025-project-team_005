@@ -18,7 +18,7 @@ interface User {
     username: string;
     id: string;
     isFollowing: boolean;
-  }
+}
 
 interface Post {
     owner: User;
@@ -168,10 +168,6 @@ export default function Feed() {
 
     const handlePostClick = async (post: Post) => {
         router.push("") // TODO: replace with route to individual post view
-    }
-
-    const handleLikeClick = async (post: Post) => {
-        // post like creation
     }
 
     const handleCommentClick = async (post: Post) => {

@@ -98,7 +98,7 @@ def mock_generate_s3_url(mocker):
 def test_fetch_posts(api_client, create_users, create_posts, mock_generate_s3_url):
     api_client.force_authenticate(user=create_users[0])
 
-    response = api_client.get(FETCH_POSTS_URL, {"username": create_users[0].username})
+    response = api_client.get(FETCH_POSTS_URL, {"user_id": create_users[0].id})
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) > 0
@@ -110,7 +110,7 @@ def test_fetch_no_banned_posts(api_client, create_users, create_posts_other_user
     api_client.force_authenticate(user=create_users[1])
     banned_post = create_banned_posts[0]
 
-    response = api_client.get(FETCH_POSTS_URL, {"username": create_users[1].username})
+    response = api_client.get(FETCH_POSTS_URL, {"user_id": create_users[1].id})
 
     assert all(post["id"] != str(banned_post.id) for post in response.data["results"])
 
@@ -118,7 +118,7 @@ def test_fetch_no_banned_posts(api_client, create_users, create_posts_other_user
 def test_fetch_posts_order(api_client, create_users, create_posts, mock_generate_s3_url):
     api_client.force_authenticate(user=create_users[0])
 
-    response = api_client.get(FETCH_POSTS_URL, {"username": create_users[0].username})
+    response = api_client.get(FETCH_POSTS_URL, {"user_id": create_users[0].id})
 
     assert response.status_code == status.HTTP_200_OK
     assert response.data["results"][0]["caption"] == "Test"
