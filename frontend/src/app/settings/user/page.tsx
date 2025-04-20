@@ -286,6 +286,9 @@ export default function UserSettings() {
           const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/musician/${profile.id}/`, {
             method: "GET",
             credentials: "include",
+            headers: {
+                "Authorization": `Bearer ${Cookies.get("access_token")}`
+            }
           });
   
           if (response.ok) {
@@ -293,7 +296,7 @@ export default function UserSettings() {
             setUserData((prev) => ({
               ...prev,
               instruments: data.instruments,
-              genre: data.genres,
+              genres: data.genres,
               stage_name: data.stage_name,
               years_played: data.years_played,
               home_studio: data.home_studio,
@@ -324,7 +327,7 @@ export default function UserSettings() {
           email: userData.email,
           phone: userData.phone,
           instruments: userData.instruments,
-          genre: userData.genres,
+          genres: userData.genres,
           stage_name: userData.stage_name,
           years_played: userData.years_played,
           home_studio: userData.home_studio,
