@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from pages.views.discover_views import GetUsersView, InstrumentListView, GenreListView, UserByUsernameView
+from pages.views.discover_views import GetUsersView, UserByUsernameView
 from pages.views.settings_views import MusicianDetailView, ChangePasswordView, BusinessDetailView
 from pages.views.follow_views import FollowingView, FollowListView, FollowToggleView, IsFollowingView
 from pages.views.post_views import *
@@ -38,8 +38,6 @@ urlpatterns = [
         path('change-password/', ChangePasswordView.as_view(), name="change-password"),
         path('user/<str:username>/', UserByUsernameView.as_view(), name='get-user-by-username'),
         path('follower/<uuid:user_id>/', FollowingView.as_view(), name='follow-count'),
-        path('instruments/', InstrumentListView.as_view(), name='instrument-list'),
-        path('genres/', GenreListView.as_view(), name='genre-list'),
         path('instruments/all/', get_instruments, name="get-instruments"),
         path('genres/all/', get_genres, name="get-genres"),
         path('follow-list/<uuid:user_id>/', FollowListView.as_view(), name='follow-list'),

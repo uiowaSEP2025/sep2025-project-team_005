@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from django.contrib.auth import get_user_model
 from pages.serializers.post_serializers import PostSerializer
-from pages.models import Post, ReportedPost
+from pages.models import Post, ReportedPost, Like
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils.timezone import now, timedelta
 
@@ -15,6 +15,7 @@ FETCH_POSTS_URL = "/api/post/fetch/"
 FETCH_FEED_URL = "/api/fetch-feed/"
 FETCH_BANNED_POSTS_URL = "/api/fetch-banned-posts/"
 FETCH_REPORTED_POSTS_URL = "/api/fetch-reported-posts/"
+FETCH_LIKED_POSTS_URL = "/api/fetch-liked-posts/"
 
 @pytest.fixture
 def post_factory():
@@ -54,7 +55,7 @@ def create_posts(post_factory, create_users):
 @pytest.fixture
 def create_posts_other_user(post_factory, create_users):
     return (
-        post_factory(owner=create_users[1], caption="Test-other", created_days_ago=1, file_key="user_0002/test.png"),
+        post_factory(owner=create_users[1], caption="Test-other", created_days_ago=1, file_key="user_0002/test.png", file_type="image/png"),
         post_factory(owner=create_users[1], caption="Test2-other", created_days_ago=2, file_key="user_0002/test2.jpg")
     )
 
@@ -73,6 +74,12 @@ def create_reported_posts(db, create_users, create_posts, create_posts_other_use
     post = ReportedPost.objects.create(user=create_users[1], post=create_posts[1])
     post2 = ReportedPost.objects.create(user=create_users[0], post=create_posts_other_user[1])
     return post, post2
+
+@pytest.fixture
+def create_likes(db, create_users, create_posts):
+    like = Like.objects.create(user=create_users[1], post=create_posts[0])
+    like2 = Like.objects.create(user=create_users[1], post=create_posts[1])
+    return like, like2
 
 @pytest.fixture
 def create_hidden_post(db, create_users, create_posts):
@@ -106,6 +113,14 @@ def test_fetch_posts(api_client, create_users, create_posts, mock_generate_s3_ur
     assert response.data["results"][0]["file_types"][0] == "image/png"
     assert response.data["results"][0]["caption"] == "Test"
 
+def test_fetch_posts_no_user(api_client, create_users, mock_generate_s3_url):
+    api_client.force_authenticate(user=create_users[0])
+
+    response = api_client.get(FETCH_POSTS_URL, {"user_id": uuid.uuid4()})
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.data["error"] == "User not found"
+
 def test_fetch_no_banned_posts(api_client, create_users, create_posts_other_user, create_banned_posts, mock_generate_s3_url):
     api_client.force_authenticate(user=create_users[1])
     banned_post = create_banned_posts[0]
@@ -136,7 +151,7 @@ def test_fetch_feed(api_client, create_users, create_posts_other_user, mock_gene
     assert response.data["results"][0]["owner"]["id"] == str(other_user.id)
     assert response.data["results"][0]["owner"]["username"] == other_user.username
 
-def test_fetch_feed_no_user(api_client, create_users, create_posts_other_user, mock_generate_s3_url):
+def test_fetch_feed_no_user(api_client, create_users, mock_generate_s3_url):
     api_client.force_authenticate(user=create_users[0])
 
     response = api_client.get(FETCH_FEED_URL, {"user_id": uuid.uuid4()})
@@ -167,7 +182,7 @@ def test_fetch_feed_order(api_client, create_users, create_posts_other_user, moc
     assert response.data["results"][1]["caption"] == "Test2-other"
 
 def test_fetch_reported_posts(api_client, create_users, create_reported_posts, mock_generate_s3_url):
-    api_client.force_authenticate(user=create_users)
+    api_client.force_authenticate(user=create_users[0])
 
     response = api_client.get(FETCH_REPORTED_POSTS_URL)
 
@@ -203,6 +218,32 @@ def test_fetch_banned_posts_order(api_client, create_users, create_banned_posts,
     assert response.status_code == status.HTTP_200_OK
     assert response.data["results"][0]["caption"] == "Test"
     assert response.data["results"][1]["caption"] == "Test-other"
+
+def test_fetch_liked_posts(api_client, create_users, create_likes, mock_generate_s3_url):
+    api_client.force_authenticate(user=create_users[1])
+
+    response = api_client.get(FETCH_LIKED_POSTS_URL, {"user_id": create_users[1].id})
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data["results"]) > 0
+    assert response.data["results"][0]["file_types"][0] == "image/jpeg"
+ 
+def test_fetch_liked_posts_order(api_client, create_users, create_likes, mock_generate_s3_url):
+    api_client.force_authenticate(user=create_users[1])
+
+    response = api_client.get(FETCH_LIKED_POSTS_URL, {"user_id": create_users[1].id})
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["results"][0]["caption"] == "Test2"
+    assert response.data["results"][1]["caption"] == "Test"
+
+def test_fetch_liked_posts_no_user(api_client, create_users, mock_generate_s3_url):
+    api_client.force_authenticate(user=create_users[0])
+
+    response = api_client.get(FETCH_LIKED_POSTS_URL, {"user_id": uuid.uuid4()})
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.data["error"] == "User not found"
 
 def test_post_serializer(mocker, create_posts, mock_generate_s3_url):
     serializer = PostSerializer(create_posts[0])

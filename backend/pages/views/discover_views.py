@@ -42,16 +42,6 @@ class GetUsersView(APIView, PageNumberPagination):
         paginated_users = self.paginate_queryset(users, request)
 
         return self.get_paginated_response([user.username for user in paginated_users])
-
-class InstrumentListView(APIView):
-    def get(self, request):
-        instruments = Instrument.objects.values_list("instrument", flat=True)
-        return Response(list(instruments))
-    
-class GenreListView(APIView):
-    def get(self, request):
-        genres = Genre.objects.values_list("genre", flat=True)
-        return Response(list(genres))
     
 class UserByUsernameView(APIView):
     def get(self, request, *args, **kwargs):

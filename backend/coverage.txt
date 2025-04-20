@@ -4,7 +4,7 @@ pages/__init__.py                                                               
 pages/admin.py                                                                                            1      0   100%
 pages/apps.py                                                                                             4      0   100%
 pages/authentication/urls.py                                                                              6      0   100%
-pages/authentication/views.py                                                                            91     36    60%   51, 97-143, 147-182
+pages/authentication/views.py                                                                           109      3    97%   53, 174-175
 pages/forms.py                                                                                           29      1    97%   18
 pages/migrations/0001_squashed_0003_alter_business_industry_alter_instrument_class_name_and_more.py      11      0   100%
 pages/migrations/0004_rename_user_id_business_user_and_more.py                                            4      0   100%
@@ -18,7 +18,7 @@ pages/migrations/0010_follower_prevent_self_follow.py                           
 pages/migrations/0011_merge_20250328_0303.py                                                              4      0   100%
 pages/migrations/0012_remove_musician_instruments_musicianinstrument.py                                   5      0   100%
 pages/migrations/0013_musician_instruments.py                                                             4      0   100%
-pages/migrations/0014_remove_post_s3_url.py                                                               4      0   100%
+pages/migrations/0014_remove_post_s3_url.py                                                               5      0   100%
 pages/migrations/0015_remove_post_likes_comment_like_comment.py                                           8      0   100%
 pages/migrations/0015_remove_post_tagged_users.py                                                         4      0   100%
 pages/migrations/0016_blockeduser.py                                                                      7      0   100%
@@ -33,6 +33,7 @@ pages/migrations/0021_user_hidden_posts_reportedpost_user_reported_posts.py     
 pages/migrations/0022_merge_20250415_1820.py                                                              4      0   100%
 pages/migrations/0023_remove_post_tagged_users_alter_post_owner.py                                        6      0   100%
 pages/migrations/0024_post_tagged_users.py                                                                5      0   100%
+pages/migrations/0025_subscription.py                                                                     5      0   100%
 pages/migrations/__init__.py                                                                              0      0   100%
 pages/models/BlockedUser.py                                                                              11      0   100%
 pages/models/Business.py                                                                                 11      0   100%
@@ -45,9 +46,10 @@ pages/models/Musician.py                                                        
 pages/models/MusicianInstrument.py                                                                       10      0   100%
 pages/models/Post.py                                                                                     23      0   100%
 pages/models/ReportedPost.py                                                                             15      0   100%
+pages/models/Subscription.py                                                                              8      0   100%
 pages/models/TaggedUser.py                                                                               17      0   100%
 pages/models/User.py                                                                                     22      0   100%
-pages/models/__init__.py                                                                                 14      0   100%
+pages/models/__init__.py                                                                                 15      0   100%
 pages/serializers/__init__.py                                                                            10      0   100%
 pages/serializers/business_serializers.py                                                                 6      0   100%
 pages/serializers/comment_serializers.py                                                                  7      0   100%
@@ -55,18 +57,20 @@ pages/serializers/follower_serializers.py                                       
 pages/serializers/genre_serializers.py                                                                    6      0   100%
 pages/serializers/instrument_serializers.py                                                               6      0   100%
 pages/serializers/musician_serializers.py                                                                19      5    74%   24-35
-pages/serializers/post_serializers.py                                                                    16      0   100%
+pages/serializers/post_serializers.py                                                                    25      0   100%
 pages/serializers/signup_serializers.py                                                                  19      2    89%   18, 20
 pages/serializers/user_serializers.py                                                                    18      0   100%
+pages/stripe/urls.py                                                                                      4      0   100%
+pages/stripe/views.py                                                                                    50      8    84%   25, 45-46, 61-62, 80-82
 pages/utils/__init__.py                                                                                   1      0   100%
 pages/utils/s3_utils.py                                                                                  25      0   100%
 pages/views/__init__.py                                                                                   0      0   100%
 pages/views/blocked_views.py                                                                             54      4    93%   40-41, 84-85
-pages/views/discover_views.py                                                                            41      4    90%   48-49, 53-54
-pages/views/dropdown_views.py                                                                            15      6    60%   9-11, 15-17
-pages/views/follow_views.py                                                                              73      0   100%
-pages/views/post_views.py                                                                               188     12    94%   150-151, 174-175, 187-188, 197-198, 222-223, 242-243
-pages/views/settings_views.py                                                                            76      3    96%   17, 35, 38
-pages/views/signup_views.py                                                                              35     16    54%   34-49, 55-56, 61-75
+pages/views/discover_views.py                                                                            33      0   100%
+pages/views/dropdown_views.py                                                                            15      0   100%
+pages/views/follow_views.py                                                                              70      0   100%
+pages/views/post_views.py                                                                               207     12    94%   176-177, 200-201, 213-214, 223-224, 248-249, 268-269
+pages/views/settings_views.py                                                                           112      0   100%
+pages/views/signup_views.py                                                                              34      0   100%
 -----------------------------------------------------------------------------------------------------------------------------------
-TOTAL                                                                                                  1095     89    92%
+TOTAL                                                                                                  1234     35    97%
