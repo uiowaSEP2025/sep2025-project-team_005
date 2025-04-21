@@ -17,26 +17,29 @@ export default function CreateNewPost() {
     const router = useRouter();
     const { username } = useParams();
     const { profile, isLoading, setProfile } = useAuth();
-    const [file, setFile] = useState<File>();
+    const [files, setFiles] = useState<FileList | null>(null);
     const [caption, setCaption] = useState("");
 
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files.length > 0) {
-            setFile(event.target.files?.[0]);
+            setFiles(event.target.files);
         }
     };
 
     const handlePost = async () => {
         try {
             const formData = new FormData();
-            if (!file) {
+            if (!files || files.length === 0) {
                 console.error("Please upload a file");
                 return;
             }
-            formData.append("file", file);
+
+            for (let i = 0; i < files.length; i++) {
+                formData.append("files", files[i]);
+            }
             formData.append("caption", caption);
-    
-            const response = await axios.post("http://localhost:8000/api/create-post/", formData, {
+
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/post/create/`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                     "Authorization": `Bearer ${Cookies.get("access_token")}`
