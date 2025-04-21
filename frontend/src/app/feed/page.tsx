@@ -1,28 +1,24 @@
 "use client";
 
 import React from 'react';
-import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useAuth, useRequireAuth } from "@/context/ProfileContext";
 import { useEffect, useState } from "react";
 
 import axios from "axios";
-import debounce from "lodash.debounce";
 import Toolbar from '@/components/toolbars/toolbar';
 import Dropdown from '@/components/menus/dropdown';
 import { Box, Card, CardActions, CardActionArea, CardContent, CardMedia, Typography, Button, Avatar } from '@mui/material';
-import { ArrowBack, ArrowForward, ChatBubbleOutline, ThumbUpOutlined } from '@mui/icons-material';
+import { ArrowBack, ArrowForward, ChatBubbleOutline, ThumbUp, ThumbUpOutlined } from '@mui/icons-material';
 import { FaEllipsisV } from 'react-icons/fa';
 import Cookies from "js-cookie";
-
-interface UserID {
-    user_id: string;
-}
+import { blueGrey } from '@mui/material/colors';
 
 interface User {
     username: string;
     id: string;
-  }
+    isFollowing: boolean;
+}
 
 interface Post {
     owner: User;
@@ -30,6 +26,8 @@ interface Post {
     created_at: string;
     caption: string;
     s3_urls: string[];
+    is_liked: boolean;
+    like_count: number;
 }
 
 export default function Feed() {
@@ -91,7 +89,6 @@ export default function Feed() {
             } else {
                 setPosts((prevPosts) => [...prevPosts, ...response.data.results]);
             }
-
             setHasMore(response.data.next !== null);
         } catch (error) {
             console.error("Error fetching posts:", error);
@@ -101,42 +98,46 @@ export default function Feed() {
     };
 
     const handleLikeToggle = async (post: Post) => {
-    //     if (!userId) return;
+        if (!post) return;
     
-    //     try {
-    //         let response;
-    
-    //         const isLiked = post.liked_by_user;
-    
-    //         if (isLiked) {
-    //             response = await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/post/like/`, {
-    //                 headers: {
-    //                     Authorization: `Bearer ${Cookies.get("access_token")}`,
-    //                 },
-    //                 data: { post_id: post.id },
-    //             });
-    //         } else {
-    //             response = await axios.post(
-    //                 `${process.env.NEXT_PUBLIC_BACKEND_API}/api/post/like/`,
-    //                 { post_id: post.id },
-    //                 {
-    //                     headers: {
-    //                         Authorization: `Bearer ${Cookies.get("access_token")}`,
-    //                     },
-    //                 }
-    //             );
-    //         }
-    
-    //         if (response.status >= 200 && response.status < 300) {
-    //             alert(isLiked ? "Like removed!" : "Like created!");
-    //             console.log("Request successful:", response.data);
-    //         } else {
-    //             alert("Like request failed. Please refresh the page and try again.");
-    //             console.error("Request failed:", response.status, response.statusText);
-    //         }
-    //     } catch (error) {
-    //         console.error("Error toggling like status:", error);
-    //     }
+        try {
+            let response;
+        
+            if (post.is_liked) {
+                response = await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/post/like/`, {
+                    data: { post_id: post.id },
+                    headers: {
+                        Authorization: `Bearer ${Cookies.get("access_token")}`,
+                    },
+                });
+            } else {
+                response = await axios.post(
+                    `${process.env.NEXT_PUBLIC_BACKEND_API}/api/post/like/`,
+                    { post_id: post.id },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${Cookies.get("access_token")}`,
+                        },
+                    }
+                );
+            }
+            if (response.status >= 200 && response.status < 300) {
+                setPosts(prev =>
+                    prev.map(p =>
+                        p.id === post.id
+                        ? {...p,
+                            is_liked: !p.is_liked,
+                            like_count: p.is_liked ? p.like_count - 1 : p.like_count + 1}
+                        : p
+                    )
+                );
+            } else {
+                alert("Like request failed. Please refresh the page and try again.");
+                console.error("Request failed:", response.status, response.statusText);
+            }
+        } catch (error) {
+            console.error("Error toggling like status:", error);
+        }
     };
 
     const handleBlock = async (user: User) => {
@@ -169,10 +170,6 @@ export default function Feed() {
         router.push("") // TODO: replace with route to individual post view
     }
 
-    const handleLikeClick = async (post: Post) => {
-        // post like creation
-    }
-
     const handleCommentClick = async (post: Post) => {
         router.push("") // TODO: replace with route to individual post-comment view
     }
@@ -181,9 +178,32 @@ export default function Feed() {
         router.push("") // TODO: replace with route to individual share view
     }
 
-    const handleFollow = async (post: Post) => {
-        //
-    }
+    const handleFollowToggle = async (user: User, isFollowing: boolean) => {
+        if(!user) {
+            return;
+        } try {
+            const url = `${process.env.NEXT_PUBLIC_BACKEND_API}/api/follow/${user.id}/`;
+            const method = isFollowing ? "delete" : "post";
+        
+            const response = await axios({
+                url,
+                method,
+                withCredentials: true,
+                headers: {
+                    "Authorization": `Bearer ${Cookies.get("access_token")}`
+                }
+            });
+            if (response.status >= 200 && response.status < 300) {
+                setPosts(prev =>
+                    prev.map(post => post.owner.id === user.id
+                        ? { ...post, owner: { ...post.owner, isFollowing: !isFollowing } }
+                        : post)
+                );
+            }
+        } catch (error) {
+            console.error("Error toggling follow status:", error);
+        }
+    };
 
     const handleHide = async (post: Post) => {
         setHiddenPosts((prev) => new Set(prev.add(post.id)));
@@ -329,7 +349,9 @@ export default function Feed() {
                                                 </CardActions>
                                             </Box>
                                             <Box display="flex" gap={1}>
-                                                <Button size="small" variant="contained" onClick={() => handleFollow(post)}>Follow</Button>
+                                                <Button size="small" variant="contained" sx={{backgroundColor: post.owner.isFollowing ? blueGrey[400] : 'primary.main'}} onClick={() => handleFollowToggle(post.owner, post.owner.isFollowing)}>
+                                                    {post.owner.isFollowing ? 'Unfollow' : 'Follow'}
+                                                </Button>
                                                 <Dropdown buttonLabel={<FaEllipsisV size={24} />}menuItems=
                                                     {[
                                                         { label: "Hide Post", onClick: () => handleHide(post) },
@@ -400,10 +422,14 @@ export default function Feed() {
                                             )}
                                         </CardContent>
                                         <CardActions>
-                                            {/* ThumbUp for if liked */}
-                                            <Button onClick={() => handleLikeToggle(post)}><ThumbUpOutlined/></Button>
+                                            {post.is_liked ? (
+                                                <Button startIcon={<ThumbUp/>} onClick={() => handleLikeToggle(post)}>{post.like_count}</Button>
+                                            ) : (
+                                                <Button startIcon={<ThumbUpOutlined/>} onClick={() => handleLikeToggle(post)}>{post.like_count}</Button>
+                                            )}
                                             <Button onClick={() => handleCommentClick(post)}><ChatBubbleOutline/></Button>
                                             <Button variant="contained" onClick={() => handleShareClick(post)}>Share</Button>
+                                            
                                         </CardActions>
                                     </Card>
                                 ) : (

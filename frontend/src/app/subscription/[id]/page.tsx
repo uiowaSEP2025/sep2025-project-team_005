@@ -14,7 +14,7 @@ export default function Subscription() {
     const handleCheckout = async (type: "monthly" | "annual") => {
         const stripe = await stripePromise;
 
-        const response = await axios.post("http://localhost:8000/api/stripe/create-subscription-session/", {
+        const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/stripe/create-subscription-session/`, {
             type: type,
             user_id: id,
         });

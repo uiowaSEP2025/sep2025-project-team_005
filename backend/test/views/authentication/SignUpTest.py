@@ -8,6 +8,8 @@ from pages.models import Musician, Business, Instrument, Genre
 
 User = get_user_model()
 SIGNUP_URL = "/api/auth/signup/"
+ALL_INSTRUMENTS_URL = "/api/instruments/all/"
+ALL_GENRES_URL = "/api/genres/all/"
 
 @pytest.fixture
 def api_client():
@@ -103,3 +105,23 @@ def test_signup_existing_email(api_client, create_user):
     response = api_client.post(SIGNUP_URL, data, format="json")
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert "email" in response.data
+
+@pytest.mark.django_db
+def test_get_all_instruments(api_client, instrument):
+    instrument = instrument
+    Instrument.objects.create(instrument="Guitar2")
+
+    response = api_client.get(ALL_INSTRUMENTS_URL)
+
+    assert response.status_code == 200
+    assert len(response.data) == 2
+
+@pytest.mark.django_db
+def test_get_all_genres(api_client, genre):
+    genre = genre
+    Genre.objects.create(genre="Rock2")
+
+    response = api_client.get(ALL_GENRES_URL)
+
+    assert response.status_code == 200
+    assert len(response.data) == 2 

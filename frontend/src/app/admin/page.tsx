@@ -64,17 +64,11 @@ export default function AdminPage() {
     
             if (response.ok) {
                 const data = await response.json();
-                console.log("AAAA");
-                console.log(data);
-                console.log(data.results);
                 if (pageNum === 1) {
-                    console.log("set")
                     setActiveReports(data.results);
                 } else {
-                    console.log("set2")
                     setActiveReports((prevPosts) => [...prevPosts, ...data.results]);
                 }
-                console.log(activeReports)
                 setHasMoreReports(!!data.next);
             } else {
                 console.error("Failed to fetch reported posts list", response.statusText);
@@ -108,7 +102,6 @@ export default function AdminPage() {
                     return searchParams.toString();
                 }
             });
-            console.log(response.data.results);
 
             if (response.status >= 200 && response.status < 300) {
                 if (pageNum === 1) {
@@ -169,7 +162,6 @@ export default function AdminPage() {
     };
 
     useEffect(() => {
-        console.log(isLoading, profile, activeSection)
         if (!isLoading && profile && activeSection === "activeReports") {
             fetchReportList(1);
         } else if (!isLoading && profile && activeSection === "bannedPosts") {
@@ -378,7 +370,7 @@ export default function AdminPage() {
         case "bannedPosts":
             return (
                 <>
-                    <h2 className={styles.sectionTitle}>Blocked Users</h2>
+                    <h2 className={styles.sectionTitle}>Banned Posts</h2>
                     <Box sx={{ marginLeft: '20%', padding: '1rem' }}>
                         {loading && <p>Loading posts...</p>}
                         {bannedPosts.length > 0 ? (

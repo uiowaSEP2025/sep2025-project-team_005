@@ -138,6 +138,7 @@ def test_get_users_genre_filter(authenticated_client_factory, create_users):
     ]
     
     assert all(result in users_with_rock_genre for result in response.data["results"])
+
 @pytest.mark.filterwarnings("ignore:Pagination may yield inconsistent results with an unordered object_list")
 def test_get_users_instrument_and_genre_filter(authenticated_client_factory, create_users):
     """Test filtering users by instrument and genre - Guitar or Rock."""
@@ -158,7 +159,6 @@ def test_get_users_instrument_and_genre_filter(authenticated_client_factory, cre
     ]
     
     assert all(result in users_with_guitar_or_rock for result in response.data["results"])
-    
     
 @pytest.mark.django_db
 def test_get_user_by_username(authenticated_client_factory, create_users):

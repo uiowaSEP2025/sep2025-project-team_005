@@ -28,7 +28,6 @@ class FollowListView(APIView, FollowPagination):
     permission_classes = [IsAuthenticated]
     
     def get(self, request, user_id):
-        print(f"Authenticated user: {request.user}")
         try:
             user = User.objects.get(id=user_id)
             
@@ -50,7 +49,6 @@ class FollowListView(APIView, FollowPagination):
         
         except User.DoesNotExist:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-        
 
 class FollowToggleView(APIView):
     permission_classes = [IsAuthenticated]

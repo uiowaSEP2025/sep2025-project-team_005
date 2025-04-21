@@ -43,7 +43,7 @@ describe("Subscription Component", () => {
 
         await waitFor(() => {
             expect(axios.post).toHaveBeenCalledWith(
-                "http://localhost:8000/api/stripe/create-subscription-session/",
+                `${process.env.NEXT_PUBLIC_BACKEND_API}/api/stripe/create-subscription-session/`,
                 { type: "monthly", user_id: "user-id-123" }
             );
         });
@@ -57,7 +57,7 @@ describe("Subscription Component", () => {
 
         await waitFor(() => {
             expect(axios.post).toHaveBeenCalledWith(
-                "http://localhost:8000/api/stripe/create-subscription-session/",
+                `${process.env.NEXT_PUBLIC_BACKEND_API}/api/stripe/create-subscription-session/`,
                 { type: "annual", user_id: "user-id-123" }
             );
         });

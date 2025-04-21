@@ -44,9 +44,6 @@ def signup(request):
                         )
                     except Instrument.DoesNotExist:
                         return Response({"error": "Instrument not found."}, status=status.HTTP_400_BAD_REQUEST)
-                else:
-                    # Print to the terminal to indicate no join objects will be made
-                    print("There are no instruments to create musician instruments with")
 
             # Set genres after Musician instance is created
             genres_data = request.data.get("genres", [])

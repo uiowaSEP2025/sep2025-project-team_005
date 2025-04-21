@@ -40,13 +40,17 @@ class GetPostsView(APIView, PageNumberPagination):
     page_size = 6
 
     def get(self, request):
-        username = request.GET.get("username")
+        user_id = request.GET.get("user_id")
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        posts = Post.objects.filter(owner__username=username, is_banned=False).distinct().order_by("-created_at")
+        posts = Post.objects.filter(owner__username=user.username, is_banned=False).distinct().order_by("-created_at")
 
         paginated_posts = self.paginate_queryset(posts, request)
 
-        serialized_posts = PostSerializer(paginated_posts, many=True).data
+        serialized_posts = PostSerializer(paginated_posts, many=True, context={'auth_user': user}).data
         return self.get_paginated_response(serialized_posts)
     
 class GetFeedView(APIView, PageNumberPagination):
@@ -67,11 +71,31 @@ class GetFeedView(APIView, PageNumberPagination):
 
         paginated_posts = self.paginate_queryset(posts, request)
 
-        serialized_posts = PostSerializer(paginated_posts, many=True).data
+        serialized_posts = PostSerializer(paginated_posts, many=True, context={'auth_user': user}).data
+        return self.get_paginated_response(serialized_posts)
+    
+class GetLikedPostsView(APIView, PageNumberPagination):
+    page_size = 6
+
+    def get(self, request):
+        user_id = request.GET.get("user_id")
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        liked_post_ids = Like.objects.filter(user=user).values_list('post_id', flat=True).distinct()
+        posts = Post.objects.filter(
+            Q(id__in=liked_post_ids),
+            Q(is_banned=False)
+        ).distinct().order_by("created_at")
+
+        paginated_posts = self.paginate_queryset(posts, request)
+
+        serialized_posts = PostSerializer(paginated_posts, many=True, context={'auth_user': user}).data
         return self.get_paginated_response(serialized_posts)
     
 class GetReportedPostsView(APIView, PageNumberPagination):
-    page_size = 1
+    page_size = 6
 
     def get(self, request):
         post_ids = ReportedPost.objects.values_list('post_id', flat=True).distinct()
@@ -86,12 +110,12 @@ class GetReportedPostsView(APIView, PageNumberPagination):
         return self.get_paginated_response(serialized_posts)
     
 class GetBannedPostsView(APIView, PageNumberPagination):
-    page_size = 1
+    page_size = 6
 
     def get(self, request):
         posts = Post.objects.filter(
             Q(is_banned=True)
-        ).distinct().order_by("created_at")
+        ).distinct().order_by("-created_at")
 
         paginated_posts = self.paginate_queryset(posts, request)
 
@@ -100,9 +124,10 @@ class GetBannedPostsView(APIView, PageNumberPagination):
     
 class LikeToggleView(APIView):
     def post(self, request):
-        post = request.POST.get("post")
+        post_id = request.data.get("post_id")
+        print(post_id)
         try:
-            target_post = Post.objects.get(id=post.id)
+            target_post = Post.objects.get(id=post_id)
         except Post.DoesNotExist:
             return Response({"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -114,18 +139,19 @@ class LikeToggleView(APIView):
         return Response({"message": "Liked"}, status=status.HTTP_201_CREATED)
 
     def delete(self, request):
-        post = request.POST.get("post")
+        post_id = request.data.get("post_id")
+        print(post_id)
         try:
-            target_post = Post.objects.get(id=post.id)
+            target_post = Post.objects.get(id=post_id)
         except Post.DoesNotExist:
             return Response({"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
 
         try:
             like = Like.objects.get(user=request.user, post=target_post)
             like.delete()
-            return Response({"message": "Unliked"}, status=status.HTTP_204_NO_CONTENT)
-        except like.DoesNotExist:
-            return Response({"error": "This post is already not liked"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": "Unliked"}, status=status.HTTP_200_OK)
+        except Like.DoesNotExist:
+            return Response({"error": "This post is not liked"}, status=status.HTTP_400_BAD_REQUEST)
         
 class HideView(APIView):
     def post(self, request):
@@ -146,7 +172,7 @@ class HideView(APIView):
         try:
             # TODO: add report reason
             user.hidden_posts.add(post)
-            return Response({"message": "Hidden"}, status=status.HTTP_204_NO_CONTENT)
+            return Response({"message": "Hidden"}, status=status.HTTP_200_OK)
         except:
             return Response({"error": "Failed to hide post"}, status=status.HTTP_400_BAD_REQUEST)
         
@@ -170,7 +196,7 @@ class UnhideView(APIView):
 
         try:
             user.hidden_posts.remove(post)
-            return Response({"message": "Post unhidden"}, status=status.HTTP_204_NO_CONTENT)
+            return Response({"message": "Post unhidden"}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": "Failed to unhide post"}, status=status.HTTP_400_BAD_REQUEST)
         
@@ -187,23 +213,20 @@ class ReportView(APIView):
         except:
             user = None
         
-        if (ReportedPost.objects.filter(id=target_post.id).exists()):
+        if (ReportedPost.objects.filter(post=target_post).exists()):
             return Response({"error": "This post has already been reported"}, status=status.HTTP_400_BAD_REQUEST)
         
         try:
             # TODO: add report reason
             ReportedPost.objects.create(post=target_post,user=user)
-            return Response({"message": "Reported"}, status=status.HTTP_204_NO_CONTENT)
+            return Response({"message": "Reported"}, status=status.HTTP_201_CREATED)
         except:
             return Response({"error": "Failed to report post"}, status=status.HTTP_400_BAD_REQUEST)
         
 class BanView(APIView):
     def post(self, request):
-        print("request.data:", request.data)
-        print("request.POST:", request.POST)
         post_id = request.data.get("post_id")
         admin_id = request.data.get("admin_id")
-        print(admin_id)
         try:
             target_post = Post.objects.get(id=post_id)
         except Post.DoesNotExist:
@@ -221,7 +244,7 @@ class BanView(APIView):
             target_post.ban_admin.add(admin)
             target_post.full_clean()
             target_post.save()
-            return Response({"message": "Banned"}, status=status.HTTP_204_NO_CONTENT)
+            return Response({"message": "Banned"}, status=status.HTTP_200_OK)
         except:
             return Response({"error": "Failed to ban post"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -234,14 +257,13 @@ class UnbanView(APIView):
             return Response({"error": "Post not found, refresh the page"}, status=status.HTTP_404_NOT_FOUND)
         
         if not (target_post.is_banned):
-            return Response({"error": "This post is already banned"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "This post is already unbanned"}, status=status.HTTP_400_BAD_REQUEST)
         
         try:
             target_post.is_banned = False
             target_post.ban_admin.clear()
             target_post.full_clean()
             target_post.save()
-            return Response({"message": "Unbanned"}, status=status.HTTP_204_NO_CONTENT)
-
+            return Response({"message": "Unbanned"}, status=status.HTTP_200_OK)
         except:
             return Response({"error": "Failed to ban post"}, status=status.HTTP_400_BAD_REQUEST)

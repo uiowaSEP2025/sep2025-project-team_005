@@ -13,14 +13,9 @@ import Toolbar from '@/components/toolbars/toolbar';
 import styles from "@/styles/Profile.module.css";
 import axios from "axios";
 import Cookies from "js-cookie";
-import debounce from "lodash.debounce";
 import Dropdown from '@/components/menus/dropdown';
 import { Button, styled } from '@mui/material';
 import { CloudUpload } from '@mui/icons-material';
-
-interface UserID {
-    user_id: string;
-}
 
 interface MusicianProfile {
     stage_name: string;
@@ -50,7 +45,7 @@ export default function DiscoverProfile() {
     const { profile, isLoading, setProfile } = useAuth();
     const [musicianProfile, setMusicianProfile] = useState<MusicianProfile | null>(null);
     const [followCount, setFollowCount] = useState<FollowCount | null>(null);
-    const [userId, setUserId] = useState<UserID | null>(null);
+    const [userId, setUserId] = useState<string | null>(null);
     const [posts, setPosts] = useState<Post[]>([]);
     const [files, setFiles] = useState<File[]>();
     const [loading, setLoading] = useState(false);
@@ -70,7 +65,7 @@ export default function DiscoverProfile() {
 
                 if (response.ok) {
                     const data = await response.json();
-                    setUserId(data);
+                    setUserId(data["user_id"]);
                 } else {
                     console.error("Failed to fetch user ID", response.statusText);
                 }
@@ -87,7 +82,7 @@ export default function DiscoverProfile() {
         const fetchProfile = async () => {
             if (!userId || !profile) return;
             try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/musician/${userId.user_id}/`, {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/musician/${userId}/`, {
                     method: "GET",
                     credentials: "include",
                     headers: {
@@ -120,7 +115,7 @@ export default function DiscoverProfile() {
         const fetchFollowCount = async () => {
             if (!userId) return;
             try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/follower/${userId.user_id}/`, {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/follower/${userId}/`, {
                     method: "GET",
                     credentials: "include",
                 });
@@ -141,10 +136,10 @@ export default function DiscoverProfile() {
 
     useEffect(() => {
         const fetchFollowStatus = async () => {
-            if (!userId || !profile || userId.user_id === String(profile.id)) return;
+            if (!userId || !profile || userId === String(profile.id)) return;
     
             try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/is-following/${userId.user_id}/`, {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/is-following/${userId}/`, {
                     method: "GET",
                     credentials: "include",
                     headers: {
@@ -170,7 +165,7 @@ export default function DiscoverProfile() {
         if (!userId) return;
     
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/follow/${userId.user_id}/`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/follow/${userId}/`, {
                 method: isFollowing ? "DELETE" : "POST",
                 credentials: "include",
                 headers: {
@@ -233,7 +228,7 @@ export default function DiscoverProfile() {
         if (!userId) return;
     
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/block/${userId.user_id}/`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/block/${userId}/`, {
                 method: "POST",
                 credentials: "include",
                 headers: {
@@ -286,25 +281,15 @@ export default function DiscoverProfile() {
         router.push(`/follow/${user_id}?type=${type}`);
     };
 
-    const fetchPosts = async (username: string, pageNum = 1) => {
+    const fetchPosts = async (pageNum = 1) => {
+        if(!userId) return;
         setLoading(true);
         try {
             const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/post/fetch/`, {
                 params: {
-                    username: username,
+                    user_id: userId,
                     page: pageNum
                 },
-                paramsSerializer: params => {
-                    const searchParams = new URLSearchParams();
-                    Object.keys(params).forEach(key => {
-                        if (Array.isArray(params[key])) {
-                            params[key].forEach(val => searchParams.append(key, val));
-                        } else {
-                            searchParams.append(key, params[key]);
-                        }
-                    });
-                    return searchParams.toString();
-                }
             });
 
             if (pageNum === 1) {
@@ -325,18 +310,14 @@ export default function DiscoverProfile() {
         router.push("") // TODO: replace with route to individual post view
     }
 
-    const debouncedFetchPosts = debounce(() => {
-        setPage(1);
-        fetchPosts(String(username),1);
-    }, 300);
-
     useEffect(() => {
-        debouncedFetchPosts();
-    }, [username]);
+        setPage(1);
+        fetchPosts(1);
+    }, [userId]);
 
     const loadMorePosts = () => {
         if (hasMore && !loading) {
-            fetchPosts(String(username), page + 1);
+            fetchPosts(page + 1);
             setPage((prevPage) => prevPage + 1);
         }
     };
@@ -396,11 +377,11 @@ export default function DiscoverProfile() {
 
                         <div className={styles.followStats}>
                             <div className={styles.statCard}>
-                                <button className={styles.statNumber} onClick={() => userId && handleNavigation(userId.user_id, "followers")}>{followCount.follower_count}</button>
+                                <button className={styles.statNumber} onClick={() => userId && handleNavigation(userId, "followers")}>{followCount.follower_count}</button>
                                 <p className={styles.statLabel}>Followers</p>
                             </div>
                             <div className={styles.statCard}>
-                            <button className={styles.statNumber} onClick={() => userId && handleNavigation(userId.user_id, "following")}>{followCount.following_count}</button>
+                            <button className={styles.statNumber} onClick={() => userId && handleNavigation(userId, "following")}>{followCount.following_count}</button>
                                 <p className={styles.statLabel}>Following</p>
                             </div>
                         </div>
