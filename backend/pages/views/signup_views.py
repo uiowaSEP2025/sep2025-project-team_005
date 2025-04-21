@@ -44,9 +44,6 @@ def signup(request):
                         )
                     except Instrument.DoesNotExist:
                         return Response({"error": "Instrument not found."}, status=status.HTTP_400_BAD_REQUEST)
-                else:
-                    # Print to the terminal to indicate no join objects will be made
-                    print("There are no instruments to create musician instruments with")
 
             # Set genres after Musician instance is created
             genres_data = request.data.get("genres", [])
@@ -72,6 +69,6 @@ def signup(request):
             # Debugging:
             print("Created business: ", business)
 
-        return Response({"message": "User created successfully", "id": user.id}, status=status.HTTP_201_CREATED)
+            return Response({"message": "User and business created successfully", "id": user.id}, status=status.HTTP_201_CREATED)
 
     return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)

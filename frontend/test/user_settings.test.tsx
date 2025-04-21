@@ -19,7 +19,7 @@ describe("User Settings Page", () => {
         fetchMock.resetMocks();
         fetchMock.mockResponse(
             JSON.stringify({
-                instruments: ["Piano", "Guitar"],
+                instruments: [{ instrument_name: "Piano", years_played: 3 }, { instrument_name: "Guitar", years_played: 3 }],
                 genres: ["Rock", "Jazz"],
             })
         );
@@ -130,7 +130,7 @@ describe("User Settings Page", () => {
         const instrumentAddButton = await screen.findByTestId("instruments-add-button");
         fireEvent.click(instrumentAddButton);
     
-        const instrumentInput = screen.getByPlaceholderText(/Add instruments/i);
+        const instrumentInput = screen.getByPlaceholderText(/Add Instrument/i);
         fireEvent.change(instrumentInput, { target: { value: "Drums" } });
 
         const yearsPlayedInput = screen.getByPlaceholderText(/Years played/i);
@@ -169,7 +169,7 @@ describe("User Settings Page", () => {
         const editButtons = screen.getAllByText(/Edit/i);
         fireEvent.click(editButtons[1]);
     
-        const genreAddButton = await screen.findByTestId("genre-add-button");
+        const genreAddButton = await screen.findByTestId("genres-add-button");
         fireEvent.click(genreAddButton);
     
         const instrumentInput = screen.getByPlaceholderText(/Add genre/i);

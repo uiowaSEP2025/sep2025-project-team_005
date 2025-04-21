@@ -6,14 +6,19 @@ import shutil
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service 
+import environ
+env = environ.Env()
+environ.Env.read_env()
 
 def before_all(context):
     context.base_url = os.getenv("SAVVY_NOTE_URL", "http://localhost:3000")
     
     chrome_options = Options()
     chrome_options.headless = True
+    chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--remote-debugging-port=9222")
 
     if not os.getenv("CI"):
         context.temp_dir = tempfile.mkdtemp(prefix=str(uuid.uuid4()))

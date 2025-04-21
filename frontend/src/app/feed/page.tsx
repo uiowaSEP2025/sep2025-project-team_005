@@ -1,28 +1,24 @@
 "use client";
 
 import React from 'react';
-import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useAuth, useRequireAuth } from "@/context/ProfileContext";
 import { useEffect, useState } from "react";
 
 import axios from "axios";
-import debounce from "lodash.debounce";
 import Toolbar from '@/components/toolbars/toolbar';
 import Dropdown from '@/components/menus/dropdown';
 import { Box, Card, CardActions, CardActionArea, CardContent, CardMedia, Typography, Button, Avatar } from '@mui/material';
-import { ArrowBack, ArrowForward, ChatBubbleOutline, ThumbUpOutlined } from '@mui/icons-material';
+import { ArrowBack, ArrowForward, ChatBubbleOutline, ThumbUp, ThumbUpOutlined } from '@mui/icons-material';
 import { FaEllipsisV } from 'react-icons/fa';
 import Cookies from "js-cookie";
-
-interface UserID {
-    user_id: string;
-}
+import { blueGrey } from '@mui/material/colors';
 
 interface User {
     username: string;
     id: string;
-  }
+    isFollowing: boolean;
+}
 
 interface Post {
     owner: User;
@@ -30,15 +26,15 @@ interface Post {
     created_at: string;
     caption: string;
     s3_urls: string[];
+    is_liked: boolean;
+    like_count: number;
 }
 
 export default function Feed() {
     useRequireAuth();
 
     const router = useRouter();
-    // username is not a param - needs to get user from useAuth
     const { profile, isLoading, setProfile } = useAuth();
-    const [userId, setUserId] = useState<UserID | null>(null);
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
@@ -47,11 +43,11 @@ export default function Feed() {
     const [reportedPosts, setReportedPosts] = useState<Set<string>>(new Set());
     const [expandedPostDescriptions, setExpandedPostDescriptions] = useState<Set<string>>(new Set());
     const [postImages, setPostImages] = useState<{ postId: string; imageIndex: number }[]>([]);
+    const NEXT_PUBLIC_BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
     useEffect(() => {
         if (!isLoading && profile) {
             fetchFeed();
-            debouncedFetchPosts();
         }
     }, [isLoading, profile]);
 
@@ -70,9 +66,9 @@ export default function Feed() {
         if (!profile) return;
         setLoading(true);
         try {
-            const response = await axios.get('http://localhost:8000/api/fetch-feed/', {
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/fetch-feed/`, {
                 params: {
-                    username: profile.username,
+                    user_id: profile.id,
                     page: pageNum
                 },
                 paramsSerializer: params => {
@@ -93,7 +89,6 @@ export default function Feed() {
             } else {
                 setPosts((prevPosts) => [...prevPosts, ...response.data.results]);
             }
-
             setHasMore(response.data.next !== null);
         } catch (error) {
             console.error("Error fetching posts:", error);
@@ -103,49 +98,53 @@ export default function Feed() {
     };
 
     const handleLikeToggle = async (post: Post) => {
-    //     if (!userId) return;
+        if (!post) return;
     
-    //     try {
-    //         let response;
-    
-    //         const isLiked = post.liked_by_user;
-    
-    //         if (isLiked) {
-    //             response = await axios.delete('http://localhost:8000/api/post/like/', {
-    //                 headers: {
-    //                     Authorization: `Bearer ${Cookies.get("access_token")}`,
-    //                 },
-    //                 data: { post_id: post.id },
-    //             });
-    //         } else {
-    //             response = await axios.post(
-    //                 'http://localhost:8000/api/post/like/',
-    //                 { post_id: post.id },
-    //                 {
-    //                     headers: {
-    //                         Authorization: `Bearer ${Cookies.get("access_token")}`,
-    //                     },
-    //                 }
-    //             );
-    //         }
-    
-    //         if (response.status >= 200 && response.status < 300) {
-    //             alert(isLiked ? "Like removed!" : "Like created!");
-    //             console.log("Request successful:", response.data);
-    //         } else {
-    //             alert("Like request failed. Please refresh the page and try again.");
-    //             console.error("Request failed:", response.status, response.statusText);
-    //         }
-    //     } catch (error) {
-    //         console.error("Error toggling like status:", error);
-    //     }
+        try {
+            let response;
+        
+            if (post.is_liked) {
+                response = await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/post/like/`, {
+                    data: { post_id: post.id },
+                    headers: {
+                        Authorization: `Bearer ${Cookies.get("access_token")}`,
+                    },
+                });
+            } else {
+                response = await axios.post(
+                    `${process.env.NEXT_PUBLIC_BACKEND_API}/api/post/like/`,
+                    { post_id: post.id },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${Cookies.get("access_token")}`,
+                        },
+                    }
+                );
+            }
+            if (response.status >= 200 && response.status < 300) {
+                setPosts(prev =>
+                    prev.map(p =>
+                        p.id === post.id
+                        ? {...p,
+                            is_liked: !p.is_liked,
+                            like_count: p.is_liked ? p.like_count - 1 : p.like_count + 1}
+                        : p
+                    )
+                );
+            } else {
+                alert("Like request failed. Please refresh the page and try again.");
+                console.error("Request failed:", response.status, response.statusText);
+            }
+        } catch (error) {
+            console.error("Error toggling like status:", error);
+        }
     };
 
     const handleBlock = async (user: User) => {
         if (!user) return;
     
         try {
-            const response = await axios.post(`http://localhost:8000/api/block/${user.id}/`, {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/block/${user.id}/`, {
             });
     
             if (response.status >= 200 && response.status < 300) {
@@ -160,11 +159,6 @@ export default function Feed() {
         }
     }; 
 
-    const debouncedFetchPosts = debounce(() => {
-        setPage(1);
-        fetchFeed();
-    }, 300);
-
     const loadMorePosts = () => {
         if (hasMore && !loading) {
             fetchFeed(page + 1);
@@ -176,10 +170,6 @@ export default function Feed() {
         router.push("") // TODO: replace with route to individual post view
     }
 
-    const handleLikeClick = async (post: Post) => {
-        // post like creation
-    }
-
     const handleCommentClick = async (post: Post) => {
         router.push("") // TODO: replace with route to individual post-comment view
     }
@@ -188,25 +178,88 @@ export default function Feed() {
         router.push("") // TODO: replace with route to individual share view
     }
 
-    const handleFollow = async (post: Post) => {
-        //
-    }
+    const handleFollowToggle = async (user: User, isFollowing: boolean) => {
+        if(!user) {
+            return;
+        } try {
+            const url = `${process.env.NEXT_PUBLIC_BACKEND_API}/api/follow/${user.id}/`;
+            const method = isFollowing ? "delete" : "post";
+        
+            const response = await axios({
+                url,
+                method,
+                withCredentials: true,
+                headers: {
+                    "Authorization": `Bearer ${Cookies.get("access_token")}`
+                }
+            });
+            if (response.status >= 200 && response.status < 300) {
+                setPosts(prev =>
+                    prev.map(post => post.owner.id === user.id
+                        ? { ...post, owner: { ...post.owner, isFollowing: !isFollowing } }
+                        : post)
+                );
+            }
+        } catch (error) {
+            console.error("Error toggling follow status:", error);
+        }
+    };
 
     const handleHide = async (post: Post) => {
         setHiddenPosts((prev) => new Set(prev.add(post.id)));
+        if (!profile) return;
+    
+        try {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/post/hide/`, {
+                post_id: post.id,
+                user_id: profile.id,
+            });
+    
+            if (response.status >= 200 && response.status < 300) {
+                console.log("Request successful:", response.data);
+            } else {
+                console.error("Request failed:", response.status, response.statusText);
+            }
+        } catch (error) {
+            console.error("Error hiding post:", error);
+        }
     }
 
-    const handleUnhide = async (post: Post) => {
-        setHiddenPosts((prev) => {
-            const newSet = new Set(prev);
-            newSet.delete(post.id);
-            return newSet;
-        });    
-        setReportedPosts((prev) => {
-            const newSet = new Set(prev);
-            newSet.delete(post.id);
-            return newSet;
-        });   
+    const handleUnhide = async (post: Post, isReport: Boolean) => {
+        if(isReport)
+        {
+            setReportedPosts((prev) => {
+                const newSet = new Set(prev);
+                newSet.delete(post.id);
+                return newSet;
+            });   
+        }
+        else
+        {
+            setHiddenPosts((prev) => {
+                const newSet = new Set(prev);
+                newSet.delete(post.id);
+                return newSet;
+            });
+            if (!profile) return;
+        
+            try {
+                const response = await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/post/unhide/`, {
+                    data: {
+                      post_id: post.id,
+                      user_id: profile.id,
+                    },
+                });
+        
+                if (response.status >= 200 && response.status < 300) {
+                    console.log("Request successful:", response.data);
+                } else {
+                    console.error("Request failed:", response.status, response.statusText);
+                }
+            } catch (error) {
+                console.error("Error unhiding post:", error);
+            }
+        } 
     }
 
     const toggleDescription = (post: Post) => {
@@ -223,7 +276,22 @@ export default function Feed() {
 
     const handleReport = async (post: Post) => {
         setReportedPosts((prev) => new Set(prev.add(post.id)));
-        // TODO: Actually report instead of hiding.
+        if (!profile) return;
+    
+        try {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/post/report/`, {
+                post_id: post.id,
+                user_id: profile.id,
+            });
+    
+            if (response.status >= 200 && response.status < 300) {
+                console.log("Report successful:", response.data);
+            } else {
+                console.error("Report failed:", response.status, response.statusText);
+            }
+        } catch (error) {
+            console.error("Error reporting post:", error);
+        }
     }
 
     const handleProfile = async (username: string) => {
@@ -281,7 +349,9 @@ export default function Feed() {
                                                 </CardActions>
                                             </Box>
                                             <Box display="flex" gap={1}>
-                                                <Button size="small" variant="contained" onClick={() => handleFollow(post)}>Follow</Button>
+                                                <Button size="small" variant="contained" sx={{backgroundColor: post.owner.isFollowing ? blueGrey[400] : 'primary.main'}} onClick={() => handleFollowToggle(post.owner, post.owner.isFollowing)}>
+                                                    {post.owner.isFollowing ? 'Unfollow' : 'Follow'}
+                                                </Button>
                                                 <Dropdown buttonLabel={<FaEllipsisV size={24} />}menuItems=
                                                     {[
                                                         { label: "Hide Post", onClick: () => handleHide(post) },
@@ -352,17 +422,21 @@ export default function Feed() {
                                             )}
                                         </CardContent>
                                         <CardActions>
-                                            {/* ThumbUp for if liked */}
-                                            <Button onClick={() => handleLikeToggle(post)}><ThumbUpOutlined/></Button>
+                                            {post.is_liked ? (
+                                                <Button startIcon={<ThumbUp/>} onClick={() => handleLikeToggle(post)}>{post.like_count}</Button>
+                                            ) : (
+                                                <Button startIcon={<ThumbUpOutlined/>} onClick={() => handleLikeToggle(post)}>{post.like_count}</Button>
+                                            )}
                                             <Button onClick={() => handleCommentClick(post)}><ChatBubbleOutline/></Button>
                                             <Button variant="contained" onClick={() => handleShareClick(post)}>Share</Button>
+                                            
                                         </CardActions>
                                     </Card>
                                 ) : (
                                     <Card key={post.id} sx={{ marginBottom: '1rem', width: '50%', height: '50%', objectFit: 'cover' }}>
                                         <CardContent>
-                                            <Typography>Thank you for your feedback. Admins will be notified in a later sprint.</Typography>
-                                            <Button onClick={() => handleUnhide(post)}>Unhide</Button>
+                                            <Typography>Thank you for your feedback. Admins will be notified.</Typography>
+                                            <Button onClick={() => handleUnhide(post, true)}>Unhide</Button>
                                         </CardContent>
                                     </Card>
                                 )
@@ -370,7 +444,7 @@ export default function Feed() {
                                 <Card key={post.id} sx={{ marginBottom: '1rem', width: '50%', height: '50%', objectFit: 'cover' }}>
                                     <CardContent>
                                         <Typography>This post is hidden.</Typography>
-                                        <Button onClick={() => handleUnhide(post)}>Unhide</Button>
+                                        <Button onClick={() => handleUnhide(post, false)}>Unhide</Button>
                                     </CardContent>
                                 </Card>
                             )

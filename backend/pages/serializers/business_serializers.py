@@ -5,4 +5,4 @@ from pages.models import Business
 class BusinessSerializer(serializers.ModelSerializer):
     class Meta:
         model = Business
-        fields = ['id', 'user', 'business_name', 'industry']
+        fields = ['user', 'business_name', 'industry']
