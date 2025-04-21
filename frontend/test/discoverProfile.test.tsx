@@ -224,7 +224,7 @@ describe("Discover Profile Page", () => {
 
     it("does not show inappropriate buttons when visiting own profile", async () => {
         jest.spyOn(require("@/context/ProfileContext"), "useAuth").mockReturnValue({
-            profile: { username: "janedoe" },
+            profile: { username: "johndoe" },
             isLoading: false,
         });
     
