@@ -5,6 +5,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth, useRequireAuth } from "@/context/ProfileContext";
 import axios from "axios";
+import Cookies from 'js-cookie';
 
 interface GenreOption {
     id: string;
@@ -24,7 +25,6 @@ export default function CreateJobListing() {
     const { profile, isLoading, setProfile } = useAuth();
     const [error, setError] = useState("");
     const [venue, setVenue] = useState("");
-    const [dateTime, setDateTime] = useState("");
     const [payment, setPayment] = useState("Fixed amount");
     const [paymentAmount, setPaymentAmount] = useState("");    
     const [eventDescription, setEventDescription] = useState("");
@@ -34,7 +34,6 @@ export default function CreateJobListing() {
     const [oneTimeStart, setOneTimeStart] = useState("");
     const [oneTimeEnd, setOneTimeEnd] = useState("");
     const [recurringDates, setRecurringDates] = useState("");
-    const [recurringTimes, setRecurringTimes] = useState("");
     const [recurringPattern, setRecurringPattern] = useState("weekly");
     const [longTermStart, setLongTermStart] = useState("");
     const [longTermEnd, setLongTermEnd] = useState("");
@@ -50,12 +49,55 @@ export default function CreateJobListing() {
     const [autocompleteResultsGenre, setAutocompleteResultsGenre] = useState<{
         [key: number]: GenreOption[];
     }>({});
-    
+
     // Handle form submission
     const handleSubmit = async (e: React.FormEvent) => {
-    }
+        if(!profile) {
+            return
+        }
 
-     // Fetch instruments and genres from the database when the component mounts
+        e.preventDefault();
+      
+        const jobData = {
+            event_title: eventTitle,
+            venue: venue,
+            payment_type: payment,
+            payment_amount: paymentAmount,
+            gig_type: gigType,
+            event_description: eventDescription,
+            experience_level: experienceLevel,
+            instruments: instruments.filter(i => i.id).map(i => i.id),
+            genres: genres.filter(g => g.id).map(g => g.id),
+            start_date: gigType === "oneTime" ? oneTimeDate : recurringDates || longTermStart,
+            start_time: oneTimeStart,
+            end_time: oneTimeEnd,
+            recurring_pattern: gigType === "recurring" ? recurringPattern : "",
+            end_date: gigType === "longTerm" ? longTermEnd : "",
+        };
+        console.log(jobData)
+        try {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/jobs/create/`,
+                {
+                    ...jobData,
+                    user_id: profile.id,
+                },
+                {
+                    headers: {
+                        "Authorization": `Bearer ${Cookies.get("access_token")}`
+                    }
+                }
+            );
+        
+            const data = response.data;
+        
+            router.push(`/${profile.username}/business`);
+        } 
+        catch (error: any) {
+            console.error("Full error response:", error.response?.data);
+        }
+    };
+
+    // Fetch instruments and genres from the database when the component mounts
     useEffect(() => {
         // Fetch instrument options
         const fetchInstruments = async () => {
