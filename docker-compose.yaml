@@ -1,4 +1,3 @@
-version: "3.8"
 services:
   db:
     image: postgres:17
@@ -17,7 +16,7 @@ services:
       - DB_USER=${DB_USER}
       - DB_PASS=${DB_PASSWORD}
       - DB_HOST=${DB_HOST}
-      - SECRET_KEY=${SECRET_KEY}
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
     depends_on:
       - db
     ports:
@@ -27,7 +26,7 @@ services:
     environment:
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
     ports:
-      - "443:3000"
+      - "3000:3000"
     depends_on:
       - backend
 

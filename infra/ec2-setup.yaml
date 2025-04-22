@@ -216,17 +216,22 @@ Resources:
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
-          # Set the default region and configure the AWS CLI using SSM values
           export AWS_DEFAULT_REGION=us-east-1
-
-          # Redirect all output to a log file and enable debugging
           exec > /var/log/user-data.log 2>&1
           set -xe
 
-          # Install Node.js (v16), Git, Nginx, OpenSSL, awscli, Docker, and docker-compose
-          curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+          # Install Node.js (v16), Git, Nginx, OpenSSL, awscli, Docker, and docker-compose-plugin
           apt-get update -y
-          apt-get install -y nodejs git postgresql postgresql-contrib nginx openssl awscli docker.io docker-compose
+          apt-get install -y lsb-release software-properties-common
+          curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+          add-apt-repository \
+            "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+            $(lsb_release -cs) \
+            stable"
+          apt-get install -y \
+            nodejs git postgresql postgresql-contrib nginx openssl awscli \
+            docker-ce docker-ce-cli containerd.io docker-compose-plugin
           systemctl enable --now postgresql
 
           # Ensure Docker group exists and add ubuntu user to it
@@ -350,7 +355,7 @@ Resources:
           exec > /var/log/user-data.log 2>&1
           set -xe
           apt-get update -y
-          apt-get install -y git postgresql postgresql-contrib nginx openssl awscli docker.io docker-compose python3-venv
+          apt-get install -y git postgresql postgresql-contrib nginx openssl awscli docker.io docker-compose-plugin python3-venv
           systemctl enable --now postgresql
 
           systemctl start docker
