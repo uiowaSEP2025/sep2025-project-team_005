@@ -246,35 +246,8 @@ export default function DiscoverProfile() {
         }
     };    
 
-    const handlePost = async () => {
-        try {
-            const formData = new FormData();
-            if (!files) {
-                console.error("Please upload a file");
-                return;
-            }
-            files.forEach((file) => {
-                formData.append("files", file);
-            });
-            formData.append("caption", "Test".repeat(100));
-    
-            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/post/create/`, formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                    "Authorization": `Bearer ${Cookies.get("access_token")}`
-                },
-                withCredentials: true
-            });
-            if (response.status >= 200 && response.status < 300) {
-                alert("Post created!");
-                console.log("Request successful:", response.data);
-            } else {
-                alert("Post creation failed. Please refresh the page and try again.");
-                console.error("Request failed:", response.status, response.statusText);
-            }
-        } catch (error) {
-            console.error(error)
-        }
+    const handleNewPost = async () => {
+        router.push(`${username}/create-post`);
     };
 
     const handleNavigation = (user_id: string, type: "followers" | "following") => {
@@ -322,24 +295,6 @@ export default function DiscoverProfile() {
         }
     };
 
-    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.files && event.target.files.length > 0) {
-            const files = event.target.files ? Array.from(event.target.files).slice(0, 10) : [];
-            setFiles(files);
-        }
-    };
-
-    const VisuallyHiddenInput = styled('input')({
-        clip: 'rect(0 0 0 0)',
-        clipPath: 'inset(50%)',
-        height: 1,
-        overflow: 'hidden',
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        whiteSpace: 'nowrap',
-        width: 1,
-    });
 
     if (isLoading || !musicianProfile || !followCount) return <p className="description">Loading...</p>;
 
@@ -398,6 +353,12 @@ export default function DiscoverProfile() {
                             </div>
                         )}
                     </div>
+                    {profile?.username !== username && (
+                        <div className={styles.profileActions}>
+                            <button className={styles.followButton} data-testid="follow-button">Follow</button>
+                            <button className={styles.messageButton} data-testid="message-button">Message</button>
+                        </div>
+                    )}
                 </div>
 
                 <div className={styles.bioSection}>
@@ -425,30 +386,9 @@ export default function DiscoverProfile() {
                         <h2 className={styles.featureTitle}>Posts</h2>
                         {profile?.username === username && (
                             <div>
-                                <button className={styles.editButton} onClick={handlePost} data-testid="post-button">Post</button>
+                                <button className={styles.editButton} onClick={handleNewPost} data-testid="post-button">Post</button>
                             </div>
                         )}
-                    </div>
-                    <div className={styles.postsHeader}>
-                    {/* TODO: remove upon post creation */}
-                    {profile?.username === username && (
-                        <div>
-                            <Button
-                                component="label"
-                                role={undefined}
-                                variant="contained"
-                                tabIndex={-1}
-                                startIcon={<CloudUpload />}
-                                >
-                                Upload files
-                                <VisuallyHiddenInput
-                                    type="file"
-                                    onChange={(event) => handleFileUpload(event)}
-                                    multiple
-                                />
-                            </Button>
-                        </div>
-                    )}
                     </div>
                     {loading && <p>Loading posts...</p>}
                     {posts.length > 0 ? (
