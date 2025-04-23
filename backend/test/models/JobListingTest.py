@@ -44,7 +44,15 @@ def test_create_joblisting_with_required_fields(business):
 
     assert job.pk is not None
     assert job.event_title == "Jazz Night"
+    assert job.venue == "Downtown Lounge"
+    assert job.gig_type == "oneTime"
+    assert job.event_description == "Live jazz event"
+    assert job.payment_type == "Fixed amount"
     assert job.payment_amount == 150.00
+    assert job.start_date == "2025-06-01"
+    assert job.end_date == "2025-06-01"
+    assert job.start_time == "18:00"
+    assert job.end_time == "22:00"
 
 @pytest.mark.django_db
 def test_joblisting_str_method(business):
