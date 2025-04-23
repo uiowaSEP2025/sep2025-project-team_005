@@ -642,12 +642,6 @@ export default function CreateJobListing() {
                 {/* Submit Button */}
                 <button type="submit" className={styles.primaryButton}>Create Job Listing</button>
             </form>
-
-            <div className={styles.footer}>
-                <p style={{ marginTop: "1rem", fontSize: "0.9rem", opacity: 0.6 }}>
-                    © 2025 MusicMatch Inc. All rights reserved.
-                </p>
-            </div>
         </div>
     );
 }
