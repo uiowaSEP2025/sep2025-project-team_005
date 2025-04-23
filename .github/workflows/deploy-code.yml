@@ -1,5 +1,9 @@
 name: Deploy App via SSM
 
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [ main ]
@@ -23,7 +27,7 @@ jobs:
       - name: Deploy to Frontend via SSM
         uses: aws-actions/ssm-exec@v1
         with:
-          targets: "tag:Name=Frontend-Instance"
+          targets: "tag:Environment=test"      
           document-name: "AWS-RunShellScript"
           parameters: |
             commands=[
@@ -31,13 +35,13 @@ jobs:
               "git pull origin main",
               "npm ci",
               "npm run build",
-              "pm2 restart all"   # or however you start Next.js
+              "npm run dev"   # or however you start Next.js
             ]
 
       - name: Deploy to Backend via SSM
         uses: aws-actions/ssm-exec@v1
         with:
-          targets: "tag:Name=Backend-Instance"
+          targets: "tag:Environment=test"      
           document-name: "AWS-RunShellScript"
           parameters: |
             commands=[
@@ -46,5 +50,6 @@ jobs:
               "source venv/bin/activate",
               "pip install -r requirements.txt",
               "python manage.py migrate --noinput",
+              "python manage.py runserver",
               "pm2 restart gunicorn"  # or your Gunicorn systemd service
             ]
