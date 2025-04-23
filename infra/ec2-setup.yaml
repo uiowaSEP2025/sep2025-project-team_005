@@ -169,17 +169,31 @@ Resources:
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
+          # Set the default region and configure the AWS CLI using SSM values
+          export AWS_DEFAULT_REGION=us-east-1
+
+          # Redirect all output to a log file and enable debugging
+          exec > /var/log/user-data.log 2>&1
           set -xe
           export AWS_DEFAULT_REGION=${AWS::Region}
 
-          # 1) Install system packages: Node.js, git, nginx, awscli
+          # Install Node.js (v16), Git, Nginx, OpenSSL, awscli, Docker, and docker-compose
+          curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash -
           apt-get update -y
-          apt-get install -y lsb-release software-properties-common
-          curl -sL https://deb.nodesource.com/setup_18.x | bash -
-          apt-get update -y
-          apt-get install -y nodejs git nginx openssl awscli
+          apt-get install -y nodejs git postgresql postgresql-contrib nginx openssl awscli docker.io docker-compose
+          systemctl enable --now postgresql
 
-          # 2) Clone savvynote repo
+          # Ensure Docker group exists and add ubuntu user to it
+          usermod -aG docker ubuntu
+          systemctl start docker
+
+          # Log in to Docker using credentials from SSM
+          DOCKER_USERNAME=$(aws ssm get-parameter --name "/savvynote/DOCKER_USERNAME" --with-decryption --query "Parameter.Value" --output text --region us-east-1)
+          DOCKER_PASSWORD=$(aws ssm get-parameter --name "/savvynote/DOCKER_PASSWORD" --with-decryption --query "Parameter.Value" --output text --region us-east-1)
+          docker logout
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+          # Clone the repository and launch the frontend container
           cd /home/ubuntu
           git clone https://github.com/uiowaSEP2025/sep2025-project-team_005.git savvynote
           chown -R ubuntu:ubuntu savvynote
@@ -262,10 +276,16 @@ Resources:
 
           # 1) Install system packages
           apt-get update -y
-          apt-get install -y \
-            git python3-venv python3-pip awscli postgresql-client
+          apt-get install -y git postgresql postgresql-contrib nginx openssl awscli docker.io docker-compose python3-venv
+          systemctl enable --now postgresql
 
-          # 2) Clone or update savvynote repo
+          systemctl start docker
+          usermod -aG docker ubuntu
+          DOCKER_USERNAME=$(aws ssm get-parameter --name "/savvynote/DOCKER_USERNAME" --with-decryption --query "Parameter.Value" --output text --region us-east-1)
+          DOCKER_PASSWORD=$(aws ssm get-parameter --name "/savvynote/DOCKER_PASSWORD" --with-decryption --query "Parameter.Value" --output text --region us-east-1)
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          newgrp docker
+
           cd /home/ubuntu
           if [ -d savvynote ]; then
             cd savvynote
