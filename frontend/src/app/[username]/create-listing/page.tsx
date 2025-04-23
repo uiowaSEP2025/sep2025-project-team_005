@@ -72,7 +72,7 @@ export default function CreateJobListing() {
             start_time: oneTimeStart,
             end_time: oneTimeEnd,
             recurring_pattern: gigType === "recurring" ? recurringPattern : "",
-            end_date: gigType === "longTerm" ? longTermEnd : "",
+            end_date: gigType === "longTerm" ? longTermEnd : null,
         };
         console.log(jobData)
         try {
