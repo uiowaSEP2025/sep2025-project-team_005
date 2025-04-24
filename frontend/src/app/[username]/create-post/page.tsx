@@ -7,9 +7,9 @@ import { useAuth, useRequireAuth } from "@/context/ProfileContext";
 import styles from "@/styles/CreatePost.module.css";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { Router } from 'lucide-react';
 import { Button, styled } from '@mui/material';
 import { CloudUpload } from '@mui/icons-material';
+
 
 export default function CreateNewPost() {
     useRequireAuth();
@@ -18,14 +18,46 @@ export default function CreateNewPost() {
     const { username } = useParams();
     const { profile, isLoading, setProfile } = useAuth();
     const [files, setFiles] = useState<FileList | null>(null);
+    const [fileNames, setFileNames] = useState<string[]>([]);
     const [caption, setCaption] = useState("");
 
-    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.files && event.target.files.length > 0) {
-            setFiles(event.target.files);
+    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedFiles = event.target.files;
+        if (selectedFiles && selectedFiles.length > 0) {
+            setFiles(selectedFiles);
+            setFileNames(Array.from(selectedFiles).map(file => file.name));
+
+            // Need a way to pass image files to the next page (editing page)
+            // Convert the uploaded files to base64, storing thm in session storage so they can be accessed on the next page
+            const convertedFiles = await Promise.all(
+                Array.from(selectedFiles).map(file =>
+                    new Promise<string>((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(reader.result as string);
+                        reader.onerror = error => reject(error);
+                        reader.readAsDataURL(file);
+                    })
+                )
+            );
+
+            // Now that the image files are converted, save them in sessionStorage
+            sessionStorage.setItem("uploadedImages", JSON.stringify(convertedFiles));
         }
     };
 
+    const handleContinueToEdit = () => {
+        // If no files are uploaded yet, tell user and remain on this page
+        if(!files || files.length === 0) {
+            alert("Please upload at least one photo before continuing.");
+            return;
+        }
+
+        // Otherwise, route to the photo editing page
+        router.push(`/${username}/create-post/edit`);
+    }
+
+
+    /*
     const handlePost = async () => {
         try {
             const formData = new FormData();
@@ -39,15 +71,7 @@ export default function CreateNewPost() {
             }
             formData.append("caption", caption);
 
-
-            // DEBUGGING:
-            for (let pair of formData.entries()) {
-                console.log(pair[0]+ ': ' + pair[1]);
-            }
-
-
-    
-            const response = await axios.post("http://localhost:8000/api/post/create/", formData, {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/post/create/`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                     "Authorization": `Bearer ${Cookies.get("access_token")}`
@@ -66,6 +90,9 @@ export default function CreateNewPost() {
             console.error(error)
         }
     };
+    */
+
+
 
     // Custom component (reference: materialUI)
     const VisuallyHiddenInput = styled('input')({
@@ -83,7 +110,7 @@ export default function CreateNewPost() {
     return (
         <div className={styles.centerWrapper}>
           <div className={styles.postsHeader}>
-            <h2 className={styles.featureTitle}>Posts</h2>
+            <h2 className={styles.featureTitle}>Upload Photos</h2>
             {profile?.username === username && (
               <div className={styles.buttonGroup}>
                 <Button
@@ -101,21 +128,22 @@ export default function CreateNewPost() {
                   />
                 </Button>
 
-                <label className={styles.label}>Caption:</label>
-                <input 
-                    className={styles.inputField} 
-                    placeholder="Caption"
-                    value={caption}
-                    onChange={(e) => setCaption(e.target.value)}
-                >
-                </input>
+                {fileNames.length > 0 && (
+                    <div className={styles.filelist}>
+                        <p>Files uploaded:</p>
+                        <ul>
+                            {fileNames.map((name, index) =>
+                                <li key={index}>{name}</li>)}
+                        </ul>
+                    </div>
+                )}
 
                 <button
                   className={styles.editButton}
-                  onClick={handlePost}
-                  data-testid="post-button"
+                  onClick={handleContinueToEdit}
+                  data-testid="edit-button"
                 >
-                  Post
+                  Continue to Edit
                 </button>
               </div>
             )}
