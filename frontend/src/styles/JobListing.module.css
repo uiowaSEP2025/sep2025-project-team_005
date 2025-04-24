@@ -1,0 +1,149 @@
+.container {
+    padding: 20px;
+    font-family: var(--font-geist-sans);
+    color: var(--text-light);
+    background-color: var(--background);
+}
+
+.header {
+    text-align: center;
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary);
+}
+
+.description {
+    margin-top: 1rem;
+    font-size: 1.25rem;
+    color: var(--text-muted);
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 2rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+}
+
+.label {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-light);
+}
+
+.input, .textarea, .select {
+    padding: 12px;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--secondary);
+    width: 100%;
+    background-color: var(--text-box);
+    color: var(--text-light);
+}
+
+.textarea {
+    height: 150px;
+    resize: vertical;
+}
+
+.primaryButton {
+    padding: 12px;
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    font-size: 1.1rem;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.3s;
+}
+
+.primaryButton:hover {
+    background-color: #1e40af; /* darker primary */
+}
+
+.footer {
+    text-align: center;
+    margin-top: 2rem;
+    color: var(--text-muted);
+}
+
+.toggleButton {
+    background-color: var(--secondary);
+    border: 1px solid var(--secondary);
+    padding: 10px 16px;
+    margin-top: 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--text-light);
+    font-size: 1rem;
+    transition: background-color 0.2s ease;
+}
+
+.toggleButton:hover {
+    background-color: #a8a8a8;
+}
+
+.advancedSection {
+    margin-top: 1rem;
+    border: 1px solid var(--secondary);
+    padding: 1.25rem;
+    border-radius: 12px;
+    background-color: var(--text-box);
+    color: var(--text-light);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.removeInstrumentButton {
+    background: #3525eb;
+    color: var(--text-light);
+    border: none;
+    padding: 5px 10px;
+    margin-left: 5px;
+    margin-top: 5px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.removeInstrumentButton:hover {
+    background: #d63031;
+}
+
+.addInstrumentButton {
+    background-color: var(--secondary);
+    color: white;
+    border: none;
+    width: 80%;
+    padding: 8px 14px;
+    margin: 8px auto 0 auto;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: block;
+}
+
+.addInstrumentButton:hover {
+    background-color: #1e40af;
+}
+
+[data-theme="dark"] .input[type="date"]::-webkit-calendar-picker-indicator,
+[data-theme="dark"] .input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(180deg);
+}
