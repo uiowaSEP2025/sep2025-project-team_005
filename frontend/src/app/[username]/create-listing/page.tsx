@@ -639,7 +639,7 @@ export default function CreateJobListing() {
                             type="button"
                             className={styles.removeInstrumentButton}
                             onClick={() => {
-                            if (genres.length === 1) {
+                            if (instruments.length === 1) {
                                 handleInstrumentChange(index, "");
                             } else {
                                 removeInstrumentField(index);
@@ -703,9 +703,6 @@ export default function CreateJobListing() {
                     ))}
                     <button type="button" className={styles.addInstrumentButton} onClick={addGenreField}>
                     + Add another genre
-                    </button>
-                    <button type="button" className={styles.addInstrumentButton} onClick={addGenreField}>
-                        + Add another genre
                     </button>
                 </div>
                 )}
