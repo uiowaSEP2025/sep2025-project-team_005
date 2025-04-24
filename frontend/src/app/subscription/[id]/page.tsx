@@ -19,13 +19,12 @@ export default function Subscription() {
             user_id: id,
         });
 
-        const sessionId = response.data.id;
-        const result = await stripe?.redirectToCheckout({
-            sessionId,
-        });
+        const checkoutUrl = response.data.url;
 
-        if (result?.error) {
-            alert("Something went wrong while redirecting to the checkout. Please try again or contact admin.");
+        if (checkoutUrl) {
+            window.location.href = checkoutUrl;
+        } else {
+            alert("Failed to start Stripe Checkout session. Please try again.");
         }
     };
 
