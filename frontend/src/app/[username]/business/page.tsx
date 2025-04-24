@@ -32,7 +32,16 @@ interface FollowCount {
     following_count: number;
 }
 
-interface JobListing {}
+interface JobListing {
+    id: number;
+    event_title: string;
+    venue: string;
+    event_description: string;
+    gig_type: string;
+    payment_type: string;
+    payment_amount: string;
+    created_at: string;
+}
 
 export default function BusinessProfile() {
     useRequireAuth();
@@ -43,7 +52,7 @@ export default function BusinessProfile() {
     const [businessProfile, setBusinessProfile] = useState<BusinessProfile | null>(null);
     const [followCount, setFollowCount] = useState<FollowCount | null>(null);
     const [userId, setUserId] = useState<UserID | null>(null);
-    const [jobListing, setJobListing] = useState<JobListing[]>([]);
+    const [jobListings, setJobListings] = useState<JobListing[]>([]);
     const [files, setFiles] = useState<File[]>();
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
@@ -107,7 +116,7 @@ export default function BusinessProfile() {
         fetchProfile();
     }, [userId]);
 
-    // Fetch Follow Count  ********* Needs updates
+    // Fetch Follow Count
     useEffect(() => {
         const fetchFollowCount = async () => {
             if (!userId) return;
@@ -251,32 +260,51 @@ export default function BusinessProfile() {
         router.push(`/follow/${user_id}?type=${type}`);
     };
 
-    const fetchJobListings = async (username: string, pageNum = 1) => {
+    const fetchJobListings = async (pageNum = 1) => {
+        if(!userId) return;
+
         setLoading(true);
         try {
-            
-        } 
-        finally {
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/fetch-jobs/`, {
+                params: {
+                    user_id: userId?.user_id,
+                    page: pageNum,
+                },
+                withCredentials: true,
+            });
+
+            if (pageNum === 1) {
+                setJobListings(response.data.results);
+            } else {
+                setJobListings((prevListings) => [...prevListings, ...response.data.results]);
+            }
+
+            setHasMore(response.data.next !== null);
+        } catch (error) {
+            console.error("Failed to fetch job listings", error);
+        } finally {
             setLoading(false);
         }
     };
+    
+    useEffect(() => {
+        setPage(1);
+        fetchJobListings(1);
+    }, [userId?.user_id]);
 
     const handleJobListingClick = async (post: JobListing) => {
         router.push("") // TODO: replace with route to individual JobListing view
     }
 
-    const debouncedFetchJobListings = debounce(() => {
-        setPage(1);
-        fetchJobListings(String(username),1);
-    }, 300);
-
     useEffect(() => {
-        debouncedFetchJobListings();
-    }, [username]);
+        setJobListings([]);
+        setPage(1);
+        fetchJobListings(1);
+    }, [userId?.user_id]);
 
     const loadMoreJobListings = () => {
         if (hasMore && !loading) {
-            fetchJobListings(String(username), page + 1);
+            fetchJobListings(page + 1);
             setPage((prevPage) => prevPage + 1);
         }
     };
@@ -366,10 +394,43 @@ export default function BusinessProfile() {
                         <h2 className={styles.featureTitle}>Job Listings</h2>
                         {profile?.username === username && (
                             <div>
-                                <button className={styles.editButton} onClick={handleNewJobListing} data-testid="listing-button">Add Listing</button>
+                                <button
+                                    className={styles.editButton}
+                                    onClick={handleNewJobListing}
+                                    data-testid="listing-button"
+                                >
+                                    Add Listing
+                                </button>
                             </div>
                         )}
                     </div>
+
+                    {jobListings.map((listing, index) => (
+                        <div
+                            key={listing.id || index}
+                            className={styles.jobCard}
+                            onClick={() => handleJobListingClick(listing)} // Make the card clickable
+                        >
+                            <h3 className={styles.jobTitle}>{listing.event_title}</h3>
+                            <p className={styles.jobVenue}>{listing.venue}</p>
+
+                            {listing.payment_amount && (
+                                <p className={styles.paymentAmount}>
+                                    Payment: ${parseFloat(listing.payment_amount).toFixed(2)}
+                                    {listing.payment_type === "Hourly rate" && " /hour"}
+                                </p>
+                            )}
+                            <p className={styles.jobDescription}>{listing.event_description}</p>
+                        </div>
+                    ))}
+
+                    {hasMore && !loading && (
+                        <button onClick={loadMoreJobListings} className={styles.loadMoreButton}>
+                            Load More
+                        </button>
+                    )}
+
+                    {loading && <p>Loading...</p>}
                 </div>
             </div>
         </div>

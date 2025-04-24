@@ -6,7 +6,7 @@ from pages.views.follow_views import FollowingView, FollowListView, FollowToggle
 from pages.views.post_views import *
 from pages.views.blocked_views import BlockUserView, BlockedListView
 from pages.views.dropdown_views import get_instruments, get_genres
-from pages.views.listing_views import CreateJobListingView
+from pages.views.listing_views import CreateJobListingView, GetJobListingsView
 from django.http import JsonResponse
 
 # For debugging:
@@ -46,6 +46,7 @@ urlpatterns = [
         path('is-following/<uuid:user_id>/', IsFollowingView.as_view(), name='is-follow'),
         path("block/<uuid:user_id>/", BlockUserView.as_view(), name="block_user"),
         path('block-list/<uuid:user_id>/', BlockedListView.as_view(), name='block-list'),
-        path('jobs/create/', CreateJobListingView.as_view(), name='create-listing')
+        path('jobs/create/', CreateJobListingView.as_view(), name='create-listing'),
+        path('fetch-jobs/', GetJobListingsView.as_view(), name='fetch-listing'),
     ])),
 ]
