@@ -5,8 +5,6 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth, useRequireAuth } from "@/context/ProfileContext";
 import styles from "@/styles/CreatePost.module.css";
-import axios from "axios";
-import Cookies from "js-cookie";
 import { Button, styled } from '@mui/material';
 import { CloudUpload } from '@mui/icons-material';
 
@@ -19,7 +17,6 @@ export default function CreateNewPost() {
     const { profile, isLoading, setProfile } = useAuth();
     const [files, setFiles] = useState<FileList | null>(null);
     const [fileNames, setFileNames] = useState<string[]>([]);
-    const [caption, setCaption] = useState("");
 
     const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFiles = event.target.files;
@@ -55,44 +52,6 @@ export default function CreateNewPost() {
         // Otherwise, route to the photo editing page
         router.push(`/${username}/create-post/edit`);
     }
-
-
-    /*
-    const handlePost = async () => {
-        try {
-            const formData = new FormData();
-            if (!files || files.length === 0) {
-                console.error("Please upload a file");
-                return;
-            }
-
-            for (let i = 0; i < files.length; i++) {
-                formData.append("files", files[i]);
-            }
-            formData.append("caption", caption);
-
-            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/post/create/`, formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                    "Authorization": `Bearer ${Cookies.get("access_token")}`
-                },
-                withCredentials: true
-            });
-            if (response.status >= 200 && response.status < 300) {
-                alert("Post created!");
-                console.log("Request successful:", response.data);
-                router.back();
-            } else {
-                alert("Post creation failed. Please refresh the page and try again.");
-                console.error("Request failed:", response.status, response.statusText);
-            }
-        } catch (error) {
-            console.error(error)
-        }
-    };
-    */
-
-
 
     // Custom component (reference: materialUI)
     const VisuallyHiddenInput = styled('input')({

@@ -5,11 +5,9 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth, useRequireAuth } from "@/context/ProfileContext";
 import styles from "@/styles/CreatePost.module.css";
-import pinturaTheme from "@/styles/CreatePost.module.css"
 import axios from "axios";
 import Cookies from "js-cookie";
 import { PinturaEditor } from "@pqina/react-pintura";
-import pintura from "@pqina/pintura/pintura.module.css";
 import "@pqina/pintura/pintura.css";
 import { getEditorDefaults } from "@pqina/pintura";
 
@@ -18,12 +16,12 @@ import { getEditorDefaults } from "@pqina/pintura";
 const editorDefaults = getEditorDefaults({
     stickers: [
         "/savvy.png",
+        "🎸", "🎻", "🎺", "🥁", "🎷", "🎹", "🎼", "🎤", "🎶", "🎵",
         "😎", "😀", "😍", "😂", "🤔", "🙃", "😜", "🤩", "🤗", "😴", 
         "❤️", "💖", "💙", "💕", "✨", "💫", "🔥", "🐶", "🐱", "🌸", 
         "🌻", "🌞", "🌈", "🦄", "🐝", "🎉", "🏆", "🍕", "🎧", "🍩", 
         "🥇", "💎", "🍎", "👋", "✋", "👌", "👍", "✌️", "🙌", "🤞", 
-        "🤟", "🍔", "🍦", "🥤", "🧃", "🍉", "🍫", "🎸", "🎻", "🎺",
-        "🥁", "🎷", "🎹", "🎼", "🎤", "🎶", "🎵",
+        "🤟", "🍔", "🍦", "🥤", "🧃", "🍉", "🍫",
     ],
 });
 
