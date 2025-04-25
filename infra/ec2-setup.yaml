@@ -48,12 +48,7 @@ Parameters:
     Description: "Our public domain"
     Type: String
     Default: ""        # leave blank to accept any host (_)
-
-  SSHLocation:
-    Description: "Your office/IP for SSH access (CIDR)"
-    Type: String
-    Default: "0.0.0.0/0"
-
+    
   Environment:
     Description: dev/test/prod
     Type: String
@@ -71,10 +66,6 @@ Mappings:
       AMI: ami-0a25f237e97fa2b5e
     us-east-2:
       AMI: ami-08529db39844c00c2
-      
-Conditions:
-  AllowSSH:
-    !Not [ !Equals [ !Ref Environment, prod ] ]
 
 Resources:
   #─────────────────────────────────────────────────────────────────────────────
@@ -131,19 +122,14 @@ Resources:
           FromPort: 443
           ToPort: 443
           CidrIp: 0.0.0.0/0
+        - IpProtocol: ssh
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
         - IpProtocol: tcp    # dev only
           FromPort: 3000
           ToPort: 3000
           CidrIp: 0.0.0.0/0
-
-        # SSH only in dev/test, from your SSHLocation
-        - !If
-          - AllowSSH
-          - IpProtocol: tcp
-            FromPort: 22
-            ToPort: 22
-            CidrIp: !Ref SSHLocation
-          - !Ref AWS::NoValue
 
   BackendSG:
     Type: AWS::EC2::SecurityGroup
@@ -151,19 +137,14 @@ Resources:
       GroupDescription: "Backend: allow only Django & DB"
       VpcId: !Ref VpcId
       SecurityGroupIngress:
-      - IpProtocol: tcp
-        FromPort: 8000
-        ToPort: 8000
-        SourceSecurityGroupId: !Ref FrontendSG
-
-      # 2) SSH *only* in dev/test, from your SSHLocation CIDR
-      - !If
-        - AllowSSH
         - IpProtocol: tcp
+          FromPort: 8000
+          ToPort: 8000
+        - IpProtocol: ssh
           FromPort: 22
           ToPort: 22
-          CidrIp: !Ref SSHLocation
-        - !Ref AWS::NoValue
+          CidrIp: 0.0.0.0/0
+          SourceSecurityGroupId: !Ref FrontendSG
 
   # RDS SG rule: allow BackendSG → MyAppSecurityGroup on port 5432
   RdsIngress:
@@ -219,12 +200,9 @@ Resources:
 
           # 3) Build .env from SSM
           cat <<EOF > /home/ubuntu/savvynote/.env
-          NEXT_PUBLIC_API_URL="$(aws ssm get-parameter \
+          NEXT_PUBLIC_API_URL=$(aws ssm get-parameter \
             --name "/savvynote/NEXT_PUBLIC_API_URL" \
-            --with-decryption --query "Parameter.Value" --output text)"
-          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="$(aws ssm get-parameter \
-            --name "/savvynote/NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY" \
-            --with-decryption --query "Parameter.Value" --output text)"
+            --with-decryption --query "Parameter.Value" --output text)
           EOF
           chown ubuntu:ubuntu /home/ubuntu/savvynote/.env
 
@@ -289,113 +267,82 @@ Resources:
       KeyName: !Ref KeyName
       ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
       SecurityGroupIds:
-        - !Ref BackendSG
+      - !Ref BackendSG
       UserData:
         Fn::Base64: !Sub |
-          #!/bin/bash -xe
-          exec > /var/log/user-data.log 2>&1
-
+          #!/bin/bash
+          set -xe
           export AWS_DEFAULT_REGION=${AWS::Region}
 
-          # 1) Install OS packages and build deps
+          # 1) Install system packages
           apt-get update -y
-          apt-get install -y software-properties-common
-          add-apt-repository ppa:deadsnakes/ppa -y
-          apt-get update -y
-          apt-get install -y \
-            git awscli postgresql-client libpq-dev build-essential \
-            python3.11 python3.11-venv python3-pip python3.11-dev python3.11-distutils
+          apt-get install -y git postgresql postgresql-contrib nginx openssl awscli docker.io docker-compose python3-venv
+          systemctl enable --now postgresql
 
-          # 2) Clone or update the repo as ubuntu
+          systemctl start docker
+          usermod -aG docker ubuntu
+          DOCKER_USERNAME=$(aws ssm get-parameter --name "/savvynote/DOCKER_USERNAME" --with-decryption --query "Parameter.Value" --output text --region us-east-1)
+          DOCKER_PASSWORD=$(aws ssm get-parameter --name "/savvynote/DOCKER_PASSWORD" --with-decryption --query "Parameter.Value" --output text --region us-east-1)
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          newgrp docker
+
           cd /home/ubuntu
           if [ -d savvynote ]; then
-            runuser -l ubuntu -c 'cd savvynote && git pull'
+            cd savvynote
+            git pull
           else
-            runuser -l ubuntu -c 'git clone https://github.com/uiowaSEP2025/sep2025-project-team_005.git savvynote'
+            git clone https://github.com/uiowaSEP2025/sep2025-project-team_005.git savvynote
+            cd savvynote
           fi
-          chown -R ubuntu:ubuntu savvynote
-          set +H
+          chown -R ubuntu:ubuntu /home/ubuntu/savvynote
 
           # 3) Build .env from SSM parameters
-          cat <<EOF >/home/ubuntu/savvynote/.env
-          DJANGO_ENV="${Environment}"
-          DB_NAME="$(aws ssm get-parameter --name '/savvynote/DB_NAME' \
-            --with-decryption --query 'Parameter.Value' --output text)"
-          DB_USER="$(aws ssm get-parameter --name '/savvynote/DB_USER' \
-            --with-decryption --query 'Parameter.Value' --output text)"
-          DB_PASSWORD="$(aws ssm get-parameter --name '/savvynote/DB_PASSWORD' \
-            --with-decryption --query 'Parameter.Value' --output text)"
-          DB_HOST="$(aws ssm get-parameter --name '/savvynote/DB_HOST' \
-            --with-decryption --query 'Parameter.Value' --output text)"
-          DB_PORT="$(aws ssm get-parameter --name '/savvynote/DB_PORT' \
-            --with-decryption --query 'Parameter.Value' --output text)"
-          SECRET_KEY="$(aws ssm get-parameter --name '/savvynote/SECRET_KEY' \
-            --with-decryption --query 'Parameter.Value' --output text)"
-          DJANGO_SECRET_KEY="$(aws ssm get-parameter --name '/savvynote/SECRET_KEY' \
-            --with-decryption --query 'Parameter.Value' --output text)"
-          GOOGLE_CLIENT_ID="$(aws ssm get-parameter --name '/savvynote/GOOGLE_CLIENT_ID' \
-            --with-decryption --query 'Parameter.Value' --output text)"
-          GOOGLE_CLIENT_SECRET="$(aws ssm get-parameter --name '/savvynote/GOOGLE_CLIENT_SECRET' \
-            --with-decryption --query 'Parameter.Value' --output text)"
-          AWS_ACCESS_KEY_ID="$(aws ssm get-parameter --name '/savvynote/AMAZON_ACCESS_KEY_ID' \
-            --with-decryption --query 'Parameter.Value' --output text)"
-          AWS_SECRET_ACCESS_KEY="$(aws ssm get-parameter --name '/savvynote/AMAZON_SECRET_ACCESS_KEY' \
-            --with-decryption --query 'Parameter.Value' --output text)"
-          AWS_REGION="$(aws ssm get-parameter --name '/savvynote/AMAZON_REGION' \
-            --with-decryption --query 'Parameter.Value' --output text)"
-          AWS_PROFILE="$(aws ssm get-parameter --name '/savvynote/AWS_PROFILE' \
-            --with-decryption --query 'Parameter.Value' --output text)"
-          EMAIL_USER="$(aws ssm get-parameter --name '/savvynote/EMAIL_USER' \
-            --with-decryption --query 'Parameter.Value' --output text)"
-          EMAIL_PASSWORD="$(aws ssm get-parameter --name '/savvynote/EMAIL_PASSWORD' \
-            --with-decryption --query 'Parameter.Value' --output text)"
-          NEXT_PUBLIC_API_URL="$(aws ssm get-parameter --name '/savvynote/NEXT_PUBLIC_API_URL' \
-            --with-decryption --query 'Parameter.Value' --output text)"
-          FRONTEND_API="$(aws ssm get-parameter --name '/savvynote/FRONTEND_API' \
-            --with-decryption --query 'Parameter.Value' --output text)"
-          BACKEND_API="$(aws ssm get-parameter --name '/savvynote/BACKEND_API' \
-            --with-decryption --query 'Parameter.Value' --output text)"
-          STRIPE_SECRET_KEY="$(aws ssm get-parameter --name '/savvynote/STRIPE_SECRET_KEY' \
-            --with-decryption --query 'Parameter.Value' --output text)"
-          STRIPE_WEBHOOK_SECRET="$(aws ssm get-parameter --name '/savvynote/STRIPE_WEBHOOK_SECRET' \
-            --with-decryption --query 'Parameter.Value' --output text)"
+          SECRET=$(aws ssm get-parameter \
+            --name "/savvynote/SECRET_KEY" \
+            --with-decryption --query "Parameter.Value" --output text)
+          cat <<EOF > /home/ubuntu/savvynote/.env
+          DB_NAME=$(aws ssm get-parameter --name "/savvynote/DB_NAME" --with-decryption --query "Parameter.Value" --output text)
+          DB_USER=$(aws ssm get-parameter --name "/savvynote/DB_USER" --with-decryption --query "Parameter.Value" --output text)
+          DB_PASSWORD=$(aws ssm get-parameter --name "/savvynote/DB_PASSWORD" --with-decryption --query "Parameter.Value" --output text)
+          DB_HOST=$(aws ssm get-parameter --name "/savvynote/DB_HOST" --with-decryption --query "Parameter.Value" --output text)
+          DB_PORT=$(aws ssm get-parameter --name "/savvynote/DB_PORT" --with-decryption --query "Parameter.Value" --output text)
+          SECRET_KEY=$$SECRET
+          DJANGO_SECRET_KEY=$$SECRET
+          NEXT_PUBLIC_API_URL=$(aws ssm get-parameter --name "/savvynote/NEXT_PUBLIC_API_URL" --with-decryption --query "Parameter.Value" --output text)
+          SELENIUM_USER_DIR=$(aws ssm get-parameter --name "/savvynote/SELENIUM_USER_DIR" --with-decryption --query "Parameter.Value" --output text)
+          AWS_ACCESS_KEY_ID=$(aws ssm get-parameter --name "/savvynote/AWS_ACCESS_KEY_ID" --with-decryption --query "Parameter.Value" --output text)
+          AWS_SECRET_ACCESS_KEY=$(aws ssm get-parameter --name "/savvynote/AWS_SECRET_ACCESS_KEY" --with-decryption --query "Parameter.Value" --output text)
+          AWS_REGION=$(aws ssm get-parameter --name "/savvynote/AWS_REGION" --with-decryption --query "Parameter.Value" --output text)
+          EMAIL_USER=$(aws ssm get-parameter --name "/savvynote/EMAIL_USER" --with-decryption --query "Parameter.Value" --output text)
+          EMAIL_PASSWORD=$(aws ssm get-parameter --name "/savvynote/EMAIL_PASSWORD" --with-decryption --query "Parameter.Value" --output text)
+          GOOGLE_CLIENT_ID=$(aws ssm get-parameter --name "/savvynote/GOOGLE_CLIENT_ID" --with-decryption --query "Parameter.Value" --output text)
+          GOOGLE_CLIENT_SECRET=$(aws ssm get-parameter --name "/savvynote/GOOGLE_CLIENT_SECRET" --with-decryption --query "Parameter.Value" --output text)
+          FRONTEND_API=$(aws ssm get-parameter --name "/savvynote/FRONTEND_API" --with-decryption --query "Parameter.Value" --output text)
+          BACKEND_API=$(aws ssm get-parameter --name "/savvynote/BACKEND_API" --with-decryption --query "Parameter.Value" --output text)
+          STRIPE_SECRET_KEY=$(aws ssm get-parameter --name "/savvynote/STRIPE_SECRET_KEY" --with-decryption --query "Parameter.Value" --output text)
+          STRIPE_WEBHOOK_SECRET=$(aws ssm get-parameter --name "/savvynote/STRIPE_WEBHOOK_SECRET" --with-decryption --query "Parameter.Value" --output text)
           EOF
           chown ubuntu:ubuntu /home/ubuntu/savvynote/.env
-          sed -i -E 's/^([^=]+)=\"(.*)\"$/\1=\2/' /home/ubuntu/savvynote/.env
 
-          set -H
-          # 4) Create venv & install Python deps
-          runuser -l ubuntu -c '
-            set -a
-            source /home/ubuntu/savvynote/.env
-            set +a
-            cd /home/ubuntu/savvynote/backend
-            python3.11 -m venv venv
-            source venv/bin/activate
-            python -m ensurepip --upgrade
-            pip install --upgrade pip
-            pip install Django==5.2.0
-            pip install -r requirements.txt
-          '
+          # 4) Create or reuse virtualenv, install Python deps
+          cd /home/ubuntu/savvynote/backend
+          if [ ! -d venv ]; then
+            python3 -m venv venv
+          fi
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
 
-          # 5) Apply Django migrations
-          runuser -l ubuntu -c '
-            cd /home/ubuntu/savvynote/backend
-            source venv/bin/activate
-            python manage.py migrate --noinput
-          '
+          # 5) Apply migrations
+          python manage.py migrate --noinput
 
-          # 6) Start Gunicorn on :8000
-          runuser -l ubuntu -c '
-            cd /home/ubuntu/savvynote/backend
-            source venv/bin/activate
-            nohup gunicorn savvynote.wsgi:application --bind 0.0.0.0:8000 &>/var/log/gunicorn.log &
-          '
+          # 6) Start Gunicorn
+          nohup gunicorn savvynote.wsgi:application --bind 0.0.0.0:8000 &
       Tags:
-        - Key: Name
-          Value: !Sub "${Environment}-Backend-Instance"
-        - Key: Environment
-          Value: !Ref Environment
+      - Key: Name
+        Value: !Sub "${Environment}-Backend-Instance"
+      - Key: Environment
+        Value: !Ref Environment
 
 Outputs:
   FrontendPublicIP:
