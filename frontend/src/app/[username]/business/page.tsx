@@ -243,8 +243,8 @@ export default function BusinessProfile() {
         }
     };    
 
-    const handleJobListing = async () => {
-        
+    const handleNewJobListing = async () => {
+        router.push(`/${username}/create-listing`);
     };
 
     const handleNavigation = (user_id: string, type: "followers" | "following") => {
@@ -364,6 +364,11 @@ export default function BusinessProfile() {
                 <div className={styles.postsSection}>
                     <div className={styles.postsHeader}>
                         <h2 className={styles.featureTitle}>Job Listings</h2>
+                        {profile?.username === username && (
+                            <div>
+                                <button className={styles.editButton} onClick={handleNewJobListing} data-testid="listing-button">Add Listing</button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

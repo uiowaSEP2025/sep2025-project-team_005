@@ -12,6 +12,7 @@ from .BlockedUser import BlockedUser
 from .Subscription import Subscription
 from .TaggedUser import TaggedUser
 from .ReportedPost import ReportedPost, PostStatus
+from .JobListing import JobListing
 
 __all__ = ["User", "Musician", "Business", "Instrument", "Genre", "Post", "Like", "Comment", "Follower", "MusicianInstrument", 
-           "BlockedUser", "TaggedUser", "ReportedPost", "PostStatus", "Subscription"]
+           "BlockedUser", "TaggedUser", "ReportedPost", "PostStatus", "Subscription", "JobListing"]

@@ -8,7 +8,6 @@ import styles from "@/styles/CreatePost.module.css";
 import { Button, styled } from '@mui/material';
 import { CloudUpload } from '@mui/icons-material';
 
-
 export default function CreateNewPost() {
     useRequireAuth();
 
