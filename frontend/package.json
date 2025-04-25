@@ -10,11 +10,13 @@
     "test": "jest --passWithNoTests"
   },
   "dependencies": {
-    "@stripe/stripe-js": "^7.0.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^7.0.1",
     "@mui/material": "^7.0.1",
+    "@pqina/pintura": "^8.92.12",
+    "@pqina/react-pintura": "^9.0.4",
+    "@stripe/stripe-js": "^7.0.0",
     "axios": "^1.8.2",
     "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
