@@ -20,13 +20,18 @@
 .sideBySideContainer {
     display: flex;
     flex-direction: row;
-    gap: 2rem; /* space between pintura editor and post box */
-    max-width: 90vw;
-    width: 100%;
+    gap: 2rem;
+    max-width: 1000px; /* limit total width */
+    margin: 0 auto; /* center the whole container */
+    justify-content: center; /* ensure children are centered */
     align-items: flex-start;
+    width: 100%;
+    padding: 2rem 1rem;
 }
 
 .postsHeader {
+    flex: 1;
+    max-width: 300px;
     padding: 2rem;
     border-radius: 1rem;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -39,16 +44,15 @@
 }
 
 .editorWrapper {
-    width: 100%;
+    flex: 1; /* allow it to grow */
     max-width: 600px;
     height: 600px;
-    margin-top: 20px;
     position: relative;
-    background-color: #1a1a1a; /* contrast with black */
+    background-color: #1a1a1a;
     border: 1px solid #444;
     border-radius: 10px;
     overflow: hidden;
-  }
+}
   
 .buttonGroup {
     display: flex;
@@ -131,4 +135,25 @@
     font-size: 1rem;
 }
 
-  
+.thumbnailColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 500px; /* optional: scroll if too many */
+    overflow-y: auto;
+}
+
+.thumbnailImage {
+    width: 80px;
+    border: 2px solid transparent;
+    cursor: pointer;
+}
+
+.thumbnailImage:hover,
+.thumbnailImage:focus {
+    border-color: #0070f3;
+}
+
+.thumbnailImage[aria-selected="true"] {
+    border-color: blue;
+}
