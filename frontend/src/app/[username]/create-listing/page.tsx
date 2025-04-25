@@ -1,7 +1,7 @@
 "use client";
 
 import styles from "@/styles/JobListing.module.css";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth, useRequireAuth } from "@/context/ProfileContext";
 import axios from "axios";
@@ -41,6 +41,8 @@ export default function CreateJobListing() {
     const [experienceLevel, setExperienceLevel] = useState("");
     const [instruments, setInstruments] = useState([{ id: "", instrument: "" }]);
     const [genres, setGenres] = useState([{ id: "", genre: "" }]);
+    const instrumentDropdownRefs = useRef<(HTMLDivElement | null)[]>([]);
+    const genreDropdownRefs = useRef<(HTMLDivElement | null)[]>([]);
     const [instrumentOptions, setInstrumentOptions] = useState<InstrumentOption[]>([]);
     const [genreOptions, setGenreOptions] = useState<GenreOption[]>([]);
     const [autocompleteResultsInstruments, setAutocompleteResultsInstruments] = useState<{
@@ -57,6 +59,21 @@ export default function CreateJobListing() {
         }
 
         e.preventDefault();
+
+        // Validate date/time logic
+        if (gigType === "oneTime" || gigType === "recurring") {
+            if (oneTimeStart && oneTimeEnd && oneTimeStart >= oneTimeEnd) {
+                alert("Start time must be before end time.");
+                return;
+            }
+        }
+
+        if (gigType === "longTerm") {
+            if (longTermStart && longTermEnd && longTermStart > longTermEnd) {
+                alert("Start date must be before end date.");
+                return;
+            }
+        }
       
         const jobData = {
             event_title: eventTitle,
@@ -69,8 +86,8 @@ export default function CreateJobListing() {
             instruments: instruments.filter(i => i.id).map(i => i.id),
             genres: genres.filter(g => g.id).map(g => g.id),
             start_date: gigType === "oneTime" ? oneTimeDate : recurringDates || longTermStart,
-            start_time: oneTimeStart,
-            end_time: oneTimeEnd,
+            start_time: oneTimeStart ? oneTimeStart : null,
+            end_time: oneTimeEnd ? oneTimeStart : null,
             recurring_pattern: gigType === "recurring" ? recurringPattern : "",
             end_date: gigType === "longTerm" ? longTermEnd : null,
         };
@@ -309,6 +326,35 @@ export default function CreateJobListing() {
         }
     };
 
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            // Instruments
+            instrumentDropdownRefs.current.forEach((ref, index) => {
+                if (ref && !ref.contains(event.target as Node)) {
+                    setAutocompleteResultsInstruments((prev) => ({
+                        ...prev,
+                        [index]: []
+                    }));
+                }
+            });
+    
+            // Genres
+            genreDropdownRefs.current.forEach((ref, index) => {
+                if (ref && !ref.contains(event.target as Node)) {
+                    setAutocompleteResultsGenre((prev) => ({
+                        ...prev,
+                        [index]: []
+                    }));
+                }
+            });
+        };
+    
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);    
+
     return (
         <div className={styles.container}>
             <div className={styles.header}>
@@ -500,7 +546,7 @@ export default function CreateJobListing() {
                         <input
                             type="number"
                             min="0"
-                            step="10.00"
+                            step="1.00"
                             placeholder="Enter amount"
                             value={paymentAmount}
                             onChange={(e) => setPaymentAmount(e.target.value)}
@@ -517,7 +563,7 @@ export default function CreateJobListing() {
                             <input
                                 type="number"
                                 min="0"
-                                step="5.00"
+                                step="1.00"
                                 placeholder="Enter rate"
                                 value={paymentAmount}
                                 onChange={(e) => setPaymentAmount(e.target.value)}
@@ -563,7 +609,10 @@ export default function CreateJobListing() {
                     <h3 className={styles.label}>Preferred Instruments</h3>
                     {instruments.map((instrument, index) => (
                     <div key={index} className={styles.instrumentRow}>
-                        <div className={styles.autocompleteWrapper}>
+                        <div
+                        className={styles.autocompleteWrapper}
+                        ref={(el) => { instrumentDropdownRefs.current[index] = el; }}
+                        >
                         <input
                             type="text"
                             placeholder="Instrument"
@@ -585,13 +634,21 @@ export default function CreateJobListing() {
                             </div>
                         )}
                         </div>
+                        {instrument.instrument.trim() && (
                         <button
                             type="button"
                             className={styles.removeInstrumentButton}
-                            onClick={() => removeInstrumentField(index)}
-                            >
+                            onClick={() => {
+                            if (instruments.length === 1) {
+                                handleInstrumentChange(index, "");
+                            } else {
+                                removeInstrumentField(index);
+                            }
+                            }}
+                        >
                             —
                         </button>
+                        )}
                     </div>
                     ))}
                     <button type="button" className={styles.addInstrumentButton} onClick={addInstrumentField}>
@@ -602,7 +659,10 @@ export default function CreateJobListing() {
                     <h3 className={styles.label}>Preferred Genres</h3>
                     {genres.map((genre, index) => (
                     <div key={index} className={styles.instrumentRow}>
-                        <div className={styles.autocompleteWrapper}>
+                        <div
+                        className={styles.autocompleteWrapper}
+                        ref={(el) => { genreDropdownRefs.current[index] = el; }} // Ref is a callback function
+                        >
                         <input
                             type="text"
                             placeholder="Genre"
@@ -624,17 +684,25 @@ export default function CreateJobListing() {
                             </div>
                         )}
                         </div>
+                        {genre.genre.trim() && (
                         <button
-                        type="button"
-                        className={styles.removeInstrumentButton}
-                        onClick={() => removeGenreField(index)}
+                            type="button"
+                            className={styles.removeInstrumentButton}
+                            onClick={() => {
+                            if (genres.length === 1) {
+                                handleGenreChange(index, "");
+                            } else {
+                                removeGenreField(index);
+                            }
+                            }}
                         >
-                        —
+                            —
                         </button>
+                        )}
                     </div>
                     ))}
                     <button type="button" className={styles.addInstrumentButton} onClick={addGenreField}>
-                        + Add another genre
+                    + Add another genre
                     </button>
                 </div>
                 )}
@@ -642,12 +710,6 @@ export default function CreateJobListing() {
                 {/* Submit Button */}
                 <button type="submit" className={styles.primaryButton}>Create Job Listing</button>
             </form>
-
-            <div className={styles.footer}>
-                <p style={{ marginTop: "1rem", fontSize: "0.9rem", opacity: 0.6 }}>
-                    © 2025 MusicMatch Inc. All rights reserved.
-                </p>
-            </div>
         </div>
     );
 }
