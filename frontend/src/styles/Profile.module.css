@@ -253,38 +253,157 @@
     background-color: var(--secondary);
 }
 
+/* Job Card Container */
 .jobCard {
-    padding: 1.25rem;
     background-color: var(--text-box);
     color: var(--text-light);
-    font-size: 1.1rem;
-    border-radius: 0.75rem;
-    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border-radius: 1rem;
+    border: 1px solid var(--secondary);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    font-family: var(--font-geist-sans);
+    max-width: 48rem;
+    width: 100%;
+    text-align: left;
+}
+
+.jobCard:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+}
+
+/* Job Header */
+.header {
+    margin-bottom: 0.25rem;
+}
+
+/* Job Title */
+.jobTitle {
+    font-size: 1.65rem;
+    font-weight: bold;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
+/* Venue */
+.venue {
+    font-size: 1.25rem;
+    color: var(--text-muted);
+}
+
+.metaRow {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 0.75rem 0;
+}
+
+.gigType,
+.experience {
+    background-color: var(--secondary);
+    color: var(--text-light);
+    font-weight: 600;
+    padding: 0.35rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+}
+
+.payment {
+    background-color: #e5e7eb;
+    color: #111827;
+    font-weight: 700;
+    padding: 0.35rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+}
+
+/* Date Info */
+.dateRow {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+/* Job Description */
+.descriptionJob {
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+/* Tags */
+.tags {
+    display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
     margin-bottom: 1rem;
 }
-  
-.jobCard:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-}
-  
-.jobTitle {
-    font-size: 1.4rem;
+
+.tag {
+    background-color: var(--light-blue-background);
+    color: var(--dark-blue-text);
     font-weight: bold;
-    color: var(--primary);
-    margin-bottom: 0.25rem;
-}
-  
-.jobVenue {
     font-size: 1rem;
-    color: var(--text-muted);
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    font-weight: 500;
 }
-  
-.jobDescription {
-    font-size: 1rem;
-    line-height: 1.5;
-}  
+
+/* Load More Button */
+.loadMoreButton {
+    margin-top: 1.5rem;
+    padding: 0.75rem 1.75rem;
+    background-color: var(--primary);
+    color: white;
+    font-size: 1.25rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 999px;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+}
+
+.loadMoreButton:hover {
+    background-color: #1e40af;
+}
+
+/* Card Actions */
+.cardActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+/* Action Buttons */
+.viewApplicantsButton,
+.editAppButton {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    font-size: 1.15rem;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.viewApplicantsButton {
+    background-color: var(--primary);
+    color: white;
+}
+
+.viewApplicantsButton:hover {
+    background-color: #1e40af;
+}
+
+.editAppButton {
+    background-color: var(--secondary);
+    color: var(--text-light);
+}
+
+.editAppButton:hover {
+    background-color: #a8a8a8;
+}

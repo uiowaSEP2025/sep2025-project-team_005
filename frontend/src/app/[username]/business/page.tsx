@@ -41,6 +41,14 @@ interface JobListing {
     payment_type: string;
     payment_amount: string;
     created_at: string;
+    start_date: string;
+    end_date: string;
+    start_time: string;
+    end_time: string;
+    recurring_pattern: string;
+    experience_level: string;
+    instruments: { id: number; instrument: string }[];
+    genres: { id: number; genre: string }[];
 }
 
 export default function BusinessProfile() {
@@ -209,6 +217,22 @@ export default function BusinessProfile() {
         }
     }
 
+    const handleViewApplicants = async (listing: number) => {
+        try {
+            router.push("/");
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    const handleEditJob = async (listing: number) => {
+        try {
+            router.push("/");
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
     const handleLogout = async () => {
         try {
             await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/auth/logout/`, {
@@ -292,8 +316,8 @@ export default function BusinessProfile() {
         fetchJobListings(1);
     }, [userId?.user_id]);
 
-    const handleJobListingClick = async (post: JobListing) => {
-        router.push("") // TODO: replace with route to individual JobListing view
+    const handleJobListingClick = async (listing: JobListing) => {
+        router.push(`/listings/${listing.id}`)
     }
 
     useEffect(() => {
@@ -307,6 +331,18 @@ export default function BusinessProfile() {
             fetchJobListings(page + 1);
             setPage((prevPage) => prevPage + 1);
         }
+    };
+
+    const formatDate = (dateStr: string) => {
+        const [year, month, day] = dateStr.split("-");
+        return `${month}-${day}-${year}`;
+    };      
+
+    const formatTime = (timeStr: string) => {
+        const [hour, minute] = timeStr.split(":").map(Number);
+        const ampm = hour >= 12 ? "PM" : "AM";
+        const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
+        return `${formattedHour}:${minute.toString().padStart(2, "0")} ${ampm}`;
     };
 
     const VisuallyHiddenInput = styled('input')({
@@ -406,28 +442,75 @@ export default function BusinessProfile() {
                     </div>
 
                     {jobListings.map((listing, index) => (
-                        <div
-                            key={listing.id || index}
-                            className={styles.jobCard}
-                            onClick={() => handleJobListingClick(listing)} // Make the card clickable
-                        >
-                            <h3 className={styles.jobTitle}>{listing.event_title}</h3>
-                            <p className={styles.jobVenue}>{listing.venue}</p>
-
-                            {listing.payment_amount && (
-                                <p className={styles.paymentAmount}>
-                                    Payment: ${parseFloat(listing.payment_amount).toFixed(2)}
-                                    {listing.payment_type === "Hourly rate" && " /hour"}
-                                </p>
-                            )}
-                            <p className={styles.jobDescription}>{listing.event_description}</p>
+                    <div
+                        key={listing.id || index}
+                        className={styles.jobCard}
+                        onClick={() => handleJobListingClick(listing)}
+                    >
+                        <div className={styles.header}>
+                        <h3 className={styles.jobTitle}>{listing.event_title}</h3>
+                        <span className={styles.venue}>{listing.venue}</span>
                         </div>
+
+                        <div className={styles.metaRow}>
+                        {listing.payment_amount && (
+                            <span className={styles.payment}>
+                            ${parseFloat(listing.payment_amount).toFixed(2)}
+                            {listing.payment_type === "Hourly rate" && " an hour"}
+                            </span>
+                        )}
+                        <span className={styles.gigType}>{listing.gig_type}</span>
+                        {listing.experience_level && (
+                            <span className={styles.experience}>{listing.experience_level}</span>
+                        )}
+                        </div>
+
+                        <div className={styles.dateRow}>
+                        <span>
+                            {formatDate(listing.start_date)} {listing.start_time && `@ ${formatTime(listing.start_time)}`}
+                            {listing.end_date && ` - ${formatDate(listing.end_date)} ${listing.end_time ? `@ ${formatTime(listing.end_time)}` : ""}`}
+                        </span>
+                        {listing.recurring_pattern && <span> • {listing.recurring_pattern}</span>}
+                        </div>
+
+                        <p className={styles.descriptionJob}>
+                        {listing.event_description.length > 140
+                            ? listing.event_description.slice(0, 140) + "..."
+                            : listing.event_description}
+                        </p>
+
+                        <div className={styles.tags}>
+                        {listing.instruments.map((inst, i) => (
+                            <span key={`inst-${i}`} className={styles.tag}>{inst.instrument}</span>
+                        ))}
+                        {listing.genres.map((g, i) => (
+                            <span key={`genre-${i}`} className={styles.tag}>{g.genre}</span>
+                        ))}
+                        </div>
+
+                        {profile?.username == username && (
+                        <div className={styles.cardActions}>
+                            <button className={styles.viewApplicantsButton} onClick={(e) => {
+                                e.stopPropagation();
+                                handleViewApplicants(listing.id);
+                            }}>
+                            View Applicants
+                            </button>
+                            <button className={styles.editAppButton} onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditJob(listing.id);
+                            }}>
+                            Edit
+                            </button>
+                        </div>
+                        )}
+                    </div>
                     ))}
 
                     {hasMore && !loading && (
-                        <button onClick={loadMoreJobListings} className={styles.loadMoreButton}>
-                            Load More
-                        </button>
+                    <button onClick={loadMoreJobListings} className={styles.loadMoreButton}>
+                        Load More
+                    </button>
                     )}
 
                     {loading && <p>Loading...</p>}
