@@ -1,6 +1,8 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import CreateNewPost from '@/app/[username]/create-post/page';
+import EditPhotos from '@/app/[username]/create-post/edit/page';
+import axios from 'axios';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth, useRequireAuth } from '@/context/ProfileContext';
 import userEvent from '@testing-library/user-event';
@@ -15,7 +17,54 @@ jest.mock('@/context/ProfileContext', () => ({
   useRequireAuth: jest.fn(),
 }));
 
+jest.mock('axios');
+
+jest.mock('@pqina/react-pintura', () => ({
+    PinturaEditor: ({ onProcess, onLoad, src }: any) => {
+        React.useEffect(() => {
+          onLoad?.();
+          onProcess?.({
+            dest: {
+              blob: () => Promise.resolve(new Blob(["blob-content"], { type: 'image/jpeg' })),
+            }
+          });
+        }, []);
+        return (
+          <div data-testid="pintura-editor">
+            {src && <img src={src} alt="Edited" />}
+            <button onClick={() => onProcess?.({
+                dest: {
+                    blob: () => Promise.resolve(new Blob(["blob-content"], { type: 'image/jpeg' })),
+                }
+                })}>
+                    Mock Process
+            </button>
+          </div>
+        );
+    }      
+}));
+  
 const mockPush = jest.fn();
+const mockPost = jest.fn(() =>
+    Promise.resolve({
+      data: {},
+      status: 201,
+      statusText: "Created"
+    })
+  );
+(axios.post as jest.Mock) = mockPost;
+
+// Mock URL.createObjectURL and fetch mock
+beforeAll(() => {
+    global.URL.createObjectURL = jest.fn(() => 'blob:http://localhost/edited-image');
+  
+    // Fetch mock: returns an object with a .blob() function
+    global.fetch = jest.fn(() =>
+      Promise.resolve({
+        blob: () => Promise.resolve(new Blob(["image data"], { type: "image/jpeg" })),
+      })
+    ) as jest.Mock;
+});
 
 describe('CreateNewPost page', () => {
   beforeEach(() => {
@@ -73,4 +122,84 @@ describe('CreateNewPost page', () => {
       expect(mockPush).toHaveBeenCalledWith('/testuser/create-post/edit');
     });
   });
+});
+
+describe('EditPhotos page', () => {
+    beforeEach(() => {
+      (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
+      (useParams as jest.Mock).mockReturnValue({ username: 'testuser' });
+      (useRequireAuth as jest.Mock).mockImplementation(() => {});
+      window.sessionStorage.clear();
+  
+      const testImages = JSON.stringify(["blob:http://localhost/image1"]);
+      window.sessionStorage.setItem("uploadedImages", testImages);
+    });
+  
+    it('renders Pintura editor and thumbnails when images are present in sessionStorage', () => {
+      render(<EditPhotos />);
+      expect(screen.getByText('Edit Photos:')).toBeInTheDocument();
+      expect(screen.getAllByRole('img').length).toBeGreaterThan(0);
+      expect(screen.getByTestId('pintura-editor')).toBeInTheDocument();
+    });
+  
+    it('updates the caption when typed into the caption input text area', async () => {
+      render(<EditPhotos />);
+      const captionInput = screen.getByPlaceholderText('Write a caption...');
+      await userEvent.type(captionInput, 'This is a cool caption!');
+      expect(captionInput).toHaveValue('This is a cool caption!');
+    });
+  
+    it('handles image editing and submits a post', async () => {
+        render(<EditPhotos />);
+      
+        // Wait for editor to render
+        const processButton = await screen.findByText('Mock Process');
+        
+        // Simulate clicking the mock process button (which triggers the onProcess handler)
+        fireEvent.click(processButton);
+      
+        // Fill in caption
+        fireEvent.change(screen.getByPlaceholderText('Write a caption...'), {
+          target: { value: 'Edited image' },
+        });
+      
+        // Click the "Post" button
+        fireEvent.click(screen.getByTestId('post-button'));
+      
+        await waitFor(() => {
+          expect(mockPush).toHaveBeenCalledWith('/testuser');
+        });
+    }); 
+    
+    it('shows an error alert if the post fails', async () => {
+        // Mock axios.post to return a failed status
+        (axios.post as jest.Mock).mockResolvedValueOnce({
+            status: 400,
+            statusText: "Bad Request",
+            data: {}
+        });
+
+        // Mock alert
+        window.alert = jest.fn();
+
+        render(<EditPhotos />);
+
+        // Simulate user editing image
+        const processButton = await screen.findByText('Mock Process');
+        fireEvent.click(processButton);
+
+        // Add a caption
+        fireEvent.change(screen.getByPlaceholderText('Write a caption...'), {
+        target: { value: 'Bad post test' },
+        });
+
+        // Click post
+        fireEvent.click(screen.getByTestId('post-button'));
+
+        await waitFor(() => {
+        expect(window.alert).toHaveBeenCalledWith(
+            'Post creation failed. Please refresh the page and try again.'
+        );
+        });
+    });
 });
