@@ -1,0 +1,409 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  CloudFormation template that:
+  • Provisions Frontend and Backend EC2 instances
+  • Uses an EIP for a stable frontend IP
+  • Disables direct SSH on frontend/backend (SSM only)
+  • Reverse-proxies Next.js and Django behind Nginx
+  • Locks down DB SG to only allow the Backend SG
+      
+#─────────────────────────────────────────────────────────────────────────────────────────
+  # To scale horizontally in the future, we would:
+  #   1. Create a Launch Template (or Launch Configuration) from this spec
+  #   2. Define an Auto Scaling Group (ASG) with min/desired/max >1
+  #   3. Provision an Application Load Balancer (ALB) in front of that ASG
+  #   4. Register the ASG instances with the ALB’s Target Group
+  #   5. Point our DNS (Route 53 or Cloudflare) at the ALB’s DNS name (or EIP on the ALB)
+  #   6. Adjust ASG DesiredCapacity (or attach scaling policies) for auto-scaling
+#─────────────────────────────────────────────────────────────────────────────────────────
+
+Parameters:
+  KeyName:
+    Description: Name of an existing EC2 KeyPair for SSH access
+    Type: AWS::EC2::KeyPair::KeyName
+
+  PublicSubnetId:
+    Description: "Public Subnet ID (must have a default route to an Internet Gateway)"
+    Type: AWS::EC2::Subnet::Id
+    Default: subnet-00305b83c66219ec9 # For Joroma: subnet-01172df8f774b84b6
+
+  InstanceType:
+    Description: EC2 instance type (only micro instances allowed)
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+      - t2.micro
+
+  VpcId:
+    Description: "VPC ID in which the instances will be launched"
+    Type: AWS::EC2::VPC::Id
+    Default: vpc-0588c4e6d2c293b9b # For Joroma: vpc-04cbf3cb88c253a81
+
+  MyAppSecurityGroup:
+    Description: "Security Group ID for application servers that will access the RDS instance"
+    Type: AWS::EC2::SecurityGroup::Id
+    Default: sg-0cd715b9e879c7a5b # For Joroma: sg-06e2aee3009eae596
+
+  DomainName:
+    Description: "Our public domain"
+    Type: String
+    Default: ""        # leave blank to accept any host (_)
+
+  SSHLocation:
+    Description: "Your office/IP for SSH access (CIDR)"
+    Type: String
+    Default: "0.0.0.0/0"
+
+  Environment:
+    Description: dev/test/prod
+    Type: String
+    Default: test
+    AllowedValues: [ dev, test, prod ]
+  
+  #FrontendEIP:
+  #  Description: "The manually allocated Elastic IP for the Frontend instance"
+  #  Type: String
+  #  Default: "3.23.6.91" # For KodyGMail: "3.148.116.100"
+
+Mappings:
+  RegionMap:
+    us-east-1:
+      AMI: ami-0a25f237e97fa2b5e
+    us-east-2:
+      AMI: ami-08529db39844c00c2
+      
+Conditions:
+  AllowSSH:
+    !Not [ !Equals [ !Ref Environment, prod ] ]
+
+Resources:
+  #─────────────────────────────────────────────────────────────────────────────
+  # 1) Elastic IP for a stable frontend IP (for Cloudflare / DNS later)
+  #─────────────────────────────────────────────────────────────────────────────
+  FrontendEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+
+  #─────────────────────────────────────────────────────────────────────────────
+  # 2) IAM Role + Profile for SSM Parameter retrieval
+  #─────────────────────────────────────────────────────────────────────────────
+  SSMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: {Service: ec2.amazonaws.com}
+            Action: sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName: SSMGetParameters
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                  - ssm:GetParameters
+                Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/savvynote/*"
+
+  SSMInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles: [!Ref SSMRole]
+
+  #─────────────────────────────────────────────────────────────────────────────
+  # 3) Security Groups
+  #─────────────────────────────────────────────────────────────────────────────
+  FrontendSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Frontend: HTTP/HTTPS"
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp    # dev only
+          FromPort: 3000
+          ToPort: 3000
+          CidrIp: 0.0.0.0/0
+
+        # SSH only in dev/test, from your SSHLocation
+        - !If
+          - AllowSSH
+          - IpProtocol: tcp
+            FromPort: 22
+            ToPort: 22
+            CidrIp: !Ref SSHLocation
+          - !Ref AWS::NoValue
+
+  BackendSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Backend: allow only Django & DB"
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 8000
+        ToPort: 8000
+        SourceSecurityGroupId: !Ref FrontendSG
+
+      # 2) SSH *only* in dev/test, from your SSHLocation CIDR
+      - !If
+        - AllowSSH
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref SSHLocation
+        - !Ref AWS::NoValue
+
+  # RDS SG rule: allow BackendSG → MyAppSecurityGroup on port 5432
+  RdsIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref MyAppSecurityGroup
+      IpProtocol: tcp
+      FromPort: 5432
+      ToPort: 5432
+      SourceSecurityGroupId: !Ref BackendSG
+
+  FrontendInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      IamInstanceProfile: !Ref SSMInstanceProfile
+      InstanceType: !Ref InstanceType
+      SubnetId: !Ref PublicSubnetId
+      KeyName: !Ref KeyName
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      SecurityGroupIds:
+        - !Ref FrontendSG
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          # Set the default region and configure the AWS CLI using SSM values
+          export AWS_DEFAULT_REGION=us-east-1
+
+          # Redirect all output to a log file and enable debugging
+          exec > /var/log/user-data.log 2>&1
+          set -xe
+          export AWS_DEFAULT_REGION=${AWS::Region}
+
+          # Install Node.js (v16), Git, Nginx, OpenSSL, awscli, Docker, and docker-compose
+          curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+          apt-get update -y
+          apt-get install -y nodejs git postgresql postgresql-contrib nginx openssl awscli docker.io docker-compose
+          systemctl enable --now postgresql
+
+          # Ensure Docker group exists and add ubuntu user to it
+          usermod -aG docker ubuntu
+          systemctl start docker
+
+          # Log in to Docker using credentials from SSM
+          DOCKER_USERNAME=$(aws ssm get-parameter --name "/savvynote/DOCKER_USERNAME" --with-decryption --query "Parameter.Value" --output text --region us-east-1)
+          DOCKER_PASSWORD=$(aws ssm get-parameter --name "/savvynote/DOCKER_PASSWORD" --with-decryption --query "Parameter.Value" --output text --region us-east-1)
+          docker logout
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+          # Clone the repository and launch the frontend container
+          cd /home/ubuntu
+          git clone https://github.com/uiowaSEP2025/sep2025-project-team_005.git savvynote
+          chown -R ubuntu:ubuntu savvynote
+
+          # 3) Build .env from SSM
+          cat <<EOF > /home/ubuntu/savvynote/.env
+          NEXT_PUBLIC_API_URL="$(aws ssm get-parameter \
+            --name "/savvynote/NEXT_PUBLIC_API_URL" \
+            --with-decryption --query "Parameter.Value" --output text)"
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="$(aws ssm get-parameter \
+            --name "/savvynote/NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY" \
+            --with-decryption --query "Parameter.Value" --output text)"
+          EOF
+          chown ubuntu:ubuntu /home/ubuntu/savvynote/.env
+
+          # 4) Build & run Next.js
+          cd /home/ubuntu/savvynote/frontend
+          npm install
+          npm run build
+          nohup npm start &
+
+          # 5) Write Nginx reverse-proxy config (inject CFN-provided Backend IP)
+          BACKEND_IP=${BackendInstance.PublicIp}
+          DOMAIN='${DomainName}'
+          if [ -z "$DOMAIN" ]; then
+            DOMAIN="_"
+          fi
+          cat > /etc/nginx/sites-available/default <<NGINX
+          server {
+            listen 80;
+            server_name \$DOMAIN www.\$DOMAIN;
+            return 301 https://\$host\$request_uri;
+          }
+          server {
+            listen 443 ssl;
+            server_name \$DOMAIN www.\$DOMAIN;
+            ssl_certificate     /etc/nginx/SSL/fullchain.pem;
+            ssl_certificate_key /etc/nginx/SSL/privkey.pem;
+
+            location / {
+              proxy_pass http://localhost:3000;
+              proxy_set_header Host \$host;
+            }
+            location /api/ {
+              proxy_pass http://\$BACKEND_IP:8000/api/;
+              proxy_set_header Host \$host;
+              proxy_set_header X-Real-IP \$remote_addr;
+              proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+            }
+          }
+          NGINX
+
+          # 6) Fetch SSL certs & restart nginx
+          mkdir -p /etc/nginx/SSL
+          aws ssm get-parameter --name "/savvynote/savvy-note.com.key" \
+            --with-decryption --query "Parameter.Value" --output text \
+            > /etc/nginx/SSL/privkey.pem
+          aws ssm get-parameter --name "/savvynote/savvy-note.com.pem" \
+            --with-decryption --query "Parameter.Value" --output text \
+            > /etc/nginx/SSL/fullchain.pem
+          chmod 600 /etc/nginx/SSL/*
+          systemctl restart nginx
+      Tags:
+      - Key: Name
+        Value: !Sub "${Environment}-Frontend-Instance"
+      - Key: Environment
+        Value: !Ref Environment
+
+  BackendInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      IamInstanceProfile: !Ref SSMInstanceProfile
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyName
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      SecurityGroupIds:
+        - !Ref BackendSG
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          exec > /var/log/user-data.log 2>&1
+
+          export AWS_DEFAULT_REGION=${AWS::Region}
+
+          # 1) Install OS packages and build deps
+          apt-get update -y
+          apt-get install -y software-properties-common
+          add-apt-repository ppa:deadsnakes/ppa -y
+          apt-get update -y
+          apt-get install -y \
+            git awscli postgresql-client libpq-dev build-essential \
+            python3.11 python3.11-venv python3-pip python3.11-dev python3.11-distutils
+
+          # 2) Clone or update the repo as ubuntu
+          cd /home/ubuntu
+          if [ -d savvynote ]; then
+            runuser -l ubuntu -c 'cd savvynote && git pull'
+          else
+            runuser -l ubuntu -c 'git clone https://github.com/uiowaSEP2025/sep2025-project-team_005.git savvynote'
+          fi
+          chown -R ubuntu:ubuntu savvynote
+          set +H
+
+          # 3) Build .env from SSM parameters
+          cat <<EOF >/home/ubuntu/savvynote/.env
+          DJANGO_ENV="${Environment}"
+          DB_NAME="$(aws ssm get-parameter --name '/savvynote/DB_NAME' \
+            --with-decryption --query 'Parameter.Value' --output text)"
+          DB_USER="$(aws ssm get-parameter --name '/savvynote/DB_USER' \
+            --with-decryption --query 'Parameter.Value' --output text)"
+          DB_PASSWORD="$(aws ssm get-parameter --name '/savvynote/DB_PASSWORD' \
+            --with-decryption --query 'Parameter.Value' --output text)"
+          DB_HOST="$(aws ssm get-parameter --name '/savvynote/DB_HOST' \
+            --with-decryption --query 'Parameter.Value' --output text)"
+          DB_PORT="$(aws ssm get-parameter --name '/savvynote/DB_PORT' \
+            --with-decryption --query 'Parameter.Value' --output text)"
+          SECRET_KEY="$(aws ssm get-parameter --name '/savvynote/SECRET_KEY' \
+            --with-decryption --query 'Parameter.Value' --output text)"
+          DJANGO_SECRET_KEY="$(aws ssm get-parameter --name '/savvynote/SECRET_KEY' \
+            --with-decryption --query 'Parameter.Value' --output text)"
+          GOOGLE_CLIENT_ID="$(aws ssm get-parameter --name '/savvynote/GOOGLE_CLIENT_ID' \
+            --with-decryption --query 'Parameter.Value' --output text)"
+          GOOGLE_CLIENT_SECRET="$(aws ssm get-parameter --name '/savvynote/GOOGLE_CLIENT_SECRET' \
+            --with-decryption --query 'Parameter.Value' --output text)"
+          AWS_ACCESS_KEY_ID="$(aws ssm get-parameter --name '/savvynote/AMAZON_ACCESS_KEY_ID' \
+            --with-decryption --query 'Parameter.Value' --output text)"
+          AWS_SECRET_ACCESS_KEY="$(aws ssm get-parameter --name '/savvynote/AMAZON_SECRET_ACCESS_KEY' \
+            --with-decryption --query 'Parameter.Value' --output text)"
+          AWS_REGION="$(aws ssm get-parameter --name '/savvynote/AMAZON_REGION' \
+            --with-decryption --query 'Parameter.Value' --output text)"
+          AWS_PROFILE="$(aws ssm get-parameter --name '/savvynote/AWS_PROFILE' \
+            --with-decryption --query 'Parameter.Value' --output text)"
+          EMAIL_USER="$(aws ssm get-parameter --name '/savvynote/EMAIL_USER' \
+            --with-decryption --query 'Parameter.Value' --output text)"
+          EMAIL_PASSWORD="$(aws ssm get-parameter --name '/savvynote/EMAIL_PASSWORD' \
+            --with-decryption --query 'Parameter.Value' --output text)"
+          NEXT_PUBLIC_API_URL="$(aws ssm get-parameter --name '/savvynote/NEXT_PUBLIC_API_URL' \
+            --with-decryption --query 'Parameter.Value' --output text)"
+          FRONTEND_API="$(aws ssm get-parameter --name '/savvynote/FRONTEND_API' \
+            --with-decryption --query 'Parameter.Value' --output text)"
+          BACKEND_API="$(aws ssm get-parameter --name '/savvynote/BACKEND_API' \
+            --with-decryption --query 'Parameter.Value' --output text)"
+          STRIPE_SECRET_KEY="$(aws ssm get-parameter --name '/savvynote/STRIPE_SECRET_KEY' \
+            --with-decryption --query 'Parameter.Value' --output text)"
+          STRIPE_WEBHOOK_SECRET="$(aws ssm get-parameter --name '/savvynote/STRIPE_WEBHOOK_SECRET' \
+            --with-decryption --query 'Parameter.Value' --output text)"
+          EOF
+          chown ubuntu:ubuntu /home/ubuntu/savvynote/.env
+          sed -i -E 's/^([^=]+)=\"(.*)\"$/\1=\2/' /home/ubuntu/savvynote/.env
+
+          set -H
+          # 4) Create venv & install Python deps
+          runuser -l ubuntu -c '
+            set -a
+            source /home/ubuntu/savvynote/.env
+            set +a
+            cd /home/ubuntu/savvynote/backend
+            python3.11 -m venv venv
+            source venv/bin/activate
+            python -m ensurepip --upgrade
+            pip install --upgrade pip
+            pip install Django==5.2.0
+            pip install -r requirements.txt
+          '
+
+          # 5) Apply Django migrations
+          runuser -l ubuntu -c '
+            cd /home/ubuntu/savvynote/backend
+            source venv/bin/activate
+            python manage.py migrate --noinput
+          '
+
+          # 6) Start Gunicorn on :8000
+          runuser -l ubuntu -c '
+            cd /home/ubuntu/savvynote/backend
+            source venv/bin/activate
+            nohup gunicorn savvynote.wsgi:application --bind 0.0.0.0:8000 &>/var/log/gunicorn.log &
+          '
+      Tags:
+        - Key: Name
+          Value: !Sub "${Environment}-Backend-Instance"
+        - Key: Environment
+          Value: !Ref Environment
+
+Outputs:
+  FrontendPublicIP:
+    Description: "Public IP of the Frontend instance (this is what NGinx will target)"
+    Value: !Ref FrontendEIP
+  BackendPublicIP:
+    Description: "Public IP of the Backend instance (for internal use only)"
+    Value: !GetAtt [BackendInstance, PublicIp]
+  DomainNameOutput:
+    Description: "Our app's domain"
+    Value: !Ref DomainName

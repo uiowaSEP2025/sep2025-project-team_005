@@ -1,0 +1,55 @@
+name: Deploy App via SSM
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    name: Pull & restart on EC2
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            us-east-1
+
+      - name: Deploy to Frontend via SSM
+        uses: aws-actions/ssm-exec@v1
+        with:
+          targets: "tag:Environment=test"      
+          document-name: "AWS-RunShellScript"
+          parameters: |
+            commands=[
+              "cd /home/ubuntu/savvynote/frontend",
+              "git pull origin main",
+              "npm ci",
+              "npm run build",
+              "npm run dev"   # or however you start Next.js
+            ]
+
+      - name: Deploy to Backend via SSM
+        uses: aws-actions/ssm-exec@v1
+        with:
+          targets: "tag:Environment=test"      
+          document-name: "AWS-RunShellScript"
+          parameters: |
+            commands=[
+              "cd /home/ubuntu/savvynote/backend",
+              "git pull origin main",
+              "source venv/bin/activate",
+              "pip install -r requirements.txt",
+              "python manage.py migrate --noinput",
+              "python manage.py runserver",
+              "pm2 restart gunicorn"  # or your Gunicorn systemd service
+            ]
