@@ -49,3 +49,29 @@ class GetJobListingsView(APIView, PageNumberPagination):
 
         serialized_jobs = JobListingSerializer(paginated_jobs, many=True).data
         return self.get_paginated_response(serialized_jobs)
+
+class GetAllJobListingsView(APIView, PageNumberPagination):
+    authentication_classes = [JWTAuthentication]
+    page_size = 6
+
+    def get(self, request):
+        job_listings = JobListing.objects.all().order_by("-created_at")
+
+        paginated_jobs = self.paginate_queryset(job_listings, request)
+
+        serialized_jobs = JobListingSerializer(paginated_jobs, many=True).data
+        return self.get_paginated_response(serialized_jobs)
+    
+class GetJobListingView(APIView):
+    authentication_classes = [JWTAuthentication]
+    
+    def get(self, request):
+        listing_id = request.GET.get("listing_id")
+
+        try:
+            job_listing = JobListing.objects.get(id=listing_id)
+        except JobListing.DoesNotExist:
+            return Response({"error": "Job listing not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        serialized_jobs = JobListingSerializer(job_listing)
+        return Response(serialized_jobs.data, status=status.HTTP_200_OK)

@@ -233,6 +233,14 @@ export default function BusinessProfile() {
         }
     }
 
+    const handleApply = async (listing: number) => {
+        try {
+            router.push(`/application/${listing}`)
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
     const handleLogout = async () => {
         try {
             await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/auth/logout/`, {
@@ -315,10 +323,6 @@ export default function BusinessProfile() {
         setPage(1);
         fetchJobListings(1);
     }, [userId?.user_id]);
-
-    const handleJobListingClick = async (listing: JobListing) => {
-        router.push(`/listings/${listing.id}`)
-    }
 
     useEffect(() => {
         setJobListings([]);
@@ -445,7 +449,6 @@ export default function BusinessProfile() {
                     <div
                         key={listing.id || index}
                         className={styles.jobCard}
-                        onClick={() => handleJobListingClick(listing)}
                     >
                         <div className={styles.header}>
                         <h3 className={styles.jobTitle}>{listing.event_title}</h3>
@@ -501,6 +504,16 @@ export default function BusinessProfile() {
                                 handleEditJob(listing.id);
                             }}>
                             Edit
+                            </button>
+                        </div>
+                        )}
+                        {profile?.username !== username && (
+                        <div className={styles.cardActions}>
+                            <button className={styles.viewApplicantsButton} onClick={(e) => {
+                                e.stopPropagation();
+                                handleApply(listing.id);
+                            }}>
+                            Apply
                             </button>
                         </div>
                         )}
