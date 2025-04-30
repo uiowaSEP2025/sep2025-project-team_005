@@ -48,5 +48,6 @@ urlpatterns = [
         path('block-list/<uuid:user_id>/', BlockedListView.as_view(), name='block-list'),
         path('jobs/create/', CreateJobListingView.as_view(), name='create-listing'),
         path('fetch-jobs/', GetJobListingsView.as_view(), name='fetch-listing'),
+        path('liked-users/', GetLikedUsersView.as_view(), name='liked-users'),
     ])),
 ]
