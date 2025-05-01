@@ -6,7 +6,7 @@ import uuid
 from pages.models import JobListing
 from django.contrib.postgres.fields import ArrayField
 
-class Application(models.Model):
+class JobApplication(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     applicant = models.ForeignKey('User', on_delete=models.CASCADE)
     listing = models.ForeignKey(JobListing, on_delete=models.CASCADE)

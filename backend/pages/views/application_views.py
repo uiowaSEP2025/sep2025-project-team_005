@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status
 import traceback
 from pages.utils.s3_utils import upload_to_s3
-from pages.models import JobListing, Application
+from pages.models import JobListing, JobApplication
 from django.conf import settings
 import uuid
 
@@ -55,7 +55,7 @@ class CreateApplicationView(APIView):
 
         print(file_keys)
         # Create Application
-        application = Application.objects.create(
+        application = JobApplication.objects.create(
             applicant=user,
             listing=listing,
             first_name=first_name,
