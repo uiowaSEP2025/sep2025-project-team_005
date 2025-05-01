@@ -237,8 +237,8 @@ Resources:
 
           # 4) Build & run Next.js
           cd /home/ubuntu/savvynote/frontend
-          npm install
-          npm run build
+          sudo -u ubuntu npm install
+          sudo -u ubuntu npm run build
           nohup npm start &
 
           # 5) Write Nginx reverse-proxy config (inject CFN-provided Backend IP)
