@@ -38,3 +38,4 @@ class PostForm(forms.ModelForm):
             if not (file_type.startswith('image/') or file_type.startswith('video/')):
                 raise forms.ValidationError("Only image and video files are allowed.")
         return files
+

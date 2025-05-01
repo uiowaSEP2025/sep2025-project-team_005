@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useAuth, useRequireAuth } from "@/context/ProfileContext";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Cookies from "js-cookie";
 
 import styles from "@/styles/Application.module.css";
 
@@ -38,12 +39,12 @@ export default function JobListing() {
     const { profile, isLoading, setProfile } = useAuth();
     const [jobListing, setJobListing] = useState<JobListing>();
     const [loading, setLoading] = useState(false);
-    const [page, setPage] = useState(1);
-    const [hasMore, setHasMore] = useState(true);
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
+    const [altEmail, setAltEmail] = useState("");
     const [phone, setPhone] = useState("");
+    const [resumeFile, setResumeFile] = useState<File | null>(null);
 
     useEffect(() => {
             const fetchJobListing = async () => {
@@ -82,17 +83,41 @@ export default function JobListing() {
         return `${formattedHour}:${minute.toString().padStart(2, "0")} ${ampm}`;
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log({
-            firstName,
-            lastName,
-            email,
-            phone,
-        });
-    };
+    
+        const formData = new FormData();
+        formData.append("first_name", firstName);
+        formData.append("last_name", lastName);
+        formData.append("email", email);
+        formData.append("alt_email", altEmail);
+        formData.append("phone", phone);
+        if (resumeFile) {
+            formData.append("resume", resumeFile);
+        }
+        formData.append("status", "In-Progress")
 
-    if (loading || !jobListing) { return <div>Loading...</div>; }
+        if (jobListing?.id) {
+            formData.append("job_listing", String(jobListing.id));
+        }
+
+        try {
+            await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/submit-application/`, formData, {
+                headers: {
+                    "Authorization": `Bearer ${Cookies.get("access_token")}`,
+                    'Content-Type': 'multipart/form-data',
+                },
+                withCredentials: true,
+            });
+            alert("Application submitted!");
+            router.push("/applications");
+        } catch (err) {
+            console.error("Submission error:", err);
+            alert("There was an error submitting your application.");
+        }
+    };    
+
+    if (loading || !jobListing || !profile) { return <div>Loading...</div>; }
 
     return (
         <div>
@@ -148,45 +173,71 @@ export default function JobListing() {
                 <div className={styles.pageHeader}>
                     <h2 className={styles.featureTitle}>Personal Information</h2>
                 </div>
-                <form onSubmit={handleSubmit} className={styles.formContainer}>
+                <form onSubmit={handleSubmit} className={styles.form}>
                     <div className={styles.formGroup}>
-                        <label>First Name</label>
+                        <label className={styles.label}>First Name</label>
                         <input
                             type="text"
                             value={firstName}
                             onChange={(e) => setFirstName(e.target.value)}
-                            className={styles.formInput}
+                            className={styles.input}
                             required
                         />
                     </div>
                     <div className={styles.formGroup}>
-                        <label>Last Name</label>
+                        <label className={styles.label}>Last Name</label>
                         <input
                             type="text"
                             value={lastName}
                             onChange={(e) => setLastName(e.target.value)}
-                            className={styles.formInput}
+                            className={styles.input}
                             required
                         />
                     </div>
                     <div className={styles.formGroup}>
-                        <label>Email</label>
+                        <label className={styles.label}>Email</label>
                         <input
                             type="email"
                             value={email}
+                            placeholder={profile.email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className={styles.formInput}
+                            className={styles.input}
                             required
+                            readOnly
                         />
                     </div>
                     <div className={styles.formGroup}>
-                        <label>Phone</label>
+                        <label className={styles.label}>Alternative Email</label>
+                        <input
+                            type="email"
+                            value={altEmail}
+                            onChange={(e) => setAltEmail(e.target.value)}
+                            className={styles.input}
+                            required
+                            readOnly
+                        />
+                    </div>
+                    <div className={styles.formGroup}>
+                        <label className={styles.label}>Phone</label>
                         <input
                             type="tel"
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
-                            className={styles.formInput}
+                            className={styles.input}
                             required
+                        />
+                    </div>
+                    <div className={styles.formGroup}>
+                        <label className={styles.label}>Upload Resume (PDF)</label>
+                        <input
+                            type="file"
+                            accept=".pdf"
+                            onChange={(e) => {
+                                if (e.target.files && e.target.files.length > 0) {
+                                    setResumeFile(e.target.files[0]);
+                                }
+                            }}
+                            className={styles.input}
                         />
                     </div>
                     <button type="submit" className={styles.submitButton}>

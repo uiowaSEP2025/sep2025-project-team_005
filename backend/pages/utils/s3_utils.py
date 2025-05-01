@@ -16,6 +16,8 @@ def get_bucket_name(file_type):
         bucket_name = settings.AWS_IMAGE_BUCKET_NAME
     elif file_type.startswith('video/'):
         bucket_name = settings.AWS_VIDEO_BUCKET_NAME
+    elif file_type == 'application/pdf':
+        bucket_name = settings.AWS_METADATA_BUCKET_NAME
     else:
         raise ValueError("Unsupported file type")
     return bucket_name
@@ -25,6 +27,8 @@ def upload_to_s3(file_obj, user_id):
     file_extension = file_obj.name.split('.')[-1]
     file_type = file_obj.content_type
     bucket_name = get_bucket_name(file_type)
+    print("***")
+    print(bucket_name)
     
     object_key = f"user_{user_id}/{uuid.uuid4()}.{file_extension}"
     
