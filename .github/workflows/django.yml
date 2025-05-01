@@ -37,40 +37,56 @@ jobs:
         python-version: ["3.10", "3.11", "3.12", "3.13"]
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install Frontend Dependencies
-      run: |
-        cd frontend
-        npm install
-        npm audit fix
-    - name: Install Backend Dependencies
-      run: |
-        cd backend
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-    - name: Install Browser Dependencies (Chromium, ChromeDriver, XVFB, and Libraries)
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y chromium-browser jq xvfb
-        sudo apt-get install -y libnss3 libxi6 libxcursor1 libxcomposite1 libxrandr2 libatk1.0-0 libatk-bridge2.0-0 libcups2
-        CHROME_VERSION=$(chromium-browser --version | grep -oP "\d+\.\d+\.\d+\.\d+" | head -1)
-        echo "Chromium version: ${CHROME_VERSION}"
-        
-        # Get matching ChromeDriver version
-        DRIVER_VERSION=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json" | jq -r '.channels.Stable.version')
-        echo "ChromeDriver version: ${DRIVER_VERSION}"
-        DRIVER_URL="https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${DRIVER_VERSION}/linux64/chromedriver-linux64.zip"
-        echo "Downloading Chromedriver from: ${DRIVER_URL}"
-
-        # Download and install ChromeDriver
-        wget -q $DRIVER_URL -O /tmp/chromedriver.zip
-        unzip -q /tmp/chromedriver.zip -d /tmp/chromedriver
-        sudo mv /tmp/chromedriver/chromedriver-linux64/chromedriver /usr/bin/chromedriver
-        sudo chmod +x /usr/bin/chromedriver
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          npm install
+          npm audit fix
+      - name: Install Backend Dependencies
+        run: |
+          cd backend
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Install Browser Dependencies (Chromium, ChromeDriver, XVFB, and Libraries)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y chromium-browser chromium-chromedriver jq xvfb
+          sudo apt-get install -y libnss3 libxi6 libxcursor1 libxcomposite1 libxrandr2 libatk1.0-0 libatk-bridge2.0-0 libcups2
+          CHROMIUM_CANDIDATE=$(apt-cache policy chromium-browser | awk '/Candidate:/ {print $2}')
+          LKG_JSON=$(curl -s https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json)
+          CHROMEDRIVER_CHANNEL=$(echo "$LKG_JSON" \
+            | jq -r '.channels.Stable.version')
+          echo "Chromium candidate version: $CHROMIUM_CANDIDATE"
+          echo "Chromedriver latest stable version: $CHROMEDRIVER_CHANNEL"
+  
+          MIN_VERSION=$(printf "%s\n%s" \
+            "$CHROMIUM_CANDIDATE" "$CHROMEDRIVER_CHANNEL" \
+            | sort -V | head -n1)
+          echo "Using pinned version: $MIN_VERSION"
+  
+          # 4) Install exactly that Chromium version
+          sudo apt-get install -y chromium-browser=$MIN_VERSION
+  
+          # 5) Download the matching Chromedriver binary from the JSON’s versions list
+          DRIVER_URL=$(jq -r --arg v "$MIN_VERSION" \
+            '.versions[]
+            | select(.version==$v)
+            | .downloads.chromedriver[]
+            | select(.platform=="linux64")
+            | .url' <<<"$LKG_JSON")
+  
+          echo "Downloading Chromedriver from: $DRIVER_URL"
+  
+          # Download and install ChromeDriver
+          wget -q $DRIVER_URL -O /tmp/chromedriver.zip
+          unzip -q /tmp/chromedriver.zip -d /tmp/chromedriver
+          sudo mv /tmp/chromedriver/chromedriver-linux64/chromedriver /usr/bin/chromedriver
+          sudo chmod +x /usr/bin/chromedriver
     - name: Configure AWS Profile for s3
       run: |
         mkdir -p ~/.aws
