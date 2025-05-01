@@ -10,20 +10,30 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      DJANGO_ENV: ${{ secrets.DJANGO_ENV }}
-      SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
-      DB_NAME: ${{ secrets.DB_NAME }}
-      DB_USER: ${{ secrets.DB_USER }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      DB_HOST: ${{ secrets.DB_HOST }}
-      DB_PORT: ${{ secrets.DB_PORT }}
-      NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
-      EMAIL_USER: ${{ secrets.EMAIL_USER }}
-      EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: ${{ secrets.AWS_REGION }}
       AWS_PROFILE: ${{ secrets.AWS_PROFILE }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      BACKEND_API: ${{ secrets.BACKEND_API }}
+      DB_HOST: ${{ secrets.DB_HOST }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      DB_PORT: ${{ secrets.DB_PORT }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_USER: ${{ secrets.DB_USER }}
+      DJANGO_ENV: ${{ secrets.DJANGO_ENV }}
+      DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+      EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+      EMAIL_USER: ${{ secrets.EMAIL_USER }}
+      FRONTEND_API: ${{ secrets.FRONTEND_API }}
+      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+      NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+      NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
+      NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+      STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
     strategy:
       max-parallel: 4
       matrix:
