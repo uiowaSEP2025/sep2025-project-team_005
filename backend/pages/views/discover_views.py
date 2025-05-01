@@ -7,7 +7,7 @@ from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-
+from rest_framework.permissions import AllowAny
 
 class GetUsersView(APIView, PageNumberPagination):
     page_size = 5
@@ -40,6 +40,7 @@ class GetUsersView(APIView, PageNumberPagination):
 
 
 class InstrumentListView(APIView):
+    permission_classes = [AllowAny]
     def get(self, request):
         instruments = Instrument.objects.values_list("instrument", flat=True)
         return Response(list(instruments))
