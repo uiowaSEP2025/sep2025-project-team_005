@@ -7,5 +7,6 @@ from .instrument_serializers import InstrumentSerializer
 from .follower_serializers import FollowCountSerializer
 from .signup_serializers import UserSignupSerializer
 from .user_serializers import UserSerializer
+from .message_serializer import MessageSerializer
 
-__all__ = ["PostSerializer", "CommentSerializer", "BusinessSerializer", "MusicianSerializer", "MusicianInstrumentSerializer", "GenreSerializer", "InstrumentSerializer", "FollowCountSerializer", "UserSignupSerializer", "UserSerializer"]
+__all__ = ["PostSerializer", "CommentSerializer", "BusinessSerializer", "MusicianSerializer", "MusicianInstrumentSerializer", "GenreSerializer", "InstrumentSerializer", "FollowCountSerializer", "UserSignupSerializer", "UserSerializer", "MessageSerializer"]
