@@ -7,6 +7,7 @@ from rest_framework import status
 import traceback
 from pages.utils.s3_utils import upload_to_s3
 from pages.models import JobListing, JobApplication
+from pages.serializers.application_serializers import JobApplicationSerializer
 from django.conf import settings
 import uuid
 
@@ -67,3 +68,11 @@ class CreateApplicationView(APIView):
         )
 
         return Response({"message": "Application submitted successfully.", "application_id": str(application.id)}, status=status.HTTP_201_CREATED)
+    
+class ApplicationsForListingView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, listing_id):
+        applications = JobApplication.objects.filter(listing__id=listing_id)
+        serializer = JobApplicationSerializer(applications, many=True)
+        return Response(serializer.data)

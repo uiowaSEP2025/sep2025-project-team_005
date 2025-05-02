@@ -110,7 +110,7 @@ export default function JobListing() {
                 withCredentials: true,
             });
             alert("Application submitted!");
-            router.push("/applications");
+            router.push(`/${profile?.username}`);
         } catch (err) {
             console.error("Submission error:", err);
             alert("There was an error submitting your application.");
@@ -207,14 +207,12 @@ export default function JobListing() {
                         />
                     </div>
                     <div className={styles.formGroup}>
-                        <label className={styles.label}>Alternative Email</label>
+                        <label className={styles.label}>Alternative Email (optional)</label>
                         <input
                             type="email"
                             value={altEmail}
                             onChange={(e) => setAltEmail(e.target.value)}
                             className={styles.input}
-                            required
-                            readOnly
                         />
                     </div>
                     <div className={styles.formGroup}>
@@ -238,6 +236,7 @@ export default function JobListing() {
                                 }
                             }}
                             className={styles.input}
+                            required
                         />
                     </div>
                     <button type="submit" className={styles.submitButton}>
