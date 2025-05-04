@@ -76,3 +76,23 @@ class ApplicationsForListingView(APIView):
         applications = JobApplication.objects.filter(listing__id=listing_id)
         serializer = JobApplicationSerializer(applications, many=True)
         return Response(serializer.data)
+    
+class UpdateApplicationStatusView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, app_id):
+        try:
+            application = JobApplication.objects.get(id=app_id)
+        except JobApplication.DoesNotExist:
+            return Response({"error": "Application not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        new_status = request.data.get("status")
+        if new_status not in ["Accepted", "Rejected", "In-Progress", "Submitted"]:
+            print(new_status)
+            return Response({"error": "Invalid status value"}, status=status.HTTP_400_BAD_REQUEST)
+
+        application.status = new_status
+        application.save()
+
+        serializer = JobApplicationSerializer(application)
+        return Response(serializer.data, status=status.HTTP_200_OK)

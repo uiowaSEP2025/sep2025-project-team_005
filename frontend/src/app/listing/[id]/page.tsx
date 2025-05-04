@@ -12,6 +12,7 @@ import styles from "@/styles/Application.module.css";
 
 type Application = {
   id: string;
+  applicant: { id: number; username: string, email: string };
   first_name: string;
   last_name: string;
   phone: string;
@@ -37,6 +38,8 @@ export default function ViewApplications() {
             headers: { Authorization: `Bearer ${token}` },
             });
             setApplications(response.data);
+
+            console.log(response.data)
         } catch (err) {
             console.error("Failed to fetch applications", err);
         }
@@ -45,24 +48,33 @@ export default function ViewApplications() {
         if (id) fetchApplications();
     }, [id]);
 
-    const updateApplicationStatus = async (appId: string, status: string) => {
+    const updateApplicationStatus = async (app_id: string, status: string) => {
         try {
             const token = Cookies.get("access_token");
             await axios.patch(
-                `${process.env.NEXT_PUBLIC_BACKEND_API}/api/applications/${appId}/`,
+                `${process.env.NEXT_PUBLIC_BACKEND_API}/api/applications/${app_id}/`,
                 { status },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
         
             setApplications((prev) =>
                 prev.map((app) =>
-                app.id === appId ? { ...app, status } : app
+                app.id === app_id ? { ...app, status } : app
                 )
             );
         } catch (err) {
           console.error("Failed to update application status", err);
         }
     };
+
+    const sendContract = async (email: string, name: string) => {
+        const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/docusign/send-contract/`, {
+          email,
+          name,
+        });
+
+        return response.data.envelope_id;
+      };
 
     if (!profile) { return <div>Loading...</div>; }
 
@@ -94,13 +106,24 @@ export default function ViewApplications() {
                         <div className={styles.actionButtons}>
                             <button
                                 className={styles.acceptButton}
-                                onClick={() => updateApplicationStatus(app.id, "accepted")}
+                                onClick={async () => {
+                                  await updateApplicationStatus(app.id, "Accepted");
+                                  if (app.alt_email && app.first_name) {
+                                    try {
+                                      const envelopeId = await sendContract(app.alt_email, app.first_name);
+                                      alert(`Contract sent! Envelope ID: ${envelopeId}`);
+                                    } catch (err) {
+                                      console.error("Failed to send contract", err);
+                                      alert("Contract sending failed");
+                                    }
+                                  }
+                                }}
                             >
                             Accept
                             </button>
                             <button
                                 className={styles.rejectButton}
-                                onClick={() => updateApplicationStatus(app.id, "rejected")}
+                                onClick={() => updateApplicationStatus(app.id, "Rejected")}
                             >
                             Reject
                             </button>

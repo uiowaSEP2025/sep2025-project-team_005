@@ -7,7 +7,7 @@ from pages.views.post_views import *
 from pages.views.blocked_views import BlockUserView, BlockedListView
 from pages.views.dropdown_views import get_instruments, get_genres
 from pages.views.listing_views import CreateJobListingView, GetJobListingsView, GetAllJobListingsView, GetJobListingView
-from pages.views.application_views import CreateApplicationView, ApplicationsForListingView
+from pages.views.application_views import CreateApplicationView, ApplicationsForListingView, UpdateApplicationStatusView
 from django.http import JsonResponse
 
 # For debugging:
@@ -20,6 +20,7 @@ urlpatterns = [
     path('api/', include([
         path('auth/', include("pages.authentication.urls", namespace="authentication")),
         path('stripe/', include("pages.stripe.urls", namespace="stripe")),
+        path('docusign/', include("pages.docusign.urls", namespace="docusign")),
         path('discover/', GetUsersView.as_view(), name="get_users"),
         path('post/', include([
             path('create/', CreatePostView.as_view(), name='create_post'),
@@ -53,5 +54,6 @@ urlpatterns = [
         path('fetch-job/', GetJobListingView.as_view(), name='fetch-single-listing'),
         path("submit-application/", CreateApplicationView.as_view(), name="submit-application"),
         path("applications/listing/<int:listing_id>/", ApplicationsForListingView.as_view(), name="get-applications"),
+        path("applications/<uuid:app_id>/", UpdateApplicationStatusView.as_view(), name="update-application-status"),
     ])),
 ]
