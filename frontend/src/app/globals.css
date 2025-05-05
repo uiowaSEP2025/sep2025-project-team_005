@@ -13,6 +13,13 @@
   --text-dark: #ffffff;
   --text-muted: #29303c;
   --text-box: #f1f1f1;
+  --light-blue-background: #1e40af;
+  --dark-blue-text: #e0f2fe;
+}
+
+[data-theme="light"] .input[type="date"]::-webkit-calendar-picker-indicator,
+[data-theme="light"] .input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(28%) sepia(78%) saturate(458%) hue-rotate(330deg) brightness(95%) contrast(85%);
 }
 
 /* Dark mode theme colors */
@@ -26,6 +33,13 @@
   --text-dark: #0a0a0a;
   --text-muted: #d1d5db;
   --text-box: #1e1e1e;
+  --light-blue-background: #e0f2fe;
+  --dark-blue-text: #1e40af;
+}
+
+[data-theme="dark"] .input[type="date"]::-webkit-calendar-picker-indicator,
+[data-theme="dark"] .input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(180deg);
 }
 
 body {

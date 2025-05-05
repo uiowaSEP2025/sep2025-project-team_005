@@ -422,14 +422,18 @@ export default function Feed() {
                                             )}
                                         </CardContent>
                                         <CardActions>
-                                            {post.is_liked ? (
-                                                <Button startIcon={<ThumbUp/>} onClick={() => handleLikeToggle(post)}>{post.like_count}</Button>
-                                            ) : (
-                                                <Button startIcon={<ThumbUpOutlined/>} onClick={() => handleLikeToggle(post)}>{post.like_count}</Button>
-                                            )}
+                                            <div>
+                                                {post.is_liked ? (
+                                                    <Button startIcon={<ThumbUp/>} onClick={() => handleLikeToggle(post)}></Button>
+                                                ) : (
+                                                    <Button startIcon={<ThumbUpOutlined/>} onClick={() => handleLikeToggle(post)}></Button>
+                                                )}
+                                                <Button variant="text" onClick={() => router.push(`posts/${post.id}/liked-users/`)}>
+                                                            {post.like_count}
+                                                </Button>
+                                            </div>
                                             <Button onClick={() => handleCommentClick(post)}><ChatBubbleOutline/></Button>
                                             <Button variant="contained" onClick={() => handleShareClick(post)}>Share</Button>
-                                            
                                         </CardActions>
                                     </Card>
                                 ) : (

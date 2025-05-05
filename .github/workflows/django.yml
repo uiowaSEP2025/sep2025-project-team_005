@@ -8,29 +8,33 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     env:
-      DJANGO_ENV: ${{ secrets.DJANGO_ENV }}
-      SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
-      DB_NAME: ${{ secrets.DB_NAME }}
-      DB_USER: ${{ secrets.DB_USER }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      DB_HOST: ${{ secrets.DB_HOST }}
-      DB_PORT: ${{ secrets.DB_PORT }}
-      EMAIL_USER: ${{ secrets.EMAIL_USER }}
-      EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-      
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: ${{ secrets.AWS_REGION }}
       AWS_PROFILE: ${{ secrets.AWS_PROFILE }}
-
-      STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-      
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      BACKEND_API: ${{ secrets.BACKEND_API }}
+      DB_HOST: ${{ secrets.DB_HOST }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      DB_PORT: ${{ secrets.DB_PORT }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_USER: ${{ secrets.DB_USER }}
+      DJANGO_ENV: ${{ secrets.DJANGO_ENV }}
+      DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+      EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+      EMAIL_USER: ${{ secrets.EMAIL_USER }}
+      FRONTEND_API: ${{ secrets.FRONTEND_API }}
+      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+      NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+      NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
       NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
       NEXT_PUBLIC_FRONTEND_API: ${{ secrets.NEXT_PUBLIC_FRONTEND_API }}
-      NEXT_PUBLIC_BACKEND_API: ${{ secrets.NEXT_PUBLIC_BACKEND_API }}
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+      STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
     strategy:
       max-parallel: 4
       matrix:
@@ -53,24 +57,45 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     - name: Install Browser Dependencies (Chromium, ChromeDriver, XVFB, and Libraries)
+      shell: bash
       run: |
-        sudo apt-get update
-        sudo apt-get install -y chromium-browser jq xvfb
-        sudo apt-get install -y libnss3 libxi6 libxcursor1 libxcomposite1 libxrandr2 libatk1.0-0 libatk-bridge2.0-0 libcups2
-        CHROME_VERSION=$(chromium-browser --version | grep -oP "\d+\.\d+\.\d+\.\d+" | head -1)
-        echo "Chromium version: ${CHROME_VERSION}"
-        
-        # Get matching ChromeDriver version
-        DRIVER_VERSION=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json" | jq -r '.channels.Stable.version')
-        echo "ChromeDriver version: ${DRIVER_VERSION}"
-        DRIVER_URL="https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${DRIVER_VERSION}/linux64/chromedriver-linux64.zip"
-        echo "Downloading Chromedriver from: ${DRIVER_URL}"
+        set -euo pipefail
 
-        # Download and install ChromeDriver
-        wget -q $DRIVER_URL -O /tmp/chromedriver.zip
-        unzip -q /tmp/chromedriver.zip -d /tmp/chromedriver
-        sudo mv /tmp/chromedriver/chromedriver-linux64/chromedriver /usr/bin/chromedriver
-        sudo chmod +x /usr/bin/chromedriver
+        # 1) Update & install utilities + Xvfb + common Chrome libs
+        sudo apt-get update
+        sudo apt-get install -y \
+          jq xvfb \
+          libnss3 libxi6 libxcursor1 libxcomposite1 libxrandr2 \
+          libatk1.0-0 libatk-bridge2.0-0 libcups2
+
+        # 2) Gather every Chromium version from apt
+        mapfile -t CHROME_VERSIONS < <(
+          apt-cache madison chromium-browser \
+            | awk '{print $3}' \
+            | sort -u -V
+        )
+
+        # 3) Gather every ChromeDriver version from apt
+        mapfile -t DRIVER_VERSIONS < <(
+          apt-cache madison chromium-chromedriver \
+            | awk '{print $3}' \
+            | sort -u -V
+        )
+
+        # 4) Compute the intersection and pick the newest common version
+        COMMON_VERSIONS=($(comm -12 \
+          <(printf '%s\n' "${CHROME_VERSIONS[@]}") \
+          <(printf '%s\n' "${DRIVER_VERSIONS[@]}") \
+        ))
+        TARGET_VERSION="${COMMON_VERSIONS[-1]}"
+        echo "Latest common Chromium/ChromeDriver version: $TARGET_VERSION"
+
+        # 5) Pin-install both to that exact version
+        echo "Installing chromium-browser and chromium-chromedriver@$TARGET_VERSION"
+        sudo apt-get install -y \
+          chromium-browser="$TARGET_VERSION" \
+          chromium-chromedriver="$TARGET_VERSION"
+
     - name: Configure AWS Profile for s3
       run: |
         mkdir -p ~/.aws
@@ -93,6 +118,7 @@ jobs:
       run: |
         docker compose up -d
         cd backend
+        python manage.py migrate
         pytest
     - name: Run Behave Tests
       run: |
@@ -100,9 +126,7 @@ jobs:
         (cd frontend && npm run dev &)
         
         (cd backend && sudo systemctl start postgresql && python3 manage.py runserver &)
-
         export CHROME_OPTIONS="--headless --no-sandbox --disable-dev-shm-usage --remote-debugging-port=9222"
-
         echo "Waiting for servers to be fully up..."
         sleep 15
         (cd backend && xvfb-run behave test/features)

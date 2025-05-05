@@ -32,7 +32,24 @@ interface FollowCount {
     following_count: number;
 }
 
-interface JobListing {}
+interface JobListing {
+    id: number;
+    event_title: string;
+    venue: string;
+    event_description: string;
+    gig_type: string;
+    payment_type: string;
+    payment_amount: string;
+    created_at: string;
+    start_date: string;
+    end_date: string;
+    start_time: string;
+    end_time: string;
+    recurring_pattern: string;
+    experience_level: string;
+    instruments: { id: number; instrument: string }[];
+    genres: { id: number; genre: string }[];
+}
 
 export default function BusinessProfile() {
     useRequireAuth();
@@ -43,7 +60,7 @@ export default function BusinessProfile() {
     const [businessProfile, setBusinessProfile] = useState<BusinessProfile | null>(null);
     const [followCount, setFollowCount] = useState<FollowCount | null>(null);
     const [userId, setUserId] = useState<UserID | null>(null);
-    const [jobListing, setJobListing] = useState<JobListing[]>([]);
+    const [jobListings, setJobListings] = useState<JobListing[]>([]);
     const [files, setFiles] = useState<File[]>();
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
@@ -107,7 +124,7 @@ export default function BusinessProfile() {
         fetchProfile();
     }, [userId]);
 
-    // Fetch Follow Count  ********* Needs updates
+    // Fetch Follow Count
     useEffect(() => {
         const fetchFollowCount = async () => {
             if (!userId) return;
@@ -200,6 +217,30 @@ export default function BusinessProfile() {
         }
     }
 
+    const handleViewApplicants = async (listing: number) => {
+        try {
+            router.push(`/listing/${listing}`);
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    const handleEditJob = async (listing: number) => {
+        try {
+            router.push("/");
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    const handleApply = async (listing: number) => {
+        try {
+            router.push(`/application/${listing}`)
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
     const handleLogout = async () => {
         try {
             await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/auth/logout/`, {
@@ -243,42 +284,69 @@ export default function BusinessProfile() {
         }
     };    
 
-    const handleJobListing = async () => {
-        
+    const handleNewJobListing = async () => {
+        router.push(`/${username}/create-listing`);
     };
 
     const handleNavigation = (user_id: string, type: "followers" | "following") => {
         router.push(`/follow/${user_id}?type=${type}`);
     };
 
-    const fetchJobListings = async (username: string, pageNum = 1) => {
+    const fetchJobListings = async (pageNum = 1) => {
+        if(!userId) return;
+
         setLoading(true);
         try {
-            
-        } 
-        finally {
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/fetch-jobs/`, {
+                params: {
+                    user_id: userId?.user_id,
+                    page: pageNum,
+                },
+                withCredentials: true,
+            });
+
+            if (pageNum === 1) {
+                setJobListings(response.data.results);
+            } else {
+                setJobListings((prevListings) => [...prevListings, ...response.data.results]);
+            }
+
+            setHasMore(response.data.next !== null);
+        } catch (error) {
+            console.error("Failed to fetch job listings", error);
+        } finally {
             setLoading(false);
         }
     };
-
-    const handleJobListingClick = async (post: JobListing) => {
-        router.push("") // TODO: replace with route to individual JobListing view
-    }
-
-    const debouncedFetchJobListings = debounce(() => {
+    
+    useEffect(() => {
         setPage(1);
-        fetchJobListings(String(username),1);
-    }, 300);
+        fetchJobListings(1);
+    }, [userId?.user_id]);
 
     useEffect(() => {
-        debouncedFetchJobListings();
-    }, [username]);
+        setJobListings([]);
+        setPage(1);
+        fetchJobListings(1);
+    }, [userId?.user_id]);
 
     const loadMoreJobListings = () => {
         if (hasMore && !loading) {
-            fetchJobListings(String(username), page + 1);
+            fetchJobListings(page + 1);
             setPage((prevPage) => prevPage + 1);
         }
+    };
+
+    const formatDate = (dateStr: string) => {
+        const [year, month, day] = dateStr.split("-");
+        return `${month}-${day}-${year}`;
+    };      
+
+    const formatTime = (timeStr: string) => {
+        const [hour, minute] = timeStr.split(":").map(Number);
+        const ampm = hour >= 12 ? "PM" : "AM";
+        const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
+        return `${formattedHour}:${minute.toString().padStart(2, "0")} ${ampm}`;
     };
 
     const VisuallyHiddenInput = styled('input')({
@@ -364,7 +432,101 @@ export default function BusinessProfile() {
                 <div className={styles.postsSection}>
                     <div className={styles.postsHeader}>
                         <h2 className={styles.featureTitle}>Job Listings</h2>
+                        {profile?.username === username && (
+                            <div>
+                                <button
+                                    className={styles.editButton}
+                                    onClick={handleNewJobListing}
+                                    data-testid="listing-button"
+                                >
+                                    Add Listing
+                                </button>
+                            </div>
+                        )}
                     </div>
+
+                    {jobListings.map((listing, index) => (
+                    <div
+                        key={listing.id || index}
+                        className={styles.jobCard}
+                    >
+                        <div className={styles.header}>
+                        <h3 className={styles.jobTitle}>{listing.event_title}</h3>
+                        <span className={styles.venue}>{listing.venue}</span>
+                        </div>
+
+                        <div className={styles.metaRow}>
+                        {listing.payment_amount && (
+                            <span className={styles.payment}>
+                            ${parseFloat(listing.payment_amount).toFixed(2)}
+                            {listing.payment_type === "Hourly rate" && " an hour"}
+                            </span>
+                        )}
+                        <span className={styles.gigType}>{listing.gig_type}</span>
+                        {listing.experience_level && (
+                            <span className={styles.experience}>{listing.experience_level}</span>
+                        )}
+                        </div>
+
+                        <div className={styles.dateRow}>
+                        <span>
+                            {formatDate(listing.start_date)} {listing.start_time && `@ ${formatTime(listing.start_time)}`}
+                            {listing.end_date && ` - ${formatDate(listing.end_date)} ${listing.end_time ? `@ ${formatTime(listing.end_time)}` : ""}`}
+                        </span>
+                        {listing.recurring_pattern && <span> • {listing.recurring_pattern}</span>}
+                        </div>
+
+                        <p className={styles.descriptionJob}>
+                        {listing.event_description.length > 140
+                            ? listing.event_description.slice(0, 140) + "..."
+                            : listing.event_description}
+                        </p>
+
+                        <div className={styles.tags}>
+                        {listing.instruments.map((inst, i) => (
+                            <span key={`inst-${i}`} className={styles.tag}>{inst.instrument}</span>
+                        ))}
+                        {listing.genres.map((g, i) => (
+                            <span key={`genre-${i}`} className={styles.tag}>{g.genre}</span>
+                        ))}
+                        </div>
+
+                        {profile?.username == username && (
+                        <div className={styles.cardActions}>
+                            <button className={styles.viewApplicantsButton} onClick={(e) => {
+                                e.stopPropagation();
+                                handleViewApplicants(listing.id);
+                                }}>
+                                View Applicants
+                            </button>
+                            <button className={styles.editAppButton} onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditJob(listing.id);
+                            }}>
+                            Edit
+                            </button>
+                        </div>
+                        )}
+                        {profile?.username !== username && (
+                        <div className={styles.cardActions}>
+                            <button className={styles.viewApplicantsButton} onClick={(e) => {
+                                e.stopPropagation();
+                                handleApply(listing.id);
+                            }}>
+                            Apply
+                            </button>
+                        </div>
+                        )}
+                    </div>
+                    ))}
+
+                    {hasMore && !loading && (
+                    <button onClick={loadMoreJobListings} className={styles.loadMoreButton}>
+                        Load More
+                    </button>
+                    )}
+
+                    {loading && <p>Loading...</p>}
                 </div>
             </div>
         </div>

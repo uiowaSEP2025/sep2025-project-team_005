@@ -353,12 +353,6 @@ export default function DiscoverProfile() {
                             </div>
                         )}
                     </div>
-                    {profile?.username !== username && (
-                        <div className={styles.profileActions}>
-                            <button className={styles.followButton} data-testid="follow-button">Follow</button>
-                            <button className={styles.messageButton} data-testid="message-button">Message</button>
-                        </div>
-                    )}
                 </div>
 
                 <div className={styles.bioSection}>
@@ -386,7 +380,7 @@ export default function DiscoverProfile() {
                         <h2 className={styles.featureTitle}>Posts</h2>
                         {profile?.username === username && (
                             <div>
-                                <button className={styles.editButton} onClick={handleNewPost} data-testid="post-button">Post</button>
+                                <button className={styles.editButton} onClick={handleNewPost} data-testid="post-button">+ New Post</button>
                             </div>
                         )}
                     </div>

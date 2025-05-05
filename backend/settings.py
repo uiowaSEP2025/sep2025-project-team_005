@@ -70,9 +70,10 @@ if django_env == 'production':
 else:
     DEBUG = True  # Enable Debug in development
 
-
-ALLOWED_HOSTS = ['*']       # Will need to be updated for production
-
+if django_env == 'production':
+    ALLOWED_HOSTS = ['savvy-note.com', 'www.savvy-note.com']
+else:
+    ALLOWED_HOSTS = ['*']
 
 # Application definition
 

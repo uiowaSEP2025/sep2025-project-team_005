@@ -13,12 +13,10 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 STRIPE_PRICE_MONTHLY = 'price_1RCMEHJJ0feuvHiCkaSxAIOg'
 STRIPE_PRICE_ANNUAL = 'price_1RCMEnJJ0feuvHiCby39Hx0P'
 
-
 class CreateSubscriptionSessionView(APIView):
     def post(self, request, *args, **kwargs):
         subscription_type = request.data.get('type')
         user_id = request.data.get('user_id')
-        print(user_id)
 
         if subscription_type == 'monthly':
             price_id = STRIPE_PRICE_MONTHLY

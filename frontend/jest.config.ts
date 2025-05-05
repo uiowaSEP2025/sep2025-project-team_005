@@ -11,6 +11,8 @@ module.exports = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '\\.module\\.css$': 'identity-obj-proxy', // Mock CSS modules with identity-obj-proxy
+    '@pqina/pintura/pintura.css': '<rootDir>/__mocks__/styleMock.js', // Specific css mocking for pintura
+    '@pqina/pintura$': '<rootDir>/__mocks__/pinturaMock.js', // Mock for @pqina/pintura
   },
   globals: {
     'ts-jest': {
