@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import { Edit } from 'lucide-react';
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useAuth, useRequireAuth } from "@/context/ProfileContext";
@@ -83,6 +82,13 @@ export default function JobListing() {
         return `${formattedHour}:${minute.toString().padStart(2, "0")} ${ampm}`;
     };
 
+    const formatPhoneNumber = (value: string) => {
+        const cleaned = value.replace(/\D/g, ""); // Remove all non-numeric characters
+        if (cleaned.length <= 3) return `(${cleaned}`;
+        if (cleaned.length <= 6) return `(${cleaned.slice(0, 3)})${cleaned.slice(3)}`;
+        return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6, 10)}`;
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
     
@@ -102,7 +108,7 @@ export default function JobListing() {
         }
 
         try {
-            await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/submit-application/`, formData, {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/submit-application/`, formData, {
                 headers: {
                     "Authorization": `Bearer ${Cookies.get("access_token")}`,
                     'Content-Type': 'multipart/form-data',
@@ -110,7 +116,9 @@ export default function JobListing() {
                 withCredentials: true,
             });
             alert("Application submitted!");
-            router.push(`/${profile?.username}`);
+
+            const app_id = response.data.application_id;
+            router.push(`/application/${id}/${app_id}`);
         } catch (err) {
             console.error("Submission error:", err);
             alert("There was an error submitting your application.");
@@ -219,7 +227,7 @@ export default function JobListing() {
                         <label className={styles.label}>Phone</label>
                         <input
                             type="tel"
-                            value={phone}
+                            value={formatPhoneNumber(phone)}
                             onChange={(e) => setPhone(e.target.value)}
                             className={styles.input}
                             required
@@ -240,7 +248,7 @@ export default function JobListing() {
                         />
                     </div>
                     <button type="submit" className={styles.submitButton}>
-                        Submit Application
+                        Next
                     </button>
                 </form>
             </div>

@@ -9,7 +9,8 @@ from pages.utils.s3_utils import upload_to_s3
 from pages.models import JobListing, JobApplication
 from pages.serializers.application_serializers import JobApplicationSerializer
 from django.conf import settings
-import uuid
+import tempfile
+from pages.utils.resume_utils import parse_resume
 
 
 class CreateApplicationView(APIView):
@@ -67,7 +68,7 @@ class CreateApplicationView(APIView):
             status=status_val
         )
 
-        return Response({"message": "Application submitted successfully.", "application_id": str(application.id)}, status=status.HTTP_201_CREATED)
+        return Response({"message": "Application created", "application_id": application.id}, status=status.HTTP_201_CREATED)
     
 class ApplicationsForListingView(APIView):
     permission_classes = [IsAuthenticated]
@@ -76,3 +77,33 @@ class ApplicationsForListingView(APIView):
         applications = JobApplication.objects.filter(listing__id=listing_id)
         serializer = JobApplicationSerializer(applications, many=True)
         return Response(serializer.data)
+    
+class GetApplication(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, app_id):
+        try:
+            application = JobApplication.objects.get(id=app_id)
+            serializer = JobApplicationSerializer(application)
+            return Response(serializer.data)
+        except JobApplication.DoesNotExist:
+            return Response(
+                {"error": "Job application not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+    
+class AutofillResumeView(APIView):
+    def post(self, request, *args, **kwargs):
+        s3_file_key = request.data.get('s3_key')
+        if not s3_file_key:
+            return Response({'error': 'Missing s3_key'}, status=status.HTTP_400_BAD_REQUEST)
+
+        s3 = boto3.client('s3')
+        try:
+            with tempfile.NamedTemporaryFile(suffix=".pdf") as temp:
+                s3.download_fileobj('your-s3-bucket-name', s3_file_key, temp)
+                temp.flush()
+                data = parse_resume(temp.name)
+            return Response(data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -23,6 +23,7 @@ parse_type
 pluggy
 psycopg2-binary
 PyJWT
+pyresparser
 PySocks
 pytest
 pytest-django
