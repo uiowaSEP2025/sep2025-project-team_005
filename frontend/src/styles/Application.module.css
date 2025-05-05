@@ -116,7 +116,7 @@
     font-weight: 500;
 }
 
-.form {
+.form, .expCard{
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
@@ -130,6 +130,14 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
+.expCard {
+    background-color: var(--text-box);
+    color: var(--text-light);
+    margin-bottom: 2rem;
+    border-radius: 1rem;
+    border: 1px solid var(--secondary);
+}
+
 .formGroup {
     display: flex;
     flex-direction: column;
@@ -137,14 +145,15 @@
 }
 
 .label {
-    font-size: 1.1rem;
+    font-size: 1.25rem;
+    font-weight: bold;
     margin-bottom: 0.5rem;
     color: var(--text-light);
 }
 
 .input {
     padding: 12px 16px;
-    font-size: 1rem;
+    font-size: 1.15rem;
     border-radius: 0.5rem;
     border: 1px solid var(--secondary);
     width: 100%;
@@ -267,3 +276,43 @@
 .rejectButton:hover {
     background-color: #b91c1c;
 }
+
+.dateGrid {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.addExperienceButton {
+    color: #2563eb;
+    text-decoration: underline;
+    font-size: 1.1rem;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.addExperienceButton:hover {
+    color: #1d4ed8;
+    text-decoration: none;
+}
+
+.removeExperienceButton {
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    margin-top: 1rem;
+    font-size: 1.1rem;
+}
+  
+.removeExperienceButton:hover {
+    background-color: #dc2626;
+}  
+
+[data-theme="dark"] .input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(180deg);
+  }

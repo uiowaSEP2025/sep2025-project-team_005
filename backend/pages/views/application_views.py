@@ -6,8 +6,10 @@ from rest_framework.response import Response
 from rest_framework import status
 import traceback
 from pages.utils.s3_utils import upload_to_s3
-from pages.models import JobListing, JobApplication
+from pages.models import JobListing, JobApplication, Experience
 from pages.serializers.application_serializers import JobApplicationSerializer
+from pages.serializers.experience_serializers import ExperienceSerializer
+
 from django.conf import settings
 import tempfile
 from pages.utils.resume_utils import parse_resume
@@ -101,9 +103,34 @@ class AutofillResumeView(APIView):
         s3 = boto3.client('s3')
         try:
             with tempfile.NamedTemporaryFile(suffix=".pdf") as temp:
-                s3.download_fileobj('your-s3-bucket-name', s3_file_key, temp)
+                s3.download_fileobj(settings.AWS_METADATA_BUCKET_NAME, s3_file_key, temp)
                 temp.flush()
                 data = parse_resume(temp.name)
             return Response(data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+class SubmitExperiencesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, app_id):
+        try:
+            job_app = JobApplication.objects.get(id=app_id, applicant=request.user)
+        except JobApplication.DoesNotExist:
+            return Response({"error": "Job application not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        experiences_data = request.data.get('experiences', [])
+        serializer = ExperienceSerializer(data=experiences_data, many=True)
+        print(serializer)
+
+        if serializer.is_valid():
+            for exp_data in serializer.validated_data:
+                Experience.objects.create(job_application=job_app, **exp_data)
+            
+            # Optional: mark application as submitted
+            job_app.status = "Submitted"
+            job_app.save()
+
+            return Response({"message": "Experiences submitted successfully."}, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
