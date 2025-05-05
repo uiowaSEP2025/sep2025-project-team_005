@@ -7,8 +7,8 @@ import { useAuth, useRequireAuth } from "@/context/ProfileContext";
 import axios from "axios";
 import Cookies from "js-cookie";
 import debounce from "lodash.debounce";
-import Image from "next/image";
 import Toolbar from '@/components/toolbars/toolbar';
+import { Avatar } from "@mui/material";
 
 interface GenreOption {
     id: string;
@@ -352,13 +352,7 @@ export default function Discover() {
                             users.map((user, index) => (
                             <li key={index} className={styles.userCard} onClick={() => handleUserClick(user)} data-testid={`user-item-${user}`}>
                                 <div className={styles.profileImageContainer}>
-                                    <Image
-                                        src={"/savvy.png"}
-                                        alt={`${user}'s profile photo`}
-                                        width={60}
-                                        height={60}
-                                        className={styles.profilePhoto}
-                                    />
+                                    <Avatar alt={`${user}'s profile photo`} src={"/savvy.png"} sx={{ width: 64, height: 64, cursor: 'pointer' }}/>
                                 </div>
                                 <span className={styles.username}>{user}</span>
                             </li>
