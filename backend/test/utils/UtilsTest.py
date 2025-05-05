@@ -50,7 +50,7 @@ def mock_django_settings(monkeypatch):
 def test_get_bucket_name_image(monkeypatch):
     monkeypatch.setattr("pages.utils.s3_utils.settings", type("MockSettings", (), {
         "AWS_IMAGE_BUCKET_NAME": "image-bucket",
-        "AWS_VIDEO_BUCKET_NAME": "video-bucket"
+        "AWS_VIDEO_BUCKET_NAME": "video-bucket",
     })())
     
     result = get_bucket_name("image/jpeg")
@@ -72,7 +72,7 @@ def test_get_bucket_name_invalid_type(monkeypatch):
     })())
 
     with pytest.raises(ValueError, match="Unsupported file type"):
-        get_bucket_name("application/pdf")
+        get_bucket_name("application/zip")
 
 def test_generate_s3_url(file_key, file_type, mock_get_s3_client, mock_get_bucket_name):
     from pages.utils.s3_utils import generate_s3_url
@@ -132,3 +132,13 @@ def test_upload_to_s3_video(monkeypatch, mock_get_bucket_name, mock_get_s3_clien
         key,
         ExtraArgs={"ContentType": "video/mp4"},
     )
+    
+def test_get_bucket_name_pdf(monkeypatch):
+    monkeypatch.setattr("pages.utils.s3_utils.settings", type("MockSettings", (), {
+        "AWS_IMAGE_BUCKET_NAME": "image-bucket",
+        "AWS_VIDEO_BUCKET_NAME": "video-bucket",
+        "AWS_METADATA_BUCKET_NAME": "metadata-bucket"
+    })())
+
+    result = get_bucket_name("application/pdf")
+    assert result == "metadata-bucket"

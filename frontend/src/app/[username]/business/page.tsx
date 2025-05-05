@@ -219,7 +219,7 @@ export default function BusinessProfile() {
 
     const handleViewApplicants = async (listing: number) => {
         try {
-            router.push("/");
+            router.push(`/listing/${listing}`);
         } catch (error) {
             console.error(error)
         }
@@ -228,6 +228,14 @@ export default function BusinessProfile() {
     const handleEditJob = async (listing: number) => {
         try {
             router.push("/");
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    const handleApply = async (listing: number) => {
+        try {
+            router.push(`/application/${listing}`)
         } catch (error) {
             console.error(error)
         }
@@ -315,10 +323,6 @@ export default function BusinessProfile() {
         setPage(1);
         fetchJobListings(1);
     }, [userId?.user_id]);
-
-    const handleJobListingClick = async (listing: JobListing) => {
-        router.push(`/listings/${listing.id}`)
-    }
 
     useEffect(() => {
         setJobListings([]);
@@ -445,7 +449,6 @@ export default function BusinessProfile() {
                     <div
                         key={listing.id || index}
                         className={styles.jobCard}
-                        onClick={() => handleJobListingClick(listing)}
                     >
                         <div className={styles.header}>
                         <h3 className={styles.jobTitle}>{listing.event_title}</h3>
@@ -493,14 +496,24 @@ export default function BusinessProfile() {
                             <button className={styles.viewApplicantsButton} onClick={(e) => {
                                 e.stopPropagation();
                                 handleViewApplicants(listing.id);
-                            }}>
-                            View Applicants
+                                }}>
+                                View Applicants
                             </button>
                             <button className={styles.editAppButton} onClick={(e) => {
                                 e.stopPropagation();
                                 handleEditJob(listing.id);
                             }}>
                             Edit
+                            </button>
+                        </div>
+                        )}
+                        {profile?.username !== username && (
+                        <div className={styles.cardActions}>
+                            <button className={styles.viewApplicantsButton} onClick={(e) => {
+                                e.stopPropagation();
+                                handleApply(listing.id);
+                            }}>
+                            Apply
                             </button>
                         </div>
                         )}
