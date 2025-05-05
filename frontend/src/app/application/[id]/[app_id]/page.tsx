@@ -94,7 +94,6 @@ export default function ExperienceUpload() {
         setError('');
     
         try {
-            console.log(experiences)
             const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/job-application/${app_id}/submit-experiences/`,
                 { experiences },
                 {

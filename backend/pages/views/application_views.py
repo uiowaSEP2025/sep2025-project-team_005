@@ -125,7 +125,7 @@ class SubmitExperiencesView(APIView):
 
         if serializer.is_valid():
             for exp_data in serializer.validated_data:
-                Experience.objects.create(job_application=job_app, **exp_data)
+                Experience.objects.create(application=job_app, **exp_data)
             
             # Optional: mark application as submitted
             job_app.status = "Submitted"

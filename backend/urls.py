@@ -54,7 +54,8 @@ urlpatterns = [
         path('fetch-job/', GetJobListingView.as_view(), name='fetch-single-listing'),
         path("submit-application/", CreateApplicationView.as_view(), name="submit-application"),
         path("applications/listing/<int:listing_id>/", ApplicationsForListingView.as_view(), name="get-applications"),
-        path("job-application/<uuid:app_id>/", GetApplication.as_view(), name="get-application"),
+        path("job-application//<uuid:app_id>/", ApplicationsForListingView.as_view(), name="get-applications"), # **Update for patch
+        path("job-application/<uuid:app_id>/", GetApplication.as_view(), name="patch-application-status"),
         path("parse-resume/", AutofillResumeView.as_view(), name='parse-resume'),
         path('job-application/<uuid:app_id>/submit-experiences/', SubmitExperiencesView.as_view(), name='submit-experiences'),
     ])),
