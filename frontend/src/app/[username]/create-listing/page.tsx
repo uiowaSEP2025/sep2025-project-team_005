@@ -503,7 +503,7 @@ export default function CreateJobListing() {
                             />
                         </div>
                         <div className={styles.formGroup}>
-                            <label className={styles.label}>End Date - optional</label>
+                            <label className={styles.label}>End Date</label>
                             <input
                                 type="date"
                                 value={longTermEnd}
