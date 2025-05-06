@@ -96,6 +96,9 @@ jobs:
           chromium-browser="$TARGET_VERSION" \
           chromium-chromedriver="$TARGET_VERSION"
 
+    - name: Install spaCy model
+      run: python -m spacy download en_core_web_sm        
+
     - name: Configure AWS Profile for s3
       run: |
         mkdir -p ~/.aws
