@@ -20,6 +20,7 @@ outcome
 packaging
 parse
 parse_type
+pdfminer
 pluggy
 psycopg2-binary
 PyJWT
