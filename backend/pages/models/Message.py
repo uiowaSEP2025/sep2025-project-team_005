@@ -1,13 +1,13 @@
 from django.db import models
 import uuid
-from pages.models import User, Post
+from pages.models import User
 from django.core.validators import MaxLengthValidator
 from django.contrib.postgres.fields import ArrayField
 
 class Message(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    sender = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    receiver = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    sender = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='sent_messages', null=True, blank=True)
+    receiver = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='received_messages', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     message = models.TextField(validators=[MaxLengthValidator(500)], blank=True)
     file_keys = ArrayField(

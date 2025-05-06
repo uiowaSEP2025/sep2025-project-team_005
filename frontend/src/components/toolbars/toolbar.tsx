@@ -25,7 +25,7 @@ const Toolbar = () => {
     };
     
     const handleMessagesClick = () => {
-        // router.push(`//`);
+        router.push(`/messages/`);
     };
     
     const handleSettingsClick = () => {

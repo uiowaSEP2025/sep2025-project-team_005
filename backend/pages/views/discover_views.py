@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from pages.models import User, Musician, Instrument, Genre, MusicianInstrument, BlockedUser
+from pages.serializers import UserSerializer
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
@@ -48,3 +49,12 @@ class UserByUsernameView(APIView):
         username = kwargs.get('username')
         user = get_object_or_404(User, username=username)
         return JsonResponse({"user_id": str(user.id)}, status=status.HTTP_200_OK)
+    
+class UserByIdView(APIView):
+    def get(self, request):
+        id = request.GET.get('user_id')
+        print(id)
+        user = get_object_or_404(User, id=id)
+        print(user)
+        serializer = UserSerializer(user, context={'auth_user': user})
+        return Response(serializer.data, status=status.HTTP_200_OK)

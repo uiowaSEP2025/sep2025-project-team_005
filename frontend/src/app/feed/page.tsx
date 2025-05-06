@@ -345,7 +345,7 @@ export default function Feed() {
                                             <Box display="flex" alignItems="center" gap={1}>
                                                 <CardActions onClick={() => handleProfile(post?.owner.username)} sx={{ cursor: 'pointer' }}>
                                                     <Avatar alt="User" src={"/savvy.png"} sx={{ width: 64, height: 64 }} />
-                                                    <Typography variant="h6">{post.owner.username || 'Username'}</Typography>
+                                                    <Typography variant="h6">{post.owner.username || 'Unknown User'}</Typography>
                                                 </CardActions>
                                             </Box>
                                             <Box display="flex" gap={1}>

@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from pages.serializers import MessageSerializer
+from pages.serializers import MessageSerializer, UserSerializer
 from pages.utils.s3_utils import upload_to_s3
 from pages.forms import MessageForm
 from pages.models import Message, User
@@ -14,7 +14,7 @@ class CreateMessageView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def message(self, request):
+    def post(self, request):
         try:
             form = MessageForm(request.data, request.FILES)
             
@@ -30,8 +30,10 @@ class CreateMessageView(APIView):
                 message.file_types = file_types
                 message.save()
                 form.save_m2m()
-                return Response({"message": "Message created successfully!", "message_id": message.id}, status=status.HTTP_201_CREATED)
-            
+                return Response({
+                    "message": "Message created successfully!",
+                    "message_object": MessageSerializer(message).data
+                }, status=status.HTTP_201_CREATED)            
             return Response({"error": "Invalid form data", "details": form.errors}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -41,13 +43,14 @@ class GetMessagesView(APIView, PageNumberPagination):
 
     def get(self, request):
         user_id = request.GET.get("user_id")
-        other_user_id = request.GET.get("other_user_id")
+        converser_id = request.GET.get("converser_id")
+        print(converser_id)
         try:
             user = User.objects.get(id=user_id)
         except User.DoesNotExist:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
         try:
-            other_user = User.objects.get(id=other_user_id)
+            other_user = User.objects.get(id=converser_id)
         except User.DoesNotExist:
             return Response({"error": "Other user not found"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -60,3 +63,26 @@ class GetMessagesView(APIView, PageNumberPagination):
 
         serialized_messages = MessageSerializer(paginated_messages, many=True, context={'auth_user': user}).data
         return self.get_paginated_response(serialized_messages)
+    
+class GetActiveConversationsView(APIView, PageNumberPagination):
+    page_size = 6
+
+    def get(self, request):
+        user_id = request.GET.get("user_id")
+        search_query = request.GET.get("search", "").strip()
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        conversation_users = User.objects.filter(
+            Q(sent_messages__receiver=user) | Q(received_messages__sender=user)
+        ).exclude(id=user.id).distinct().order_by('-created_at')
+
+        if search_query:
+            conversation_users = conversation_users.filter(username__icontains=search_query)
+
+        paginated_users = self.paginate_queryset(conversation_users, request)
+
+        serialized_users = UserSerializer(paginated_users, many=True, context={'auth_user': user}).data
+        return self.get_paginated_response(serialized_users)
