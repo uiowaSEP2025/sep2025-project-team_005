@@ -36,8 +36,6 @@ const sections = {
   account: "Account Info",
   blocked: "View Blocked Users",
   liked: "Liked Posts",
-  security: "Security",
-  privacy: "Privacy Settings",
 };
 
 export default function SettingsPage() {
@@ -313,9 +311,10 @@ export default function SettingsPage() {
                 <>
                     <h2 className={styles.sectionTitle}>Your Account Info</h2>
                     <div className={styles.accountInfo}>
-                    <p><strong>Username:</strong> johndoe</p>
-                    <p><strong>Email:</strong> johndoe@example.com</p>
-                    <p><strong>Joined:</strong> January 1, 2024</p>
+                    <p><strong>Username:</strong> {profile?.username}</p>
+                    <p><strong>Email:</strong> {profile?.email}</p>
+                    <p><strong>Phone Number:</strong> {profile?.phone}</p>
+                    <p><strong>Join Date:</strong> {profile?.created_at}</p>
                     </div>
                 </>
             );
@@ -441,10 +440,13 @@ export default function SettingsPage() {
                                         </CardContent>
                                         <CardActions>
                                             {post.is_liked ? (
-                                                <Button startIcon={<ThumbUp/>} onClick={() => handleLikeToggle(post)}>{post.like_count}</Button>
+                                                <Button onClick={() => handleLikeToggle(post)}><ThumbUp/></Button>
                                             ) : (
-                                                <Button startIcon={<ThumbUpOutlined/>} onClick={() => handleLikeToggle(post)}>{post.like_count}</Button>
+                                                <Button onClick={() => handleLikeToggle(post)}><ThumbUp/></Button>
                                             )}
+                                            <Button variant="text" onClick={() => router.push(`posts/${post.id}/liked-users/`)}>
+                                                {post.like_count}
+                                            </Button>
                                             <Button onClick={() => handleCommentClick(post)}><ChatBubbleOutline/></Button>
                                             <Button variant="contained" onClick={() => handleShareClick(post)}>Share</Button>
                                         </CardActions>
@@ -460,10 +462,6 @@ export default function SettingsPage() {
                     </Box>
                 </>
             )
-        case "security":
-            return <h2 className={styles.sectionTitle}>Security Settings (Coming Soon)</h2>;
-        case "privacy":
-            return <h2 className={styles.sectionTitle}>Privacy Settings (Coming Soon)</h2>;
         default:
             return null;
         }

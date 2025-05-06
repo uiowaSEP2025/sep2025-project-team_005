@@ -429,7 +429,7 @@ export default function Feed() {
                                                     <Button startIcon={<ThumbUpOutlined/>} onClick={() => handleLikeToggle(post)}></Button>
                                                 )}
                                                 <Button variant="text" onClick={() => router.push(`posts/${post.id}/liked-users/`)}>
-                                                            {post.like_count}
+                                                    {post.like_count}
                                                 </Button>
                                             </div>
                                             <Button onClick={() => handleCommentClick(post)}><ChatBubbleOutline/></Button>
