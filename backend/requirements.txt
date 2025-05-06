@@ -16,6 +16,7 @@ djangorestframework_simplejwt
 h11
 idna
 iniconfig
+nltk
 outcome
 packaging
 parse
