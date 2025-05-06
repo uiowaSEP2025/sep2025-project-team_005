@@ -21,6 +21,7 @@ packaging
 parse
 parse_type
 pdfminer
+pdfminer.six
 pluggy
 psycopg2-binary
 PyJWT
