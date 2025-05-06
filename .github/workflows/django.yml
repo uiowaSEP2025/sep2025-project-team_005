@@ -97,7 +97,12 @@ jobs:
           chromium-chromedriver="$TARGET_VERSION"
 
     - name: Install spaCy model
-      run: python -m spacy download en_core_web_sm        
+      run: |
+        sudo apt update
+        sudo apt install -y poppler-utils tesseract-ocr
+
+        python -m nltk.downloader stopwords punkt wordnet averaged_perceptron_tagger
+        python -m spacy download en_core_web_sm        
 
     - name: Configure AWS Profile for s3
       run: |
