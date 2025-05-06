@@ -6,15 +6,17 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
-import traceback
 from pages.utils.s3_utils import upload_to_s3
 from pages.models import JobListing, JobApplication, Experience
 from pages.serializers.application_serializers import JobApplicationSerializer
 from pages.serializers.experience_serializers import ExperienceSerializer
 
 from django.conf import settings
+import logging
 import tempfile
 from pages.utils.resume_utils import parse_resume
+
+logger = logging.getLogger(__name__)
 
 
 class CreateApplicationView(APIView):
@@ -54,7 +56,6 @@ class CreateApplicationView(APIView):
                 file_keys.append(file_key)
             except Exception as e:
                 print("Upload to S3 failed:")
-                traceback.print_exc()  # This prints the full traceback
                 return Response({"error": f"Failed to upload PDF: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             return Response({"error": "No resume file uploaded."}, status=status.HTTP_400_BAD_REQUEST)
@@ -113,6 +114,7 @@ class AutofillResumeView(APIView):
                 data = parse_resume(temp.name)
             return Response(data, status=status.HTTP_200_OK)
         except Exception as e:
+            logger.exception("Resume autofill failed")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 class SubmitExperiencesView(APIView):
@@ -132,7 +134,6 @@ class SubmitExperiencesView(APIView):
             for exp_data in serializer.validated_data:
                 Experience.objects.create(application=job_app, **exp_data)
             
-            # Optional: mark application as submitted
             job_app.status = "Submitted"
             job_app.save()
 

@@ -1,4 +1,3 @@
-# resume_utils.py
 import spacy
 import re
 from pdfminer.high_level import extract_text
@@ -18,7 +17,7 @@ def extract_experience(text):
         line = line.strip()
         if not line or line.startswith("●"):  # Skip empty and bullet points
             continue
-        if re.search(r'(intern|musician|consultant|manager|perform|contract)', line, re.IGNORECASE):
+        if re.search(r'(intern|musician|consultant|manager|perform|contract|composer|guitarist)', line, re.IGNORECASE):
             company = lines[i - 1].strip() if i > 0 else None
             # Avoid education being added
             if "university" not in company.lower() and "bachelor" not in line.lower():
