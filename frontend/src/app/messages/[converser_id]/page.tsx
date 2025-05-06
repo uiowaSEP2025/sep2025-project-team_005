@@ -214,63 +214,61 @@ export default function Feed() {
                 )}
                 {messages.length > 0 ? (
                     <Box display="flex" flexDirection="column-reverse" height="100%" overflow="auto">
-                        {messages.map((message) => (
-                            <Box
-                                display="flex"
-                                justifyContent={message.sender.id != converser_id ? 'flex-end' : 'flex-start'}
-                                mb={1}
-                            >
-                                <Box
-                                  px={2}
-                                  py={1}
-                                  bgcolor={message.sender.id != converser_id ? 'primary.main' : 'grey.300'}
-                                  color={message.sender.id != converser_id ? 'white' : 'black'}
-                                  borderRadius={2}
-                                  maxWidth="70%"
-                                  sx={{
-                                    borderTopLeftRadius: message.sender.id != converser_id ? 16 : 0,
-                                    borderTopRightRadius: message.sender.id != converser_id ? 0 : 16,
-                                    wordBreak: 'break-word',
-                                    whiteSpace: 'pre-wrap',
-                                  }}
-                                >
-                                    <Typography sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-                                        {message.message}
-                                    </Typography>
-                                    {/* {messageImages.find(p => p.messageId === message.id)?.imageIndex !== 0 && (
-                                        <Button
-                                            onClick={() => handlePreviousImage(message.id)}
-                                            sx={{
-                                                position: 'absolute',
-                                                top: '50%',
-                                                left: 0,
-                                                transform: 'translateY(-50%)',
-                                                backgroundColor: 'black',
-                                                opacity: 0.8,
-                                            }}
-                                        >
-                                            <ArrowBack />
-                                        </Button>
-                                    )}
+                        {messages.map((message, index) => {
+                            const prevMessage = messages[index - 1];
+                            const showTimestamp = !prevMessage || 
+                                new Date(prevMessage.created_at).getTime() - new Date(message.created_at).getTime() > 5 * 60 * 1000;
 
-                                    {messageImages.find(p => p.messageId === message.id)?.imageIndex !== message.s3_urls.length - 1 && (
-                                        <Button
-                                            onClick={() => handleNextImage(message.id)}
+                            const isSameDay = new Date(message.created_at).toDateString() === new Date().toDateString();
+
+                            const timestamp = isSameDay
+                                ? new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                                : new Date(message.created_at).toLocaleDateString(undefined, {
+                                    year: 'numeric', 
+                                    month: 'long', 
+                                    day: 'numeric', 
+                                    hour: 'numeric', 
+                                    minute: '2-digit'
+                                });
+                            return (
+                                <Box key={message.id}>
+                                    <Box
+                                        display="flex"
+                                        justifyContent={message.sender.id != converser_id ? 'flex-end' : 'flex-start'}
+                                        mb={1}
+                                    >
+                                        <Box
+                                            px={2}
+                                            py={1}
+                                            bgcolor={message.sender.id != converser_id ? 'primary.main' : 'grey.300'}
+                                            color={message.sender.id != converser_id ? 'white' : 'black'}
+                                            borderRadius={2}
+                                            maxWidth="70%"
                                             sx={{
-                                                position: 'absolute',
-                                                top: '50%',
-                                                right: 0,
-                                                transform: 'translateY(-50%)',
-                                                backgroundColor: 'black',
-                                                opacity: 0.8,
+                                                borderTopLeftRadius: message.sender.id != converser_id ? 16 : 0,
+                                                borderTopRightRadius: message.sender.id != converser_id ? 0 : 16,
+                                                wordBreak: 'break-word',
+                                                whiteSpace: 'pre-wrap',
                                             }}
                                         >
-                                            <ArrowForward />
-                                        </Button>
-                                    )} */}
+                                            <Typography sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                                                {message.message}
+                                            </Typography>
+                                        </Box>
+                                    </Box>
+                                    {showTimestamp && (
+                                        <Typography
+                                            display="flex"
+                                            justifyContent={message.sender.id != converser_id ? 'flex-end' : 'flex-start'}
+                                            mb={1}
+                                            variant="caption"
+                                        >
+                                            {timestamp}
+                                        </Typography>
+                                    )}
                                 </Box>
-                            </Box>
-                        ))}
+                            );
+                        })}
                     </Box>       
                 ) : (
                     <Typography>No messages found.</Typography>
@@ -291,5 +289,5 @@ export default function Feed() {
                 <Typography variant="h6">{500 - message.length}</Typography>
             </Box>
         </Box>
-    );
+    );    
 }

@@ -471,7 +471,7 @@ export default function SettingsPage() {
         <div className={styles.container}>
             <div className={styles.header}>
                 <h1 className={styles.title}>Account Settings</h1>
-                <p className={styles.description}>Manage your account, preferences, and privacy</p>
+                <p className={styles.description}>Manage your account and preferences</p>
             </div>
 
             <div className={styles.settingsLayout}>
