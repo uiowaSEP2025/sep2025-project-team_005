@@ -87,6 +87,8 @@ export default function JobListingFeed() {
             });
 
             setUser(response.data)
+            if (user)
+                router.push(`/${user.username}/business`)
         }
         catch (error) {
             console.error("Failed to fetch job listings", error);
@@ -136,7 +138,12 @@ export default function JobListingFeed() {
                     >
                         <div className={styles.header}>
                         <h3 className={styles.jobTitle}>{listing.event_title}</h3>
-                        <span className={styles.businessName}>{listing.business.business_name}</span>
+                        <button
+                            className={styles.businessName}
+                            onClick={() => navigateBusiness(listing)}
+                        >
+                            {listing.business.business_name}
+                        </button>
                         <div>
                             <span className={styles.venue}>{listing.venue}</span>
                         </div>
