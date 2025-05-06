@@ -364,7 +364,7 @@ export default function SettingsPage() {
                         {likedPosts.length > 0 ? (
                             <Box>
                                 {likedPosts.map((post) => (
-                                    <Card key={post.id} sx={{ marginBottom: '1rem', width: '50%', height: '50%', objectFit: 'cover' }}>
+                                    <Card key={post.id} sx={{ marginBottom: '1rem', width: 300, height: '50%', objectFit: 'cover' }}>
                                         <Box sx={{ backgroundColor: 'black', color: 'white', padding: '0.5rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                             <Box display="flex" alignItems="center" gap={1}>
                                                 <CardActions onClick={() => handleProfile(post?.owner.username)} sx={{ cursor: 'pointer' }}>
@@ -384,7 +384,7 @@ export default function SettingsPage() {
                                                     component="img"
                                                     image={post.s3_urls[postImages.find(p => p.postId === post.id)?.imageIndex ?? 0]}
                                                     alt="Image"
-                                                    sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                                    sx={{ width: 300, height: 300, objectFit: 'fill' }}
                                                 />
                                             </CardActionArea>
 

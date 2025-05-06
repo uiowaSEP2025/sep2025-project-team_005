@@ -9,8 +9,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import Toolbar from '@/components/toolbars/toolbar';
-import { Box, Typography, Button, IconButton, Avatar, CardActions } from '@mui/material';
-import { ArrowBack, ArrowForward, Message} from '@mui/icons-material';
+import { Box, Typography, Button, IconButton, Avatar, CardActions, styled, CardMedia } from '@mui/material';
+import { Add, ArrowBack, ArrowForward, Message} from '@mui/icons-material';
 
 interface User {
     username: string;
@@ -36,6 +36,7 @@ export default function Feed() {
     const { converser_id } = useParams();
     const [converser, setConverser] = useState<User>();
     const [message, setMessage] = useState<string>("");
+    const [files, setFiles] = useState<File[]>([]);
     const [messages, setMessages] = useState<MessageInterface[]>([]);
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
@@ -51,14 +52,23 @@ export default function Feed() {
 
     useEffect(() => {
         if (messages.length > 0) {
+            console.log(messages.length);
             setMessageImages(
                 messages.map(message => ({
-                messageId: message.id,
-                imageIndex: 0,
+                    messageId: message.id,
+                    imageIndex: 0,
                 }))
             );
         }
     }, [messages]);
+
+    useEffect(() => {
+        console.log("Updated messageImages:", messageImages);
+        messages.map(message => {
+            console.log(message.s3_urls);
+            return message; // return the message if you’re just logging
+        });
+    }, [messageImages]);
 
     useEffect(() => {
         fetchConverser();
@@ -125,9 +135,9 @@ export default function Feed() {
             formData.append('receiver', String(converser_id));
             formData.append('message', String(message));
             
-            // for (let i = 0; i < files.length; i++) {
-            //     formData.append('files', files[i]);
-            // }
+            for (let i = 0; i < files.length; i++) {
+                formData.append('files', files[i]);
+            }
 
             const response = await axios.post(
                 `${process.env.NEXT_PUBLIC_BACKEND_API}/api/message/create/`,
@@ -188,6 +198,13 @@ export default function Feed() {
             })
         );
     };
+    
+    const uploadFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.files && event.target.files.length > 0) {
+            const files = event.target.files ? Array.from(event.target.files).slice(0, 10) : [];
+            setFiles(files);
+        }
+    };
 
     const handleProfile = async (username: string) => {
         router.push(`/${username}`)
@@ -196,7 +213,18 @@ export default function Feed() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         sendMessage();
-      };
+    };
+
+    const VisuallyHiddenInput = styled('input')({
+        clipPath: 'inset(50%)',
+        height: 1,
+        overflow: 'hidden',
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        whiteSpace: 'nowrap',
+        width: 1,
+    });
 
     if (isLoading) return <p className="description">Loading...</p>;
 
@@ -254,6 +282,53 @@ export default function Feed() {
                                             <Typography sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                                                 {message.message}
                                             </Typography>
+                                            {message.s3_urls.length > 0 && (
+                                                <Box sx={{ position: 'relative', display: 'inline-block' }}>
+                                                    <Box>
+                                                        <CardMedia
+                                                            component="img"
+                                                            image={
+                                                                message.s3_urls[
+                                                                    messageImages.find(m => m.messageId === message.id)?.imageIndex ?? 0
+                                                                ]
+                                                            }
+                                                            alt="Image"
+                                                            sx={{ width: 300, height: 300, objectFit: 'fill' }}
+                                                        />
+
+                                                        {messageImages.find(m => m.messageId === message.id)?.imageIndex!== 0 && (
+                                                            <Button
+                                                                onClick={() => handlePreviousImage(message.id)}
+                                                                sx={{
+                                                                    position: 'absolute',
+                                                                    top: '50%',
+                                                                    left: 0,
+                                                                    transform: 'translateY(-50%)',
+                                                                    backgroundColor: 'black',
+                                                                    opacity: 0.8,
+                                                                }}
+                                                            >
+                                                                <ArrowBack />
+                                                            </Button>
+                                                        )}
+                                                        {messageImages.find(m => m.messageId === message.id)?.imageIndex !== message.s3_urls.length - 1 && (
+                                                            <Button
+                                                                onClick={() => handleNextImage(message.id)}
+                                                                sx={{
+                                                                    position: 'absolute',
+                                                                    top: '50%',
+                                                                    right: 0,
+                                                                    transform: 'translateY(-50%)',
+                                                                    backgroundColor: 'black',
+                                                                    opacity: 0.8,
+                                                                }}
+                                                            >
+                                                                <ArrowForward />
+                                                            </Button>
+                                                        )}
+                                                    </Box>
+                                                </Box>
+                                            )}
                                         </Box>
                                     </Box>
                                     {showTimestamp && (
@@ -284,6 +359,18 @@ export default function Feed() {
                         <IconButton color="primary" onClick={sendMessage} sx={{ ml: 1 }}>
                             <Message />
                         </IconButton>
+                        <Button
+                            component="label"
+                            role={undefined}
+                            tabIndex={-1}
+                            >
+                            <Add />
+                            <VisuallyHiddenInput
+                                type="file"
+                                onChange={(event) => uploadFile(event)}
+                                multiple
+                            />
+                        </Button>
                     </Box>
                 </form>
                 <Typography variant="h6">{500 - message.length}</Typography>
