@@ -1,10 +1,10 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from pages.serializers import PostSerializer, CommentSerializer
+from pages.serializers import PostSerializer, UserSerializer, CommentSerializer
 from pages.utils.s3_utils import upload_to_s3
 from pages.forms import PostForm
-from pages.models import Post, Comment, Like, User, ReportedPost
+from pages.models import Post, Comment, Like, User, ReportedPost, BlockedUser
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -267,3 +267,29 @@ class UnbanView(APIView):
             return Response({"message": "Unbanned"}, status=status.HTTP_200_OK)
         except:
             return Response({"error": "Failed to ban post"}, status=status.HTTP_400_BAD_REQUEST)
+
+class GetLikedUsersView(APIView, PageNumberPagination):
+    page_size = 6
+
+    def get(self, request):
+        post_id = request.query_params.get('post_id')
+        search_query = request.GET.get("search", "").strip()
+        try:
+            target_post = Post.objects.get(id=post_id)
+        except Post.DoesNotExist:
+            return Response({"error": "Post not found, refresh the page"}, status=status.HTTP_404_NOT_FOUND)
+        
+        liked_users = User.objects.filter(id__in=target_post.likes.values_list('user_id', flat=True))
+
+        if search_query:
+            liked_users = liked_users.filter(username__icontains=search_query)
+
+        blocked_by_others = BlockedUser.objects.filter(blocked=request.user).values_list('blocker_id', flat=True)
+        you_blocked = BlockedUser.objects.filter(blocker=request.user).values_list('blocked_id', flat=True)
+
+        liked_users = liked_users.exclude(id__in=blocked_by_others).exclude(id__in=you_blocked).distinct()
+
+        paginated_users = self.paginate_queryset(liked_users, request)
+        serialized_users = UserSerializer(paginated_users, many=True).data
+        return self.get_paginated_response(serialized_users)
+    

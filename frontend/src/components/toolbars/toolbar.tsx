@@ -21,7 +21,7 @@ const Toolbar = () => {
     };
     
     const handleJobsClick = () => {
-        // router.push(`//`);
+        router.push(`/feed/job-listing/`);
     };
     
     const handleMessagesClick = () => {
