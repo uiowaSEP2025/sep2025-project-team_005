@@ -10,14 +10,24 @@ import Cookies from "js-cookie";
 import styles from "@/styles/Application.module.css";
 
 
+type Experience = {
+    job_title: string;
+    company_name: string;
+    start_date: string;
+    end_date: string;
+    description: string;
+};
+
 type Application = {
   id: string;
+  applicant: {id: string, username:string, email:string};
   first_name: string;
   last_name: string;
   phone: string;
   alt_email: string | null;
   file_keys: string[];
   status: string;
+  experiences: Experience[];
 };
 
 export default function ViewApplications() {
@@ -28,28 +38,45 @@ export default function ViewApplications() {
     const { id } = useParams();
     const { profile, isLoading, setProfile } = useAuth();
     const [applications, setApplications] = useState<Application[]>([]);
+    const [hasMore, setHasMore] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const [page, setPage] = useState(1);
+    
 
-    useEffect(() => {
-        const fetchApplications = async () => {
+    const fetchApplications = async (pageNum = 1) => {
         try {
             const token = Cookies.get("access_token");
             const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/applications/listing/${id}/`, {
-            headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}` },
+                params: {
+                    page: pageNum
+                },
             });
-            setApplications(response.data);
-        } catch (err) {
-            console.error("Failed to fetch applications", err);
-        }
-        };
 
-        if (id) fetchApplications();
-    }, [id]);
+            if (pageNum === 1) {
+                setApplications(response.data);
+            } else {
+                setApplications((prevApps) => [...prevApps, ...response.data]);
+            }
+
+            setHasMore(response.data.next !== null);
+        } catch (err: any) {
+            if (err.response?.status === 404) {
+                // No more pages
+                setHasMore(false);
+            } else {
+                console.error("Failed to fetch applications", err);
+            }
+        }
+        finally {
+            setLoading(false);
+        }
+    };
 
     const updateApplicationStatus = async (appId: string, status: string) => {
         try {
             const token = Cookies.get("access_token");
-            await axios.patch(
-                `${process.env.NEXT_PUBLIC_BACKEND_API}/api/applications/${appId}/`,
+            await axios.patch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/patch-application/${appId}/`,
                 { status },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -64,6 +91,18 @@ export default function ViewApplications() {
         }
     };
 
+    useEffect(() => {
+            setPage(1);
+            fetchApplications(1);
+    }, [id]);
+
+    const loadMoreApps = () => {
+        if (hasMore && !loading) {
+            fetchApplications(page + 1);
+            setPage((prevPage) => prevPage + 1);
+        }
+    };
+
     if (!profile) { return <div>Loading...</div>; }
 
     return (
@@ -71,13 +110,27 @@ export default function ViewApplications() {
             <h1 className={styles.applicationsTitle}>Applications for Job #{id}</h1>
             <div className="grid gap-4">
                 {applications.map((app) => (
-                <div key={app.id} className={styles.applicationCard}>
-                    <div className={styles.applicationInfo}>
-                        <h2>{app.first_name} {app.last_name}</h2>
-                        <p>Phone: {app.phone}</p>
-                        <p>Email: {app.alt_email || "N/A"}</p>
-                        <p>Status: {app.status}</p>
-                        </div>
+                    <div key={app.id} className={styles.applicationCard}>
+                    <div className={styles.header}>
+                        <h2 className={styles.jobTitle}>{app.first_name} {app.last_name}</h2>
+                        <p className={styles.venue}><strong>Phone:</strong>  {app.phone}</p>
+                        <p className={styles.venue}><strong>Email:</strong>  {app.applicant.email || "N/A"}</p>
+                        <p className={styles.venue}><strong>Alt Email:</strong>  {app.alt_email || "N/A"}</p>
+                        <p className={styles.venue}><strong>Status:</strong>  {app.status}</p>
+            
+                        {app.experiences && app.experiences.length > 0 && (
+                            <div className={styles.experienceSection}>
+                            <h3 className={styles.jobTitle}>Experience</h3>
+                            {app.experiences.map((exp, i) => (
+                                <div key={i} className={styles.expCard}>
+                                <p className={styles.venue}><strong>{exp.job_title}</strong> at {exp.company_name}</p>
+                                <p className={styles.venue}>{exp.start_date} – {exp.end_date}</p>
+                                <p className={styles.venue}>{exp.description}</p>
+                                </div>
+                            ))}
+                            </div>
+                        )}
+                    </div>
                         <div className={styles.applicationActions}>
                         {app.file_keys.length > 0 ? (
                             <a
@@ -94,13 +147,13 @@ export default function ViewApplications() {
                         <div className={styles.actionButtons}>
                             <button
                                 className={styles.acceptButton}
-                                onClick={() => updateApplicationStatus(app.id, "accepted")}
+                                onClick={() => updateApplicationStatus(app.id, "Accepted")}
                             >
                             Accept
                             </button>
                             <button
                                 className={styles.rejectButton}
-                                onClick={() => updateApplicationStatus(app.id, "rejected")}
+                                onClick={() => updateApplicationStatus(app.id, "Rejected")}
                             >
                             Reject
                             </button>
@@ -108,6 +161,11 @@ export default function ViewApplications() {
                     </div>
                 </div>
                 ))}
+                {hasMore && (
+                    <button onClick={loadMoreApps} disabled={loading}>
+                        Load More
+                    </button>
+                )}
             </div>
         </div>
     );

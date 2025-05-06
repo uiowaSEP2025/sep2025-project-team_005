@@ -1,9 +1,11 @@
 import boto3
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from botocore.exceptions import NoCredentialsError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.pagination import PageNumberPagination
 import traceback
 from pages.utils.s3_utils import upload_to_s3
 from pages.models import JobListing, JobApplication, Experience
@@ -72,12 +74,15 @@ class CreateApplicationView(APIView):
 
         return Response({"message": "Application created", "application_id": application.id}, status=status.HTTP_201_CREATED)
     
-class ApplicationsForListingView(APIView):
+class ApplicationsForListingView(APIView, PageNumberPagination):
     permission_classes = [IsAuthenticated]
+    page_size = 1
 
     def get(self, request, listing_id):
         applications = JobApplication.objects.filter(listing__id=listing_id)
-        serializer = JobApplicationSerializer(applications, many=True)
+        paginated_applications = self.paginate_queryset(applications, request)
+        serializer = JobApplicationSerializer(paginated_applications, many=True)
+        
         return Response(serializer.data)
     
 class GetApplication(APIView):
@@ -134,3 +139,18 @@ class SubmitExperiencesView(APIView):
             return Response({"message": "Experiences submitted successfully."}, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+class PatchApplication(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, app_id):
+        application = get_object_or_404(JobApplication, id=app_id)
+
+        new_status = request.data.get('status')
+        if not new_status:
+            return Response({'detail': 'Missing status field'}, status=status.HTTP_400_BAD_REQUEST)
+
+        application.status = new_status
+        application.save()
+        serializer = JobApplicationSerializer(application)
+        return Response(serializer.data, status=status.HTTP_200_OK)

@@ -31,7 +31,6 @@ export default function ExperienceUpload() {
     const { app_id } = useParams();
     const router = useRouter();
     const { profile, isLoading, setProfile } = useAuth();
-    const [resumeFile, setResumeFile] = useState<File | null>(null);
     const [experiences, setExperiences] = useState<Experience[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
