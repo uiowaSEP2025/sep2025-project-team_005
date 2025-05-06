@@ -34,6 +34,7 @@ six
 sniffio
 social-auth-app-django
 sortedcontainers
+spacy
 sqlparse
 stripe
 trio
