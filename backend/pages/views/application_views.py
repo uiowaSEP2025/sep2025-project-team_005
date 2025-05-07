@@ -5,13 +5,14 @@ from botocore.exceptions import NoCredentialsError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+import textwrap
+from django.core.mail import send_mail
+from django.conf import settings
 from rest_framework.pagination import PageNumberPagination
-from pages.utils.s3_utils import upload_to_s3
+from pages.utils.s3_utils import upload_to_s3, generate_s3_url
 from pages.models import JobListing, JobApplication, Experience
 from pages.serializers.application_serializers import JobApplicationSerializer
 from pages.serializers.experience_serializers import ExperienceSerializer
-
-from django.conf import settings
 import logging
 import tempfile
 from pages.utils.resume_utils import parse_resume
@@ -77,15 +78,24 @@ class CreateApplicationView(APIView):
     
 class ApplicationsForListingView(APIView, PageNumberPagination):
     permission_classes = [IsAuthenticated]
-    page_size = 1
+    page_size = 3
 
     def get(self, request, listing_id):
         applications = JobApplication.objects.filter(listing__id=listing_id)
         paginated_applications = self.paginate_queryset(applications, request)
         serializer = JobApplicationSerializer(paginated_applications, many=True)
+
+        # Replace file_keys with signed URLs
+        data_with_urls = []
+        for app_data in serializer.data:
+            file_keys = app_data.get("file_keys", [])
+            signed_urls = [generate_s3_url(key, 'application/pdf') for key in file_keys]
+            app_data["file_urls"] = signed_urls  # Add new key
+            app_data.pop("file_keys", None)      # Optional: remove file_keys
+            data_with_urls.append(app_data)
+
+        return self.get_paginated_response(data_with_urls)
         
-        return Response(serializer.data)
-    
 class GetApplication(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -155,3 +165,94 @@ class PatchApplication(APIView):
         application.save()
         serializer = JobApplicationSerializer(application)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class SendAcceptanceEmail(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        app_id = request.data.get("application_id")
+        email = request.data.get("app_email")
+
+        if not app_id:
+            return Response({"error": "Application ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            application = JobApplication.objects.select_related('applicant').get(id=app_id)
+            listing = application.listing
+            business = listing.business
+
+            subject = f"{listing.event_title} - Application Accepted"
+            message = f"Congratulations {application.first_name},\n\nYour application for {listing.event_title} has been accepted!"
+            html_message = textwrap.dedent(f"""
+                <p>Congratulations {application.first_name},</p>
+                <p>Your application for <strong>{listing.event_title}</strong> has been <strong>accepted</strong>!</p>
+                <p>The employer may contact you soon with more details.</p>
+                <p>Best,<br> {business.business_name}</p>
+            """)
+
+            send_mail(
+                subject=subject,
+                message=message,
+                html_message=html_message,
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[email],
+            )
+
+            return Response({"message": "Acceptance email sent successfully."}, status=status.HTTP_200_OK)
+
+        except JobApplication.DoesNotExist:
+            return Response({"error": "Application not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+class SendRejectionEmail(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        app_id = request.data.get("application_id")
+        email = request.data.get("app_email")
+
+        if not app_id:
+            return Response({"error": "Application ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            application = JobApplication.objects.select_related('applicant').get(id=app_id)
+            listing = application.listing
+            business = listing.business
+
+            subject = f"{listing.event_title} - Application Update"
+            message = f"Dear {application.first_name},\n\nThank you for applying for {listing.event_title}. After careful consideration, we regret to inform you that you were not selected for the position.\n\nWe appreciate your interest and wish you the best in your future musical endeavors.\n\nBest regards,\nSavvyNote Team"
+            html_message = f"""
+                <p>Dear {application.first_name},</p>
+                <p>Thank you for applying for <strong>{listing.event_title}</strong>. After careful consideration, we regret to inform you that you were not selected for the position.</p>
+                <p>We appreciate your interest and wish you the best in your future musical endeavors.</p>
+                <p>Best regards,<br> {business.business_name}</p>
+            """
+
+            send_mail(
+                subject=subject,
+                message=message,
+                html_message=html_message,
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[email],
+            )
+            print(email)
+
+            return Response({"message": "Rejection email sent successfully."}, status=status.HTTP_200_OK)
+
+        except JobApplication.DoesNotExist:
+            return Response({"error": "Application not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+class UserApplicationsView(APIView, PageNumberPagination):
+    permission_classes = [IsAuthenticated]
+    page_size = 3
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        applications = JobApplication.objects.filter(applicant=user)
+
+        paginated_applications = self.paginate_queryset(applications, request)
+        
+        # Serialize data
+        serializer = JobApplicationSerializer(paginated_applications, many=True)
+        print(serializer.data)
+        
+        return self.get_paginated_response(serializer.data)

@@ -25,7 +25,7 @@ type Application = {
   last_name: string;
   phone: string;
   alt_email: string | null;
-  file_keys: string[];
+  file_urls: string[];
   status: string;
   experiences: Experience[];
 };
@@ -54,9 +54,9 @@ export default function ViewApplications() {
             });
 
             if (pageNum === 1) {
-                setApplications(response.data);
+                setApplications(response.data.results);
             } else {
-                setApplications((prevApps) => [...prevApps, ...response.data]);
+                setApplications((prevApps) => [...prevApps, ...response.data.results]);
             }
 
             setHasMore(response.data.next !== null);
@@ -70,6 +70,44 @@ export default function ViewApplications() {
         }
         finally {
             setLoading(false);
+        }
+    };
+
+    const handleAccept = async (appId: string, applicantEmail: string) => {
+    
+        try {
+            const token = Cookies.get("access_token");
+            await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/send-acceptance-email/`,
+                { 
+                    application_id: appId,
+                    app_email: applicantEmail,
+                 },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            console.log("Acceptance email sent.");
+
+            updateApplicationStatus(appId, "Accepted")
+        } catch (err) {
+            console.error("Failed to send acceptance email", err);
+        }
+    };
+
+    const handleReject = async (appId: string, applicantEmail: string) => {
+    
+        try {
+            const token = Cookies.get("access_token");
+            await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/send-reject-email/`,
+                { 
+                    application_id: appId,
+                    app_email: applicantEmail,
+                 },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            console.log("Rejection email sent.");
+
+            updateApplicationStatus(appId, "Rejected")
+        } catch (err) {
+            console.error("Failed to send rejection email", err);
         }
     };
 
@@ -107,9 +145,15 @@ export default function ViewApplications() {
 
     return (
         <div className={styles.applicationsContainer}>
+            <button
+                onClick={() => router.back()}
+                className={styles.backButton}
+            >
+                ← Back
+            </button>
             <h1 className={styles.applicationsTitle}>Applications for Job #{id}</h1>
             <div className="grid gap-4">
-                {applications.map((app) => (
+                {applications.filter((app) => app.status !== "In-Progress").map((app) => (
                     <div key={app.id} className={styles.applicationCard}>
                     <div className={styles.header}>
                         <h2 className={styles.jobTitle}>{app.first_name} {app.last_name}</h2>
@@ -132,9 +176,9 @@ export default function ViewApplications() {
                         )}
                     </div>
                         <div className={styles.applicationActions}>
-                        {app.file_keys.length > 0 ? (
+                        {app.file_urls.length > 0 ? (
                             <a
-                            href={`https://your-s3-bucket.s3.amazonaws.com/${app.file_keys[0]}`}
+                            href={`${app.file_urls[0]}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className={styles.resumeButton}
@@ -147,13 +191,13 @@ export default function ViewApplications() {
                         <div className={styles.actionButtons}>
                             <button
                                 className={styles.acceptButton}
-                                onClick={() => updateApplicationStatus(app.id, "Accepted")}
+                                onClick={() => handleAccept(app.id, app.alt_email || app.applicant.email)}
                             >
                             Accept
                             </button>
                             <button
                                 className={styles.rejectButton}
-                                onClick={() => updateApplicationStatus(app.id, "Rejected")}
+                                onClick={() => handleReject(app.id, app.alt_email || app.applicant.email)}
                             >
                             Reject
                             </button>
