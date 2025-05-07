@@ -228,7 +228,10 @@ export default function JobListing() {
                         <input
                             type="tel"
                             value={formatPhoneNumber(phone)}
-                            onChange={(e) => setPhone(e.target.value)}
+                            onChange={(e) => {
+                                const digitsOnly = e.target.value.replace(/\D/g, '').slice(0, 10);
+                                setPhone(digitsOnly);
+                            }}
                             className={styles.input}
                             required
                         />

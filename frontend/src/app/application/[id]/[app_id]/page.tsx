@@ -89,6 +89,12 @@ export default function ExperienceUpload() {
 
     const handleSubmitExperiences = async () => {
         if (!app_id) return;
+
+        const invalidExperience = experiences.find((exp) => !isExperienceValid(exp));
+        if (invalidExperience) {
+            setError("Please fill in all required fields.");
+            return;
+        }
         setLoading(true);
         setError('');
     
@@ -119,6 +125,13 @@ export default function ExperienceUpload() {
         setExperiences(updated);
     };
 
+    const isExperienceValid = (exp: Experience) => {
+        return exp.job_title.trim() !== '' &&
+               exp.company_name.trim() !== '' &&
+               exp.start_date.trim() !== '' &&
+               exp.end_date.trim() !== '';
+    };
+
     const removeExperience = (index: number) => {
         const updated = experiences.filter((_, i) => i !== index);
         setExperiences(updated);
@@ -132,7 +145,8 @@ export default function ExperienceUpload() {
                 <h2 className={styles.featureTitle}>Experience</h2>
 
                 {loading && <p>Loading resume data...</p>}
-                {error && <p className="text-red-600 mt-2">{error}</p>}
+                {error &&   <p className="text-red-700 bg-red-100 border-l-4 border-red-500 p-3 rounded text-base font-medium mt-4">
+                    {error}</p>}
 
                 {(manualMode || experiences.length > 0) && (
                     <div className="mt-6 space-y-6">
