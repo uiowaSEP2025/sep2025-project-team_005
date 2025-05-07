@@ -317,6 +317,42 @@
     background-color: #dc2626;
 }  
 
+.backButton {
+    margin-bottom: 1rem;
+    padding: 0.5rem 1rem;
+    background-color: transparent;
+    color: #2563eb;
+    border: none;
+    font-size: 1.15rem;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: underline;
+    display: inline-block;
+    transition: color 0.2s ease;
+}
+
+.backButton:hover {
+    color: #1d4ed8;
+}
+
+.finishButton {
+    background-color: #0070f3;
+    color: white;
+    border: none;
+    font-size: 1.15rem;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    margin-top: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.finishButton:hover {
+    background-color: #005bb5;
+}
+  
+
 [data-theme="dark"] .input[type="date"]::-webkit-calendar-picker-indicator {
     filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(180deg);
   }

@@ -240,3 +240,19 @@ class SendRejectionEmail(APIView):
 
         except JobApplication.DoesNotExist:
             return Response({"error": "Application not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+class UserApplicationsView(APIView, PageNumberPagination):
+    permission_classes = [IsAuthenticated]
+    page_size = 3
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        applications = JobApplication.objects.filter(applicant=user)
+
+        paginated_applications = self.paginate_queryset(applications, request)
+        
+        # Serialize data
+        serializer = JobApplicationSerializer(paginated_applications, many=True)
+        print(serializer.data)
+        
+        return self.get_paginated_response(serializer.data)

@@ -145,9 +145,15 @@ export default function ViewApplications() {
 
     return (
         <div className={styles.applicationsContainer}>
+            <button
+                onClick={() => router.back()}
+                className={styles.backButton}
+            >
+                ← Back
+            </button>
             <h1 className={styles.applicationsTitle}>Applications for Job #{id}</h1>
             <div className="grid gap-4">
-                {applications.map((app) => (
+                {applications.filter((app) => app.status !== "In-Progress").map((app) => (
                     <div key={app.id} className={styles.applicationCard}>
                     <div className={styles.header}>
                         <h2 className={styles.jobTitle}>{app.first_name} {app.last_name}</h2>
