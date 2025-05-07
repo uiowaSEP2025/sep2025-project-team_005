@@ -205,7 +205,7 @@ def test_send_acceptance_email_success(auth_client, job_listing, create_user):
     assert response.status_code == 200
     assert response.data["message"] == "Acceptance email sent successfully."
     assert len(mail.outbox) == 1
-    assert mail.outbox[0].subject == "SavvyNote - Application Accepted"
+    assert mail.outbox[0].subject == "Sample Gig - Application Accepted"
     assert "Congratulations" in mail.outbox[0].body or mail.outbox[0].alternatives[0][0]
 
 @pytest.mark.django_db
@@ -257,7 +257,7 @@ def test_send_rejection_email_success(auth_client, job_listing, create_user):
     assert response.status_code == 200
     assert response.data["message"] == "Rejection email sent successfully."
     assert len(mail.outbox) == 1
-    assert mail.outbox[0].subject == "SavvyNote - Application Update"
+    assert mail.outbox[0].subject == "Sample Gig - Application Update"
     assert "Dear" in mail.outbox[0].body or mail.outbox[0].alternatives[0][0]
 
 @pytest.mark.django_db
