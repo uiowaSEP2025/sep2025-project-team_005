@@ -236,7 +236,7 @@ class SendRejectionEmail(APIView):
             )
             print(email)
 
-            return Response({"message": "Acceptance email sent successfully."}, status=status.HTTP_200_OK)
+            return Response({"message": "Rejection email sent successfully."}, status=status.HTTP_200_OK)
 
         except JobApplication.DoesNotExist:
             return Response({"error": "Application not found."}, status=status.HTTP_404_NOT_FOUND)
