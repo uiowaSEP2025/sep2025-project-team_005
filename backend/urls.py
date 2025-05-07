@@ -6,8 +6,8 @@ from pages.views.follow_views import FollowingView, FollowListView, FollowToggle
 from pages.views.post_views import *
 from pages.views.blocked_views import BlockUserView, BlockedListView
 from pages.views.dropdown_views import get_instruments, get_genres
-from pages.views.listing_views import CreateJobListingView, GetJobListingsView, GetAllJobListingsView, GetJobListingView
-from pages.views.application_views import CreateApplicationView, ApplicationsForListingView
+from pages.views.listing_views import CreateJobListingView, GetJobListingsView, GetAllJobListingsView, GetJobListingView, GetUserFromBusinessView
+from pages.views.application_views import CreateApplicationView, ApplicationsForListingView, AutofillResumeView, GetApplication, SubmitExperiencesView, PatchApplication
 from django.http import JsonResponse
 
 # For debugging:
@@ -54,5 +54,10 @@ urlpatterns = [
         path('fetch-job/', GetJobListingView.as_view(), name='fetch-single-listing'),
         path("submit-application/", CreateApplicationView.as_view(), name="submit-application"),
         path("applications/listing/<int:listing_id>/", ApplicationsForListingView.as_view(), name="get-applications"),
+        path("patch-application/<uuid:app_id>/", PatchApplication.as_view(), name="patch-applications"), 
+        path("job-application/<uuid:app_id>/", GetApplication.as_view(), name="get-application"),
+        path("parse-resume/", AutofillResumeView.as_view(), name='parse-resume'),
+        path('job-application/<uuid:app_id>/submit-experiences/', SubmitExperiencesView.as_view(), name='submit-experiences'),
+        path('user-from-business/<uuid:business_id>/', GetUserFromBusinessView.as_view(), name="user-from-business"),
     ])),
 ]

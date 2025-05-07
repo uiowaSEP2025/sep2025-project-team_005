@@ -30,12 +30,18 @@ interface JobListing {
     genres: { id: number; genre: string }[];
 }
 
+interface BusinessUser {
+    id: string;
+    username: string;
+}
+
 export default function JobListingFeed() {
     useRequireAuth();
 
     const router = useRouter();
     const { profile, isLoading, setProfile } = useAuth();
     const [jobListings, setJobListings] = useState<JobListing[]>([]);
+    const [user, setUser] = useState<BusinessUser>();
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
@@ -71,6 +77,21 @@ export default function JobListingFeed() {
             router.push(`/application/${listing.id}`)
         } catch (error) {
             console.error(error)
+        }
+    }
+
+    const navigateBusiness = async (listing: JobListing) => {
+        try {
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/user-from-business/${listing.business.id}/`, {
+                withCredentials: true,
+            });
+
+            setUser(response.data)
+            if (user)
+                router.push(`/${user.username}/business`)
+        }
+        catch (error) {
+            console.error("Failed to fetch job listings", error);
         }
     }
 
@@ -117,7 +138,12 @@ export default function JobListingFeed() {
                     >
                         <div className={styles.header}>
                         <h3 className={styles.jobTitle}>{listing.event_title}</h3>
-                        <span className={styles.businessName}>{listing.business.business_name}</span>
+                        <button
+                            className={styles.businessName}
+                            onClick={() => navigateBusiness(listing)}
+                        >
+                            {listing.business.business_name}
+                        </button>
                         <div>
                             <span className={styles.venue}>{listing.venue}</span>
                         </div>

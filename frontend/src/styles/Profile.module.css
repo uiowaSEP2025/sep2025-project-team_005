@@ -413,4 +413,6 @@
     font-weight: bold;
     color: var(--text-muted);
     margin-top: 2px;
+    text-decoration: underline;
+    cursor: pointer;
 }

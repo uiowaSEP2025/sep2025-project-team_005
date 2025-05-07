@@ -6,6 +6,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.pagination import PageNumberPagination
 from pages.serializers.listing_serializers import JobListingSerializer
 from pages.models import User, Business, JobListing
+from pages.serializers.user_serializers import UserSerializer
 
 class CreateJobListingView(APIView):
     authentication_classes = [JWTAuthentication]
@@ -75,3 +76,16 @@ class GetJobListingView(APIView):
 
         serialized_jobs = JobListingSerializer(job_listing)
         return Response(serialized_jobs.data, status=status.HTTP_200_OK)
+    
+class GetUserFromBusinessView(APIView):
+    authentication_classes = [JWTAuthentication]
+    
+    def get(self, request, business_id):
+        try:
+            business = Business.objects.get(id=business_id)
+            user = business.user
+            serialize_user = UserSerializer(user)
+        except Business.DoesNotExist:
+            return Response({"error": "Business not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        return Response(serialize_user.data, status=status.HTTP_200_OK)

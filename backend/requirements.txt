@@ -16,10 +16,13 @@ djangorestframework_simplejwt
 h11
 idna
 iniconfig
+nltk
 outcome
 packaging
 parse
 parse_type
+pdfminer
+pdfminer.six
 pluggy
 psycopg2-binary
 PyJWT
@@ -34,6 +37,7 @@ six
 sniffio
 social-auth-app-django
 sortedcontainers
+spacy
 sqlparse
 stripe
 trio
