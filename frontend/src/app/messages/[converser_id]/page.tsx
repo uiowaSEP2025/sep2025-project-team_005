@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useRef } from 'react';
 import styles from "@/styles/Discover.module.css";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth, useRequireAuth } from "@/context/ProfileContext";
@@ -42,6 +42,7 @@ export default function Feed() {
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [messageImages, setMessageImages] = useState<{ messageId: string; imageIndex: number }[]>([]);
+    const [isTyping, setIsTyping] = useState(false);
     const NEXT_PUBLIC_BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
     useEffect(() => {
@@ -52,7 +53,6 @@ export default function Feed() {
 
     useEffect(() => {
         if (messages.length > 0) {
-            console.log(messages.length);
             setMessageImages(
                 messages.map(message => ({
                     messageId: message.id,
@@ -63,10 +63,8 @@ export default function Feed() {
     }, [messages]);
 
     useEffect(() => {
-        console.log("Updated messageImages:", messageImages);
         messages.map(message => {
-            console.log(message.s3_urls);
-            return message; // return the message if you’re just logging
+            return message;
         });
     }, [messageImages]);
 
@@ -125,7 +123,58 @@ export default function Feed() {
             setLoading(false);
         }
     };
-    
+
+    const socket = new WebSocket("ws://localhost:8000/ws/chat/room1/");
+
+    const typingTimeoutRef = useRef<number | null>(null);
+
+    socket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        if (data.type === 'chat_message') {
+            setMessages((prevMessages) => {
+                const exists = prevMessages.some((msg) => msg.id === data.message_object.id);
+                if (exists) return prevMessages;
+                return [data.message_object, ...prevMessages];
+              });
+        } else if (data.type === 'typing') {
+            if (data.username !== profile?.username) {
+                setIsTyping(true);
+        
+                if (typingTimeoutRef.current) {
+                    clearTimeout(typingTimeoutRef.current);
+                }
+        
+                typingTimeoutRef.current = window.setTimeout(() => {
+                    setIsTyping(false);
+                }, 500);
+            }
+        }
+    };
+
+    function sendWithRetry(socket: WebSocket, data: any, retryDelay = 500, retriesLeft = 5) {
+        if (socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify(data));
+        } else if (socket.readyState === WebSocket.CONNECTING && retriesLeft > 0) {
+            setTimeout(() => {
+                sendWithRetry(socket, data, retryDelay, retriesLeft - 1);
+            }, retryDelay);
+        } else {
+            console.error('WebSocket is not ready after retries. State:', socket.readyState);
+        }
+    }
+
+    function sendTyping(username: String) {
+        sendWithRetry(socket, JSON.stringify({
+            type: 'typing',
+            username
+        }));
+    }
+
+    useEffect(() => {
+        console.log('WebSocket is not ready after retries. State:', socket.readyState);
+        sendTyping(String(profile?.username));
+    }, [message]);
+
     const sendMessage = async () => {
         if (!profile) return;
         const formData = new FormData();
@@ -149,6 +198,11 @@ export default function Feed() {
                     },
                 }
             );
+
+            sendWithRetry(socket, JSON.stringify({
+                type: 'chat_message',
+                message_object: response.data.message_object
+            }));
 
             if (response.status >= 200 && response.status < 300) {
                 setMessages((prevMessages) => [response.data.message_object, ...prevMessages]);
@@ -372,6 +426,9 @@ export default function Feed() {
                             />
                         </Button>
                     </Box>
+                    {isTyping && (
+                            <Typography variant="caption">{converser?.username} is typing...</Typography>
+                    )}
                 </form>
                 <Typography variant="h6">{500 - message.length}</Typography>
             </Box>
