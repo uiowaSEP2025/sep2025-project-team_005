@@ -25,7 +25,7 @@ type Application = {
   last_name: string;
   phone: string;
   alt_email: string | null;
-  file_keys: string[];
+  file_urls: string[];
   status: string;
   experiences: Experience[];
 };
@@ -54,9 +54,9 @@ export default function ViewApplications() {
             });
 
             if (pageNum === 1) {
-                setApplications(response.data);
+                setApplications(response.data.results);
             } else {
-                setApplications((prevApps) => [...prevApps, ...response.data]);
+                setApplications((prevApps) => [...prevApps, ...response.data.results]);
             }
 
             setHasMore(response.data.next !== null);
@@ -132,9 +132,9 @@ export default function ViewApplications() {
                         )}
                     </div>
                         <div className={styles.applicationActions}>
-                        {app.file_keys.length > 0 ? (
+                        {app.file_urls.length > 0 ? (
                             <a
-                            href={`https://your-s3-bucket.s3.amazonaws.com/${app.file_keys[0]}`}
+                            href={`${app.file_urls[0]}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className={styles.resumeButton}

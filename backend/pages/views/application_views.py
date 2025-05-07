@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
-from pages.utils.s3_utils import upload_to_s3
+from pages.utils.s3_utils import upload_to_s3, generate_s3_url
 from pages.models import JobListing, JobApplication, Experience
 from pages.serializers.application_serializers import JobApplicationSerializer
 from pages.serializers.experience_serializers import ExperienceSerializer
@@ -77,15 +77,24 @@ class CreateApplicationView(APIView):
     
 class ApplicationsForListingView(APIView, PageNumberPagination):
     permission_classes = [IsAuthenticated]
-    page_size = 1
+    page_size = 3
 
     def get(self, request, listing_id):
         applications = JobApplication.objects.filter(listing__id=listing_id)
         paginated_applications = self.paginate_queryset(applications, request)
         serializer = JobApplicationSerializer(paginated_applications, many=True)
+
+        # Replace file_keys with signed URLs
+        data_with_urls = []
+        for app_data in serializer.data:
+            file_keys = app_data.get("file_keys", [])
+            signed_urls = [generate_s3_url(key, 'application/pdf') for key in file_keys]
+            app_data["file_urls"] = signed_urls  # Add new key
+            app_data.pop("file_keys", None)      # Optional: remove file_keys
+            data_with_urls.append(app_data)
+
+        return self.get_paginated_response(data_with_urls)
         
-        return Response(serializer.data)
-    
 class GetApplication(APIView):
     permission_classes = [IsAuthenticated]
 
