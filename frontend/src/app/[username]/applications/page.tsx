@@ -72,49 +72,49 @@ export default function MyApplications() {
 
     return (
         <div className={styles.applicationsContainer}>
-        <button onClick={() => router.back()} className={styles.backButton}>
-            ← Back
-        </button>
-        <h1 className={styles.applicationsTitle}>My Applications</h1>
-        <div className="grid gap-4">
-            {applications.map((app) => (
-            <div key={app.id} className={styles.applicationCard}>
-                <div className={styles.header}>
-                <h2 className={styles.jobTitle}>{app.listing.event_title}</h2>
-                <p className={styles.venue}><strong>Status:</strong> {app.status}</p>
-                <p className={styles.venue}><strong>Submitted as:</strong> {app.first_name} {app.last_name}</p>
-                <p className={styles.venue}><strong>Phone:</strong> {app.phone}</p>
-                <p className={styles.venue}><strong>Alt Email:</strong> {app.alt_email || "N/A"}</p>
-                {app.status === "In-Progress" && (
-                <button
-                    className={styles.finishButton}
-                    onClick={() => router.push(`/application/${app.listing.id}/${app.id}`)}
-                >
-                    Finish Application
+            <button onClick={() => router.back()} className={styles.backButton}>
+                ← Back
+            </button>
+            <h1 className={styles.applicationsTitle}>My Applications</h1>
+            <div className="grid gap-4">
+                {applications.map((app) => (
+                <div key={app.id} className={styles.applicationCard}>
+                    <div className={styles.header}>
+                    <h2 className={styles.jobTitle}>{app.listing.event_title}</h2>
+                    <p className={styles.venue}><strong>Status:</strong> {app.status}</p>
+                    <p className={styles.venue}><strong>Submitted as:</strong> {app.first_name} {app.last_name}</p>
+                    <p className={styles.venue}><strong>Phone:</strong> {app.phone}</p>
+                    <p className={styles.venue}><strong>Alt Email:</strong> {app.alt_email || "N/A"}</p>
+                    {app.status === "In-Progress" && (
+                    <button
+                        className={styles.finishButton}
+                        onClick={() => router.push(`/application/${app.listing.id}/${app.id}`)}
+                    >
+                        Finish Application
+                    </button>
+                    )}
+
+                    {app.experiences?.length > 0 && (
+                        <div className={styles.experienceSection}>
+                        <h3 className={styles.jobTitle}>Experience</h3>
+                        {app.experiences.map((exp, i) => (
+                            <div key={i} className={styles.expCard}>
+                            <p className={styles.venue}><strong>{exp.job_title}</strong> at {exp.company_name}</p>
+                            <p className={styles.venue}>{exp.start_date} – {exp.end_date}</p>
+                            <p className={styles.venue}>{exp.description}</p>
+                            </div>
+                        ))}
+                        </div>
+                    )}
+                    </div>
+                </div>
+                ))}
+                {hasMore && (
+                <button onClick={loadMoreApps} disabled={loading}>
+                    Load More
                 </button>
                 )}
-
-                {app.experiences?.length > 0 && (
-                    <div className={styles.experienceSection}>
-                    <h3 className={styles.jobTitle}>Experience</h3>
-                    {app.experiences.map((exp, i) => (
-                        <div key={i} className={styles.expCard}>
-                        <p className={styles.venue}><strong>{exp.job_title}</strong> at {exp.company_name}</p>
-                        <p className={styles.venue}>{exp.start_date} – {exp.end_date}</p>
-                        <p className={styles.venue}>{exp.description}</p>
-                        </div>
-                    ))}
-                    </div>
-                )}
-                </div>
             </div>
-            ))}
-            {hasMore && (
-            <button onClick={loadMoreApps} disabled={loading}>
-                Load More
-            </button>
-            )}
-        </div>
         </div>
     );
 }

@@ -5,6 +5,7 @@ from botocore.exceptions import NoCredentialsError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+import textwrap
 from django.core.mail import send_mail
 from django.conf import settings
 from rest_framework.pagination import PageNumberPagination
@@ -177,17 +178,17 @@ class SendAcceptanceEmail(APIView):
 
         try:
             application = JobApplication.objects.select_related('applicant').get(id=app_id)
-            user = application.applicant
-            job_title = application.job_listing.title if hasattr(application, 'job_listing') else "your application"
+            listing = application.listing
+            business = listing.business
 
-            subject = "SavvyNote - Application Accepted"
-            message = f"Congratulations {user.first_name},\n\nYour application for {job_title} has been accepted!"
-            html_message = f"""
-                <p>Congratulations {user.first_name},</p>
-                <p>Your application for <strong>{job_title}</strong> has been <strong>accepted</strong>!</p>
+            subject = f"{listing.event_title} - Application Accepted"
+            message = f"Congratulations {application.first_name},\n\nYour application for {listing.event_title} has been accepted!"
+            html_message = textwrap.dedent(f"""
+                <p>Congratulations {application.first_name},</p>
+                <p>Your application for <strong>{listing.event_title}</strong> has been <strong>accepted</strong>!</p>
                 <p>The employer may contact you soon with more details.</p>
-                <p>Best,<br> SavvyNote Team</p>
-            """
+                <p>Best,<br> {business.business_name}</p>
+            """)
 
             send_mail(
                 subject=subject,
@@ -196,7 +197,6 @@ class SendAcceptanceEmail(APIView):
                 from_email=settings.EMAIL_HOST_USER,
                 recipient_list=[email],
             )
-            print(email)
 
             return Response({"message": "Acceptance email sent successfully."}, status=status.HTTP_200_OK)
 
@@ -215,16 +215,16 @@ class SendRejectionEmail(APIView):
 
         try:
             application = JobApplication.objects.select_related('applicant').get(id=app_id)
-            user = application.applicant
-            job_title = application.job_listing.title if hasattr(application, 'job_listing') else "your application"
+            listing = application.listing
+            business = listing.business
 
-            subject = "SavvyNote - Application Update"
-            message = f"Dear {user.first_name},\n\nThank you for applying for {job_title}. After careful consideration, we regret to inform you that you were not selected for the position.\n\nWe appreciate your interest and wish you the best in your future musical endeavors.\n\nBest regards,\nSavvyNote Team"
+            subject = f"{listing.event_title} - Application Update"
+            message = f"Dear {application.first_name},\n\nThank you for applying for {listing.event_title}. After careful consideration, we regret to inform you that you were not selected for the position.\n\nWe appreciate your interest and wish you the best in your future musical endeavors.\n\nBest regards,\nSavvyNote Team"
             html_message = f"""
-                <p>Dear {user.first_name},</p>
-                <p>Thank you for applying for <strong>{job_title}</strong>. After careful consideration, we regret to inform you that you were not selected for the position.</p>
+                <p>Dear {application.first_name},</p>
+                <p>Thank you for applying for <strong>{listing.event_title}</strong>. After careful consideration, we regret to inform you that you were not selected for the position.</p>
                 <p>We appreciate your interest and wish you the best in your future musical endeavors.</p>
-                <p>Best regards,<br> SavvyNote Team</p>
+                <p>Best regards,<br> {business.business_name}</p>
             """
 
             send_mail(
