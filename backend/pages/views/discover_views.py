@@ -39,7 +39,7 @@ class GetUsersView(APIView, PageNumberPagination):
         discover_queryset = musicians.exclude(user__id__in=blocked_by_others)
             
         # Get distinct users associated with filtered musicians
-        users = User.objects.filter(id__in=discover_queryset.values("user_id"), role="musician").distinct()
+        users = User.objects.filter(id__in=discover_queryset.values("user_id"), role="musician").distinct().exclude(id=request.user.id)
         paginated_users = self.paginate_queryset(users, request)
 
         return self.get_paginated_response([user.username for user in paginated_users])

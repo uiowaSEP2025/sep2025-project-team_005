@@ -292,6 +292,9 @@ export default function DiscoverProfile() {
         }
     };
 
+    const handleMessage = async () => {
+        router.push(`messages/${userId}`);
+    }
 
     if (isLoading || !musicianProfile || !followCount) return <p className="description">Loading...</p>;
 
@@ -346,7 +349,7 @@ export default function DiscoverProfile() {
                             >
                                 {isFollowing ? "Unfollow" : "Follow"}
                             </button>                                
-                            <button className={styles.messageButton} data-testid="message-button">Message</button>
+                            <button className={styles.messageButton} data-testid="message-button" onClick={handleMessage}>Message</button>
                             </div>
                         )}
                     </div>

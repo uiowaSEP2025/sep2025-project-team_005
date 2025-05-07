@@ -13,10 +13,7 @@ import Toolbar from '@/components/toolbars/toolbar';
 import styles from "@/styles/Profile.module.css";
 import axios from "axios";
 import Cookies from "js-cookie";
-import debounce from "lodash.debounce";
 import Dropdown from '@/components/menus/dropdown';
-import { Button, styled } from '@mui/material';
-import { CloudUpload } from '@mui/icons-material';
 
 interface UserID {
     user_id: string;
@@ -349,17 +346,9 @@ export default function BusinessProfile() {
         return `${formattedHour}:${minute.toString().padStart(2, "0")} ${ampm}`;
     };
 
-    const VisuallyHiddenInput = styled('input')({
-        clip: 'rect(0 0 0 0)',
-        clipPath: 'inset(50%)',
-        height: 1,
-        overflow: 'hidden',
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        whiteSpace: 'nowrap',
-        width: 1,
-    });
+    const handleMessage = async () => {
+        router.push(`messages/${userId}`);
+    }
 
     if (isLoading || !businessProfile || !followCount) return <p className="description">Loading...</p>;
 
@@ -414,7 +403,7 @@ export default function BusinessProfile() {
                             >
                                 {isFollowing ? "Unfollow" : "Follow"}
                             </button>                                
-                            <button className={styles.messageButton} data-testid="message-button">Message</button>
+                            <button className={styles.messageButton} data-testid="message-button" onClick={handleMessage}>Message</button>
                             </div>
                         )}
                     </div>

@@ -7,12 +7,24 @@ import { useAuth, useRequireAuth } from "@/context/ProfileContext";
 import axios from "axios";
 import Cookies from "js-cookie";
 import debounce from "lodash.debounce";
-import { Avatar } from "@mui/material";
+import { Avatar, Box, Button, Typography } from "@mui/material";
+import { Add } from "@mui/icons-material";
 
 interface User {
     username: string;
     id: string;
     isFollowing: boolean;
+    latest_message: MessageInterface;
+}
+
+interface MessageInterface {
+    id: string;
+    created_at: string;
+    s3_urls: string[];
+    sender: User;
+    receiver: User;
+    like_count: number;
+    message: string;
 }
 
 export default function Messages() {
@@ -89,6 +101,10 @@ export default function Messages() {
         router.push(`/messages/${id}/`);
     };
 
+    const handleNewConversation = () => {
+        router.push(`/messages/new-conversation/`);
+    }
+
     return (
         <div>
             <div className={styles.searchContainer}>
@@ -100,16 +116,62 @@ export default function Messages() {
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
             </div>
+            <Button variant='contained' onClick={() => handleNewConversation()}><Add /></Button>
             <ul className={styles.userList}>
                 {users.length > 0 ? (
-                    users.map((user, index) => (
-                    <li key={index} className={styles.userCard} onClick={() => handleConversationClick(user.id)} data-testid={`user-item-${user}`}>
-                        <div className={styles.profileImageContainer}>
-                            <Avatar alt={`${user}'s profile photo`} src={"/savvy.png"} sx={{ width: 64, height: 64, cursor: 'pointer' }}/>
-                        </div>
-                        <span className={styles.username}>{user.username}</span>
-                    </li>
-                    ))
+                    users.map((user, index) => {
+                    const isSameDay = new Date(user.latest_message?.created_at).toDateString() === new Date().toDateString();
+
+                    const timestamp = isSameDay
+                        ? new Date(user.latest_message?.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        : new Date(user.latest_message?.created_at).toLocaleDateString(undefined, {
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric', 
+                            hour: 'numeric', 
+                            minute: '2-digit'
+                        });
+                    return (
+                        <li 
+                            key={index} 
+                            onClick={() => handleConversationClick(user.id)} 
+                            data-testid={`user-item-${user}`}
+                            // style={{ listStyle: 'none', padding: '1rem', borderBottom: '1px solid #ddd', cursor: 'pointer' }}
+                            className={styles.userCard}
+                        >
+                            <Box display="flex" alignItems="center" justifyContent="space-between" width="100%">
+                                <Box display="flex" alignItems="center" gap={2} minWidth="200px">
+                                    <Avatar 
+                                        alt={`${user.username}'s profile photo`} 
+                                        src={"/savvy.png"} 
+                                        sx={{ width: 64, height: 64, cursor: 'pointer' }} 
+                                    />
+                                    <Typography variant="subtitle1">{user.username}</Typography>
+                                </Box>
+
+                                <Box 
+                                    flexGrow={1} 
+                                    mx={2} 
+                                    overflow="hidden"
+                                >
+                                    <Typography 
+                                        variant="body2" 
+                                        noWrap 
+                                        sx={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}
+                                    >
+                                        {user.latest_message?.sender?.username === profile?.username 
+                                        ? "You: " 
+                                        : user.latest_message?.sender?.username + ": "}
+                                        {user.latest_message?.message}
+                                    </Typography>
+                                </Box>
+
+                                <Box minWidth="80px" textAlign="right">
+                                    <Typography variant="caption">{timestamp}</Typography>
+                                </Box>
+                            </Box>
+                        </li>
+                    )})
                 ) : (
                     <p>No conversations found.</p>
                 )}
