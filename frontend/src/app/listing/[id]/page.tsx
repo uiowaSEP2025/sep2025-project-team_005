@@ -74,7 +74,6 @@ export default function ViewApplications() {
     };
 
     const handleAccept = async (appId: string, applicantEmail: string) => {
-        await updateApplicationStatus(appId, "Accepted");
     
         try {
             const token = Cookies.get("access_token");
@@ -90,6 +89,25 @@ export default function ViewApplications() {
             updateApplicationStatus(appId, "Accepted")
         } catch (err) {
             console.error("Failed to send acceptance email", err);
+        }
+    };
+
+    const handleReject = async (appId: string, applicantEmail: string) => {
+    
+        try {
+            const token = Cookies.get("access_token");
+            await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/send-reject-email/`,
+                { 
+                    application_id: appId,
+                    app_email: applicantEmail,
+                 },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            console.log("Rejection email sent.");
+
+            updateApplicationStatus(appId, "Rejected")
+        } catch (err) {
+            console.error("Failed to send rejection email", err);
         }
     };
 
@@ -173,7 +191,7 @@ export default function ViewApplications() {
                             </button>
                             <button
                                 className={styles.rejectButton}
-                                onClick={() => updateApplicationStatus(app.id, "Rejected")}
+                                onClick={() => handleReject(app.id, app.alt_email || app.applicant.email)}
                             >
                             Reject
                             </button>

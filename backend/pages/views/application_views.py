@@ -202,3 +202,41 @@ class SendAcceptanceEmail(APIView):
 
         except JobApplication.DoesNotExist:
             return Response({"error": "Application not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+class SendRejectionEmail(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        app_id = request.data.get("application_id")
+        email = request.data.get("app_email")
+
+        if not app_id:
+            return Response({"error": "Application ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            application = JobApplication.objects.select_related('applicant').get(id=app_id)
+            user = application.applicant
+            job_title = application.job_listing.title if hasattr(application, 'job_listing') else "your application"
+
+            subject = "SavvyNote - Application Update"
+            message = f"Dear {user.first_name},\n\nThank you for applying for {job_title}. After careful consideration, we regret to inform you that you were not selected for the position.\n\nWe appreciate your interest and wish you the best in your future musical endeavors.\n\nBest regards,\nSavvyNote Team"
+            html_message = f"""
+                <p>Dear {user.first_name},</p>
+                <p>Thank you for applying for <strong>{job_title}</strong>. After careful consideration, we regret to inform you that you were not selected for the position.</p>
+                <p>We appreciate your interest and wish you the best in your future musical endeavors.</p>
+                <p>Best regards,<br> SavvyNote Team</p>
+            """
+
+            send_mail(
+                subject=subject,
+                message=message,
+                html_message=html_message,
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[email],
+            )
+            print(email)
+
+            return Response({"message": "Acceptance email sent successfully."}, status=status.HTTP_200_OK)
+
+        except JobApplication.DoesNotExist:
+            return Response({"error": "Application not found."}, status=status.HTTP_404_NOT_FOUND)

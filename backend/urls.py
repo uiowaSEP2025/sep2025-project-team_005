@@ -7,7 +7,7 @@ from pages.views.post_views import *
 from pages.views.blocked_views import BlockUserView, BlockedListView
 from pages.views.dropdown_views import get_instruments, get_genres
 from pages.views.listing_views import CreateJobListingView, GetJobListingsView, GetAllJobListingsView, GetJobListingView, GetUserFromBusinessView
-from pages.views.application_views import CreateApplicationView, ApplicationsForListingView, AutofillResumeView, GetApplication, SubmitExperiencesView, PatchApplication, SendAcceptanceEmail
+from pages.views.application_views import CreateApplicationView, ApplicationsForListingView, AutofillResumeView, GetApplication, SubmitExperiencesView, PatchApplication, SendAcceptanceEmail, SendRejectionEmail
 from django.http import JsonResponse
 
 # For debugging:
@@ -60,5 +60,6 @@ urlpatterns = [
         path('job-application/<uuid:app_id>/submit-experiences/', SubmitExperiencesView.as_view(), name='submit-experiences'),
         path('user-from-business/<uuid:business_id>/', GetUserFromBusinessView.as_view(), name="user-from-business"),
         path("send-acceptance-email/", SendAcceptanceEmail.as_view(), name="send_acceptance_email"),
+        path("send-reject-email/", SendRejectionEmail.as_view(), name="send_reject_email"),
     ])),
 ]
