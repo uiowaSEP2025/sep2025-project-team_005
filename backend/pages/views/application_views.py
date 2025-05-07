@@ -5,13 +5,13 @@ from botocore.exceptions import NoCredentialsError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+from django.core.mail import send_mail
+from django.conf import settings
 from rest_framework.pagination import PageNumberPagination
 from pages.utils.s3_utils import upload_to_s3, generate_s3_url
 from pages.models import JobListing, JobApplication, Experience
 from pages.serializers.application_serializers import JobApplicationSerializer
 from pages.serializers.experience_serializers import ExperienceSerializer
-
-from django.conf import settings
 import logging
 import tempfile
 from pages.utils.resume_utils import parse_resume
@@ -164,3 +164,41 @@ class PatchApplication(APIView):
         application.save()
         serializer = JobApplicationSerializer(application)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class SendAcceptanceEmail(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        app_id = request.data.get("application_id")
+        email = request.data.get("app_email")
+
+        if not app_id:
+            return Response({"error": "Application ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            application = JobApplication.objects.select_related('applicant').get(id=app_id)
+            user = application.applicant
+            job_title = application.job_listing.title if hasattr(application, 'job_listing') else "your application"
+
+            subject = "SavvyNote - Application Accepted"
+            message = f"Congratulations {user.first_name},\n\nYour application for {job_title} has been accepted!"
+            html_message = f"""
+                <p>Congratulations {user.first_name},</p>
+                <p>Your application for <strong>{job_title}</strong> has been <strong>accepted</strong>!</p>
+                <p>The employer may contact you soon with more details.</p>
+                <p>Best,<br> SavvyNote Team</p>
+            """
+
+            send_mail(
+                subject=subject,
+                message=message,
+                html_message=html_message,
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[email],
+            )
+            print(email)
+
+            return Response({"message": "Acceptance email sent successfully."}, status=status.HTTP_200_OK)
+
+        except JobApplication.DoesNotExist:
+            return Response({"error": "Application not found."}, status=status.HTTP_404_NOT_FOUND)

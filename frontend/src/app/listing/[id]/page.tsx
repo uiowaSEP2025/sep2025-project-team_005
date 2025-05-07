@@ -73,6 +73,26 @@ export default function ViewApplications() {
         }
     };
 
+    const handleAccept = async (appId: string, applicantEmail: string) => {
+        await updateApplicationStatus(appId, "Accepted");
+    
+        try {
+            const token = Cookies.get("access_token");
+            await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/send-acceptance-email/`,
+                { 
+                    application_id: appId,
+                    app_email: applicantEmail,
+                 },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            console.log("Acceptance email sent.");
+
+            updateApplicationStatus(appId, "Accepted")
+        } catch (err) {
+            console.error("Failed to send acceptance email", err);
+        }
+    };
+
     const updateApplicationStatus = async (appId: string, status: string) => {
         try {
             const token = Cookies.get("access_token");
@@ -147,7 +167,7 @@ export default function ViewApplications() {
                         <div className={styles.actionButtons}>
                             <button
                                 className={styles.acceptButton}
-                                onClick={() => updateApplicationStatus(app.id, "Accepted")}
+                                onClick={() => handleAccept(app.id, app.alt_email || app.applicant.email)}
                             >
                             Accept
                             </button>
