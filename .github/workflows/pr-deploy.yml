@@ -18,7 +18,8 @@ jobs:
       uses: aws-actions/configure-aws-credentials@v2
       with:
         aws-region: ${{ env.AWS_REGION }}
-        role-to-assume: arn:aws:iam::597088023258:role/savvynote-ec2-role  # or your deploy role
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
     - name: Get AWS Account ID
       id: acct
