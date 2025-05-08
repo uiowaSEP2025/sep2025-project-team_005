@@ -93,3 +93,26 @@ class IsFollowingView(APIView):
 
         is_following = Follower.objects.filter(follower=request.user, following=target_user).exists()
         return Response({"is_following": is_following})
+    
+
+# Lightweight API endpoint to get list of JUST usernames that the current user follows
+# This is for tagging users in a post
+class FollowUsernamesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, user_id):
+        try:
+            current_user = User.objects.get(id=user_id)
+
+            # Get the users that the current user follows
+            following = User.objects.filter(followers__follower=current_user)
+
+            # Exclude any users who have blocked the current user
+            blocked = BlockedUser.objects.filter(blocked=request.user).values_list('blocked_id', flat=True)
+            following = following.exclude(id__in=blocked)
+
+            # Get just the usernames of the following
+            usernames = list(following.values_list('username', flat=True))
+            return Response(usernames)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=404)
