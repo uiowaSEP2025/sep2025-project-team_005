@@ -22,7 +22,7 @@ jobs:
       uses: aws-actions/configure-aws-credentials@v2
       with:
         aws-region: ${{ env.AWS_REGION }}
-        role-to-assume: arn:aws:iam::597088023258:role/github-deploy-role
+        role-to-assume: arn:aws:iam::597088023258:role/github.to.aws.oicd
 
     - name: Get AWS Account ID
       id: acct
