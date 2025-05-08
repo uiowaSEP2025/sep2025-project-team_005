@@ -71,7 +71,7 @@ jobs:
         
         until aws ssm describe-instance-information \
           --region $AWS_REGION \
-          --instance-ids $INSTANCE_IDS \
+          --filters "Key=InstanceIds,Values=$INSTANCE_IDS" \
           --query "InstanceInformationList" --output text | grep -q $INSTANCE_IDS; do
         echo "Waiting for SSM Agent..."
         METADATA_OPTIONS=$(aws ec2 describe-instances   --instance-ids $INSTANCE_IDS   --region us-east-2   --query "Reservations[0].Instances[0].MetadataOptions"   --output json)
