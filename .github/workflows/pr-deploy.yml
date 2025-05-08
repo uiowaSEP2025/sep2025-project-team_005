@@ -94,6 +94,11 @@ jobs:
           --instance-id ${{ steps.refresh.outputs.instance_ids }} \
           --command-id  ${{ steps.refresh.outputs.cmd_id }}
 
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.11.3
+
     - name: Terraform Init
       working-directory: infra
       run: terraform init
