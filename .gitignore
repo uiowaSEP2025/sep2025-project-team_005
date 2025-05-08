@@ -34,5 +34,5 @@ selenium_user_data/
 
 # Terraform 
 infra/.terraform/
-infra/*.tfstate
+infra/*.tfstate.*
 infra/*.tfstate.backup

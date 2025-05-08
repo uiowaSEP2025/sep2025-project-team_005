@@ -231,6 +231,11 @@ resource "aws_instance" "backend" {
 
   user_data = file("${path.module}/scripts/backend_user_data.sh")
 
+  metadata_options {
+    http_tokens   = "optional"
+    http_endpoint = "enabled"
+  }
+
   tags = {
     Name        = "${var.environment}-Backend-Instance"
     Environment = var.environment
@@ -249,6 +254,11 @@ resource "aws_instance" "frontend" {
   user_data = file("${path.module}/scripts/frontend_user_data.sh")
 
   depends_on = [aws_instance.backend]
+
+  metadata_options {
+    http_tokens   = "optional"
+    http_endpoint = "enabled"
+  }
 
   tags = {
     Name        = "${var.environment}-Frontend-Instance"
