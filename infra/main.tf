@@ -207,31 +207,6 @@ resource "aws_security_group" "backend" {
   }
 }
 
-resource "aws_iam_role" "github_deploy" {
-  name = "github-deploy-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect = "Allow"
-      Principal = {
-        Federated = "arn:aws:iam::597088023258:oidc-provider/token.actions.githubusercontent.com"
-      }
-      Action = "sts:AssumeRoleWithWebIdentity"
-      Condition = {
-        StringLike = {
-          "token.actions.githubusercontent.com:sub" = "repo:uiowaSEP2025/sep2025-project-team_005:*"
-        }
-      }
-    }]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "deploy_ecr" {
-  role       = aws_iam_role.github_deploy.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
-}
-
 resource "aws_iam_role_policy_attachment" "deploy_ssm" {
   role       = aws_iam_role.github_deploy.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMFullAccess"
