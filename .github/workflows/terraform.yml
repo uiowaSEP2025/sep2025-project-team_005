@@ -1,0 +1,51 @@
+name: Terraform
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  push:
+    branches: [ main ]
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.11.3
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-region: us-east-2
+        role-to-assume: arn:aws:iam::597088023258:role/github-deploy-role
+
+    - name: Terraform Init
+      working-directory: infra
+      run: terraform init -input=false
+
+    - name: Terraform Validate & Fmt
+      working-directory: infra
+      run: |
+        terraform fmt -check
+        terraform validate
+
+    - name: Terraform Plan
+      id: plan
+      working-directory: infra
+      run: terraform plan -var-file="terraform.tfvars" -out=tfplan
+
+    - name: Comment Plan (on PR only)
+      if: github.event_name == 'pull_request'
+      uses: marocchino/sticky-pull-request-comment@v2
+      with:
+        path: infra/tfplan
+        header: "### Terraform Plan"
+
+    - name: Terraform Apply (on push to main)
+      if: github.ref == 'refs/heads/main'
+      working-directory: infra
+      run: terraform apply -var-file="terraform.tfvars" -auto-approve
