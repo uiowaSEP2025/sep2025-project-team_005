@@ -64,6 +64,18 @@ jobs:
             --query "Reservations[].Instances[].InstanceId" --output text)
         echo "instance_ids=$INSTANCE_IDS" >> $GITHUB_OUTPUT
 
+        aws ec2 wait instance-status-ok \
+          --region $AWS_REGION \
+          --instance-ids $INSTANCE_IDS
+        until aws ssm describe-instance-information \
+                --region $AWS_REGION \
+                --filters "Key=InstanceIds,Values=$INSTANCE_IDS" \
+                --query "InstanceInformationList" \
+                --output text | grep -q $INSTANCE_IDS; do
+          echo "Waiting for SSM Agent..."
+          sleep 5
+        done
+
         CMD_ID=$(aws ssm send-command \
             --region $AWS_REGION \
             --instance-ids $INSTANCE_IDS \
