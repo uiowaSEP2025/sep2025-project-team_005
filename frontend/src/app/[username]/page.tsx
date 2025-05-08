@@ -2,8 +2,7 @@
 
 import React from 'react';
 import { Edit } from 'lucide-react';
-import { useParams } from "next/navigation";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useAuth, useRequireAuth } from "@/context/ProfileContext";
 import { useEffect, useState } from "react";
 import { FaEllipsisV } from "react-icons/fa";
@@ -14,8 +13,6 @@ import styles from "@/styles/Profile.module.css";
 import axios from "axios";
 import Cookies from "js-cookie";
 import Dropdown from '@/components/menus/dropdown';
-import { Button, styled } from '@mui/material';
-import { CloudUpload } from '@mui/icons-material';
 
 interface MusicianProfile {
     stage_name: string;
@@ -295,6 +292,9 @@ export default function DiscoverProfile() {
         }
     };
 
+    const handleMessage = async () => {
+        router.push(`messages/${userId}`);
+    }
 
     if (isLoading || !musicianProfile || !followCount) return <p className="description">Loading...</p>;
 
@@ -349,7 +349,7 @@ export default function DiscoverProfile() {
                             >
                                 {isFollowing ? "Unfollow" : "Follow"}
                             </button>                                
-                            <button className={styles.messageButton} data-testid="message-button">Message</button>
+                            <button className={styles.messageButton} data-testid="message-button" onClick={handleMessage}>Message</button>
                             </div>
                         )}
                     </div>

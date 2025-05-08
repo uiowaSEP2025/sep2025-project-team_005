@@ -41,6 +41,7 @@ class ProfileView(APIView):
             "email": user.email,
             "phone": user.phone,
             "role": user.role,
+            "created_at": user.created_at.strftime('%B %d, %Y')
         })
         
         

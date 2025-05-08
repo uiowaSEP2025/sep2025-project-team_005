@@ -1,5 +1,5 @@
 from django import forms
-from .models import Post, User
+from .models import Post, User, Message
 
 class MultipleFileInput(forms.ClearableFileInput):
     allow_multiple_selected = True  # Allows multiple files to be selected
@@ -39,3 +39,20 @@ class PostForm(forms.ModelForm):
                 raise forms.ValidationError("Only image and video files are allowed.")
         return files
 
+class MessageForm(forms.ModelForm):
+    files = MultipleFileField(required=False)
+
+    class Meta:
+        model = Message
+        fields = ['message', 'files', 'sender', 'receiver']
+
+    def clean_files(self):
+        files = self.cleaned_data.get('files')
+        if not files:
+            return []
+
+        for file in files:
+            file_type = file.content_type
+            if not (file_type.startswith('image/') or file_type.startswith('video/')):
+                raise forms.ValidationError("Only image and video files are allowed in messages.")
+        return files

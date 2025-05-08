@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from pages.views.discover_views import GetUsersView, UserByUsernameView
+from pages.views.discover_views import *
 from pages.views.settings_views import MusicianDetailView, ChangePasswordView, BusinessDetailView
 from pages.views.follow_views import FollowingView, FollowListView, FollowToggleView, IsFollowingView
 from pages.views.post_views import *
@@ -8,6 +8,7 @@ from pages.views.blocked_views import BlockUserView, BlockedListView
 from pages.views.dropdown_views import get_instruments, get_genres
 from pages.views.listing_views import CreateJobListingView, GetJobListingsView, GetAllJobListingsView, GetJobListingView, GetUserFromBusinessView
 from pages.views.application_views import CreateApplicationView, ApplicationsForListingView, AutofillResumeView, GetApplication, SubmitExperiencesView, PatchApplication, SendAcceptanceEmail, SendRejectionEmail, UserApplicationsView
+from pages.views.message_views import *
 from django.http import JsonResponse
 
 # For debugging:
@@ -39,6 +40,7 @@ urlpatterns = [
         path('business/<uuid:user_id>/', BusinessDetailView.as_view(), name='business-detail'),
         path('change-password/', ChangePasswordView.as_view(), name="change-password"),
         path('user/<str:username>/', UserByUsernameView.as_view(), name='get-user-by-username'),
+        path('user/', UserByIdView.as_view(), name='get-user-by-id'),
         path('follower/<uuid:user_id>/', FollowingView.as_view(), name='follow-count'),
         path('instruments/all/', get_instruments, name="get-instruments"),
         path('genres/all/', get_genres, name="get-genres"),
@@ -49,6 +51,10 @@ urlpatterns = [
         path('block-list/<uuid:user_id>/', BlockedListView.as_view(), name='block-list'),
         path('jobs/create/', CreateJobListingView.as_view(), name='create-listing'),
         path('fetch-jobs/', GetJobListingsView.as_view(), name='fetch-listing'),
+        path('message/create/', CreateMessageView.as_view(), name='create-message'),
+        path('message/get/', GetMessagesView.as_view(), name='get-messages'),
+        path('active-conversations/', GetActiveConversationsView.as_view(), name='active-conversations'),
+        path('potential-conversations/', GetPotentialConversationsView.as_view(), name='potential-conversations'),
         path('liked-users/', GetLikedUsersView.as_view(), name='liked-users'),
         path('fetch-all-jobs/', GetAllJobListingsView.as_view(), name='fetch-listing'),
         path('fetch-job/', GetJobListingView.as_view(), name='fetch-single-listing'),

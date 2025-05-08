@@ -25,7 +25,7 @@ const Toolbar = () => {
     };
     
     const handleMessagesClick = () => {
-        // router.push(`//`);
+        router.push(`/messages/`);
     };
     
     const handleSettingsClick = () => {
@@ -57,11 +57,12 @@ const Toolbar = () => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            backgroundColor: '#333', // Replace with global var
-            color: 'white', // Replace with global var
+            backgroundColor: '#333',
+            color: 'white',
             padding: '1rem 0',
             gap: '1rem',
-            boxShadow: '2px 0 5px rgba(0,0,0,0.2)', // Add subtle shadow for a floating effect
+            boxShadow: '2px 0 5px rgba(0,0,0,0.2)',
+            zIndex: 1300
         }}
         >
             <Avatar alt="User" src={"/savvy.png"} sx={{ width: 64, height: 64, cursor: 'pointer' }} onClick={handleProfile}></Avatar>
