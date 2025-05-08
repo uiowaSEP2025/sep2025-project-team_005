@@ -58,7 +58,10 @@ resource "aws_iam_role" "github_deploy" {
       Action    = "sts:AssumeRoleWithWebIdentity"
       Condition = {
         StringLike = {
-          "token.actions.githubusercontent.com:sub" = "repo:uiowaSEP2025/sep2025-project-team_005:ref:refs/heads/*"
+          "token.actions.githubusercontent.com:sub" = [
+            "repo:uiowaSEP2025/sep2025-project-team_005:ref:refs/heads/*",
+            "repo:uiowaSEP2025/sep2025-project-team_005:pull/*"
+          ]
         }
       }
     }]
