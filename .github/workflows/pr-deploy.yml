@@ -22,6 +22,7 @@ jobs:
       uses: aws-actions/configure-aws-credentials@v2
       with:
         aws-region: ${{ env.AWS_REGION }}
+        role-to-assume: arn:aws:iam::597088023258:role/github-deploy-role
 
     - name: Get AWS Account ID
       id: acct
@@ -55,6 +56,7 @@ jobs:
         docker push $REPO_URI:latest
 
     - name: Trigger container refresh on EC2
+      id: refresh
       run: |
         REPO_URI="${{ steps.acct.outputs.account_id }}.dkr.ecr.$AWS_REGION.amazonaws.com/savvynote-frontend"
         INSTANCE_IDS=$(aws ec2 describe-instances \
