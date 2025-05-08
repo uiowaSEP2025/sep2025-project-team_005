@@ -1,0 +1,90 @@
+name: PR Deploy
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+env:
+  AWS_REGION: us-east-2
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-region: ${{ env.AWS_REGION }}
+        role-to-assume: arn:aws:iam::597088023258:role/savvynote-ec2-role  # or your deploy role
+
+    - name: Get AWS Account ID
+      id: acct
+      run: |
+        echo "account_id=$(aws sts get-caller-identity --query Account --output text)" >> $GITHUB_OUTPUT
+
+    - name: Log in to ECR
+      run: |
+        aws ecr get-login-password \
+            --region $AWS_REGION \
+        | docker login \
+            --username AWS \
+            --password-stdin ${{ steps.acct.outputs.account_id }}.dkr.ecr.$AWS_REGION.amazonaws.com
+
+
+    - name: Build & push backend
+      working-directory: backend
+      run: |
+        REPO_URI="${{ steps.acct.outputs.account_id }}.dkr.ecr.$AWS_REGION.amazonaws.com/savvynote-backend"
+        docker build -t $REPO_URI:latest .
+        docker push $REPO_URI:latest
+
+    - name: Build & push frontend
+      working-directory: frontend
+      run: |
+        REPO_URI="${{ steps.acct.outputs.account_id }}.dkr.ecr.$AWS_REGION.amazonaws.com/savvynote-frontend"
+        docker build \
+          --build-arg NEXT_PUBLIC_API_URL=https://savvy-note.com/api \
+          --build-arg NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }} \
+          -t $REPO_URI:latest .
+        docker push $REPO_URI:latest
+
+    - name: Trigger container refresh on EC2
+      run: |
+        REPO_URI="${{ steps.acct.outputs.account_id }}.dkr.ecr.$AWS_REGION.amazonaws.com/savvynote-frontend"
+        INSTANCE_IDS=$(aws ec2 describe-instances \
+            --filters "Name=tag:Role,Values=frontend" "Name=instance-state-name,Values=running" \
+            --query "Reservations[].Instances[].InstanceId" --output text)
+        echo "instance_ids=$INSTANCE_IDS" >> $GITHUB_OUTPUT
+
+        CMD_ID=$(aws ssm send-command \
+            --region $AWS_REGION \
+            --instance-ids $INSTANCE_IDS \
+            --document-name AWS-RunShellScript \
+            --parameters '{"commands":["docker pull '"$REPO_URI"':latest","docker rm -f savvynote-frontend || true","docker run -d --name savvynote-frontend -p 3000:3000 '"$REPO_URI"':latest"]}' \
+            --query "Command.CommandId" --output text)
+        echo "cmd_id=$CMD_ID" >> $GITHUB_OUTPUT
+    
+    - name: Wait for SSM Command
+      run: |
+        aws ssm wait command-executed \
+          --region $AWS_REGION \
+          --instance-id ${{ steps.refresh.outputs.instance_ids }} \
+          --command-id  ${{ steps.refresh.outputs.cmd_id }}
+
+    - name: Terraform Init
+      working-directory: infra
+      run: terraform init
+
+    - name: Terraform Import existing resources
+      working-directory: infra
+      run: |
+        terraform import aws_ecr_repository.savvynote_frontend  savvynote-frontend  || echo "frontend repo already in state"
+        terraform import aws_ecr_repository.savvynote_backend   savvynote-backend   || echo "backend repo already in state"
+        terraform import aws_iam_role.ec2_role                  savvynote-ec2-role  || echo "IAM role already in state"
+
+    - name: Terraform Apply
+      working-directory: infra
+      run: terraform apply -var-file="terraform.tfvars" -auto-approve
