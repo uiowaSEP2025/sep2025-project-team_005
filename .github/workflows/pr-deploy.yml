@@ -59,7 +59,6 @@ jobs:
     - name: Trigger container refresh on EC2
       id: refresh
       run: |
-        systemctl restart amazon-ssm-agent
         REPO_URI="${{ steps.acct.outputs.account_id }}.dkr.ecr.$AWS_REGION.amazonaws.com/savvynote-frontend"
         INSTANCE_IDS=$(aws ec2 describe-instances \
             --filters "Name=tag:Role,Values=frontend" "Name=instance-state-name,Values=running" \
