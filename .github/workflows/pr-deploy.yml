@@ -48,7 +48,8 @@ jobs:
     - name: Build & push frontend
       working-directory: frontend
       run: |
-        REPO_URI="${{ steps.acct.outputs.account_id }}.dkr.ecr.$AWS_REGION.amazonaws.com/savvynote-frontend"
+        export ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+        REPO_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/savvynote-frontend"
         docker build \
           --build-arg NEXT_PUBLIC_API_URL=https://savvy-note.com/api \
           --build-arg NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }} \
