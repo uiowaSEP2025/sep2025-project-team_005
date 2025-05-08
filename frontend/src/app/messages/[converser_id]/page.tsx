@@ -40,6 +40,7 @@ export default function Feed() {
     const [messages, setMessages] = useState<MessageInterface[]>([]);
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
+    const [socket, setSocket] = useState<WebSocket>();
     const [hasMore, setHasMore] = useState(true);
     const [messageImages, setMessageImages] = useState<{ messageId: string; imageIndex: number }[]>([]);
     const [isTyping, setIsTyping] = useState(false);
@@ -124,46 +125,74 @@ export default function Feed() {
         }
     };
 
-    const socket = new WebSocket("ws://localhost:8000/ws/chat/room1/");
+    const users = [profile?.username, converser?.username].sort();
+    
+    const chatRoom = users[0] && users[1] ? `${users[0]}-${users[1]}` : null;
+
+    useEffect(() => {
+        if (!chatRoom) return;
+    
+        const backendHost = process.env.NEXT_PUBLIC_BACKEND_API;
+        const protocol = backendHost?.startsWith('https') ? 'wss' : 'ws';
+        const wsHost = backendHost?.replace(/^https?:\/\//, '');
+        const newSocket = new WebSocket(`${protocol}://${wsHost}/ws/chat/${chatRoom}/`);
+    
+        setSocket(newSocket);
+    
+        return () => {
+            newSocket.close();
+        };
+    }, [chatRoom]);
 
     const typingTimeoutRef = useRef<number | null>(null);
 
-    socket.onmessage = function(e) {
-        const data = JSON.parse(e.data);
-        if (data.type === 'chat_message') {
-            setMessages((prevMessages) => {
-                const exists = prevMessages.some((msg) => msg.id === data.message_object.id);
-                if (exists) return prevMessages;
-                return [data.message_object, ...prevMessages];
-              });
-        } else if (data.type === 'typing') {
-            if (data.username !== profile?.username) {
-                setIsTyping(true);
-        
-                if (typingTimeoutRef.current) {
-                    clearTimeout(typingTimeoutRef.current);
+    useEffect(() => {
+        if (!socket) return;
+    
+        const handleMessage = (e: MessageEvent) => {
+            const data = JSON.parse(e.data);
+    
+            if (data.type === 'chat_message') {
+                setMessages((prevMessages) => {
+                    const exists = prevMessages.some((msg) => msg.id === data.message_object.id);
+                    if (exists) return prevMessages;
+                    return [data.message_object, ...prevMessages];
+                });
+            } else if (data.type === 'typing') {
+                if (data.username !== profile?.username) {
+                    setIsTyping(true);
+    
+                    if (typingTimeoutRef.current) {
+                        clearTimeout(typingTimeoutRef.current);
+                    }
+    
+                    typingTimeoutRef.current = window.setTimeout(() => {
+                        setIsTyping(false);
+                    }, 500);
                 }
-        
-                typingTimeoutRef.current = window.setTimeout(() => {
-                    setIsTyping(false);
-                }, 500);
             }
-        }
-    };
+        };
+    
+        socket.addEventListener('message', handleMessage);
+    
+        return () => {
+            socket.removeEventListener('message', handleMessage);
+        };
+    
+    }, [socket]);
 
     function sendWithRetry(socket: WebSocket, data: any, retryDelay = 500, retriesLeft = 5) {
         if (socket.readyState === WebSocket.OPEN) {
             socket.send(JSON.stringify(data));
-        } else if (socket.readyState === WebSocket.CONNECTING && retriesLeft > 0) {
+        } else if (socket.readyState !== WebSocket.OPEN && retriesLeft > 0) {
             setTimeout(() => {
                 sendWithRetry(socket, data, retryDelay, retriesLeft - 1);
             }, retryDelay);
-        } else {
-            console.error('WebSocket is not ready after retries. State:', socket.readyState);
         }
     }
 
     function sendTyping(username: String) {
+        if (socket == null) return;
         sendWithRetry(socket, JSON.stringify({
             type: 'typing',
             username
@@ -171,7 +200,6 @@ export default function Feed() {
     }
 
     useEffect(() => {
-        console.log('WebSocket is not ready after retries. State:', socket.readyState);
         sendTyping(String(profile?.username));
     }, [message]);
 
@@ -198,7 +226,8 @@ export default function Feed() {
                     },
                 }
             );
-
+            
+            if (socket==null) return;
             sendWithRetry(socket, JSON.stringify({
                 type: 'chat_message',
                 message_object: response.data.message_object
