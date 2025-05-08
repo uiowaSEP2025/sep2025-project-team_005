@@ -10,6 +10,8 @@ import Cookies from "js-cookie";
 import { PinturaEditor } from "@pqina/react-pintura";
 import "@pqina/pintura/pintura.css";
 import { getEditorDefaults } from "@pqina/pintura";
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete'
 
 
 // Get default properties for photo editor (stickers)
@@ -31,10 +33,13 @@ export default function EditPhotos() {
     const router = useRouter();
     const params = useParams();
 
+    const { profile, isLoading } = useAuth();
     const [uploadedImages, setUploadedImages] = useState<string[]>([]);
     const [editedImage, setEditedImage] = useState<string | null>(null);
     const [editedImagesMap, setEditedImagesMap] = useState<{ [key: string]: string }>({});
     const [caption, setCaption] = useState<string>("");
+    const [followedUsernames, setFollowedUsernames] = useState<string[]>([]);
+    const [taggedUsersMap, setTaggedUsersMap] = useState<{ [photoUrl: string]: string[] }>({});
     const editedFilesRef = useRef<{ [key: string]: File }>({});
 
     useEffect(() => {
@@ -56,11 +61,50 @@ export default function EditPhotos() {
         else {
             console.warn("No uploaded images found in session storage.");
         }
+
+        // Load followed usernames once profile loads
+        if (!isLoading && profile?.id) {
+            fetchFollowedUsernames();
+        }
     }, []);
 
+
+    // Fetch only the usernames of the users that the current user is following
+    const fetchFollowedUsernames = async () => {
+        try {
+            // Call lightweight API endpoint for fetching just usernames
+            const response = await axios.get(
+                `${process.env.NEXT_PUBLIC_BACKEND_API}/api/follow-usernames/${profile?.id}/`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${Cookies.get("access_token")}`,
+                    },
+                    withCredentials: true,
+                }
+            );
+
+            // Set followed usernames with the retrieved list
+            setFollowedUsernames(response.data)
+            console.log("Set following to: ", response.data)
+        }
+        catch (err) {
+            console.error("Failed to load following usernames: ", err)
+        }
+    }
+
+
+    // Get image to be edited in Pintura editor
     const getImageToDisplay = () => {
         if (!editedImage) return undefined;
         return editedImagesMap[editedImage] || editedImage;
+    }
+
+
+    // Utility function to determine the users that are not yet tagged in the currently selected photo
+    const getAvailableUsersForCurrentPhoto = () => {
+        // Remove users that have already been tagged in that particular photo
+        const alreadyTagged = taggedUsersMap[editedImage || ""] || []
+        return followedUsernames.filter(user => !alreadyTagged.includes(user))
     }
 
 
@@ -166,12 +210,28 @@ export default function EditPhotos() {
 
                         <div className={styles.inputGroup} style={{ marginTop: "1rem" }}>
                             <label className={styles.label} htmlFor="tags">Tag users:</label>
-                            <input
-                                id="tags"
-                                type="text"
-                                className={styles.inputField}
-                                placeholder="TO BE IMPLEMENTED"
+                            <Autocomplete
+                                disablePortal
+                                options={getAvailableUsersForCurrentPhoto()}
+                                onChange={(event, newValue) => {
+                                    if (!newValue) return;
+                                    setTaggedUsersMap(prev => {
+                                        const current = prev[editedImage || ""] || [];
+                                        return {
+                                            ...prev,
+                                            [editedImage || ""]: [...current, newValue]
+                                        };
+                                    });
+                                }}
+                                renderInput={(params) => <TextField {...params} label="Tag users..." />}
                             />
+                            
+                            {/* Show currently tagged users for this image */}
+                            <div className={styles.taggedUsersList}>
+                                {(taggedUsersMap[editedImage || ""] || []).map((user, idx) => (
+                                    <div key={idx} className={styles.taggedUser}>{user}</div>
+                                ))}
+                            </div>
                         </div>
                     </div>
 

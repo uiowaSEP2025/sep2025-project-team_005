@@ -157,3 +157,17 @@
 .thumbnailImage[aria-selected="true"] {
     border-color: blue;
 }
+
+.taggedUsersList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.taggedUser {
+    background-color: #d6eaff;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+}
