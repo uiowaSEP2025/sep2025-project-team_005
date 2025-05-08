@@ -74,7 +74,7 @@ jobs:
           --instance-ids $INSTANCE_IDS \
           --query "InstanceInformationList" --output text | grep -q $INSTANCE_IDS; do
         echo "Waiting for SSM Agent..."
-        METADATA_OPTIONS = aws ec2 describe-instances   --instance-ids $INSTANCE_IDS   --region us-east-2   --query "Reservations[0].Instances[0].MetadataOptions"   --output json
+        METADATA_OPTIONS=$(aws ec2 describe-instances   --instance-ids $INSTANCE_IDS   --region us-east-2   --query "Reservations[0].Instances[0].MetadataOptions"   --output json)
         echo "$METADATA_OPTIONS"
         sleep 5
         done
