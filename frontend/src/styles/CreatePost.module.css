@@ -164,10 +164,28 @@
     gap: 0.5rem;
     margin-top: 0.5rem;
 }
-
+  
 .taggedUser {
     background-color: #d6eaff;
     padding: 4px 8px;
     border-radius: 12px;
     font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+ }
+  
+
+.removeTagButton {
+    background: transparent;
+    border: none;
+    color: black; /* Red color for the 'x' */
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0;
+    margin-left: 5px;
+}
+  
+.removeTagButton:hover {
+    color: #e60000; /* Darker red when hovered */
 }

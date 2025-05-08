@@ -108,6 +108,20 @@ export default function EditPhotos() {
     }
 
 
+    // Remove tagged user from the current photo
+    const handleRemoveTag = (user: string) => {
+        // Remove the user from the tagged users list for that photo
+        setTaggedUsersMap((prev) => {
+            const currentTags = prev[editedImage || ""] || [];
+            const updatedTags = currentTags.filter((tag) => tag !== user);
+            return {
+                ...prev,
+                [editedImage || ""]: updatedTags
+            };
+        });
+    }
+
+
     const handlePost = async () => {
         try {
             if (uploadedImages.length === 0) {
@@ -223,13 +237,46 @@ export default function EditPhotos() {
                                         };
                                     });
                                 }}
-                                renderInput={(params) => <TextField {...params} label="Tag users..." />}
+                                renderInput={(params) => (
+                                    <TextField
+                                      className={styles.inputField}
+                                      {...params}
+                                      label="Tag users..."
+                                      sx={{
+                                        '& .MuiInputLabel-root': { color: 'white' }, // Label color
+                                        '& .MuiInputBase-input': { color: 'white' }, // Input text color
+                                        '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': {
+                                          borderColor: 'white', // Border color
+                                        },
+                                        '&:hover .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': {
+                                          borderColor: 'white', // Border color on hover
+                                        },
+                                        '&.Mui-focused .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': {
+                                          borderColor: 'white', // Border color when focused
+                                        },
+                                        '& .MuiAutocomplete-clearIndicator': {
+                                          color: 'white', // Clear (x) button color
+                                        },
+                                        '& .MuiAutocomplete-popupIndicator': {
+                                          color: 'white', // Dropdown arrow color
+                                        },
+                                      }}
+                                    />
+                                  )}                                  
                             />
                             
                             {/* Show currently tagged users for this image */}
                             <div className={styles.taggedUsersList}>
                                 {(taggedUsersMap[editedImage || ""] || []).map((user, idx) => (
-                                    <div key={idx} className={styles.taggedUser}>{user}</div>
+                                    <div key={idx} className={styles.taggedUser}>
+                                        {user}
+                                        <button
+                                            className={styles.removeTagButton}
+                                            onClick={() => handleRemoveTag(user)}
+                                        >
+                                            &#10005; {/* Unicode "X" symbol */}
+                                        </button>
+                                    </div>
                                 ))}
                             </div>
                         </div>
