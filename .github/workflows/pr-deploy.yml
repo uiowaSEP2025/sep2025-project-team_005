@@ -84,7 +84,7 @@ jobs:
             --region $AWS_REGION \
             --instance-ids $INSTANCE_IDS \
             --document-name AWS-RunShellScript \
-            --parameters '{"commands":["docker pull '"$REPO_URI"':latest","docker rm -f savvynote-frontend || true","docker run -d --name savvynote-frontend -p 3000:3000 '"$REPO_URI"':latest"]}' \
+            --parameters '{"commands":["sudo systemctl restart amazon-ssm-agent","docker pull '"$REPO_URI"':latest","docker rm -f savvynote-frontend || true","docker run -d --name savvynote-frontend -p 3000:3000 '"$REPO_URI"':latest"]}' \
             --query "Command.CommandId" --output text)
         echo "cmd_id=$CMD_ID" >> $GITHUB_OUTPUT
     
