@@ -59,6 +59,7 @@ jobs:
     - name: Trigger container refresh on EC2
       id: refresh
       run: |
+        systemctl restart amazon-ssm-agent
         REPO_URI="${{ steps.acct.outputs.account_id }}.dkr.ecr.$AWS_REGION.amazonaws.com/savvynote-frontend"
         INSTANCE_IDS=$(aws ec2 describe-instances \
             --filters "Name=tag:Role,Values=frontend" "Name=instance-state-name,Values=running" \
@@ -68,9 +69,16 @@ jobs:
         aws ec2 wait instance-status-ok \
           --region $AWS_REGION \
           --instance-ids $INSTANCE_IDS
-        aws ssm wait instance-online \
+        
+        until aws ssm describe-instance-information \
           --region $AWS_REGION \
-          --instance-ids $INSTANCE_IDS
+          --instance-ids $INSTANCE_IDS \
+          --query "InstanceInformationList" --output text | grep -q $INSTANCE_IDS; do
+        echo "Waiting for SSM Agent..."
+        METADATA_OPTIONS = aws ec2 describe-instances   --instance-ids $INSTANCE_IDS   --region us-east-2   --query "Reservations[0].Instances[0].MetadataOptions"   --output json
+        echo "$METADATA_OPTIONS"
+        sleep 5
+        done
 
         CMD_ID=$(aws ssm send-command \
             --region $AWS_REGION \

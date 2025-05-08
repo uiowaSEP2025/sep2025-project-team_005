@@ -18,7 +18,7 @@ my_app_security_group = "sg-084db03f535da912e"
 domain_name           = "savvy-note.com"
 
 # Which environment you’re targeting: dev, test, or prod
-environment           = "prod"
+environment           = "dev"
 
 # Your CIDR for ssh access (0.0.0.0/0 is “anywhere” but you can lock it down)
 ssh_location          = "0.0.0.0/0"
