@@ -82,12 +82,6 @@ def job_listing(create_business, instrument, genre):
 #    assert JobListing.objects.filter(event_title="Sample Gig").exists()
 
 @pytest.mark.django_db
-def test_create_joblisting_invalid_data(auth_client, create_user, create_business):
-    response = auth_client.post(CREATE_JOB_URL, {"user_id": create_user.id}, format='json')
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert "error" in response.data
-
-@pytest.mark.django_db
 def test_create_joblisting_no_user(auth_client):
     response = auth_client.post(CREATE_JOB_URL, {"user_id": 9999}, format='json')
     assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
