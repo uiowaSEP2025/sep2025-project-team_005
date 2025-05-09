@@ -69,7 +69,7 @@ describe("Subscription Component", () => {
         const stripeMock = require("@stripe/stripe-js").loadStripe;
         stripeMock.mockResolvedValue({
             redirectToCheckout: jest.fn().mockResolvedValue({
-                error: { message: "Something went wrong while redirecting to the checkout. Please try again or contact admin." },
+                error: { message: "Failed to start Stripe Checkout session. Please try again." },
             }),
         });
 
@@ -77,7 +77,7 @@ describe("Subscription Component", () => {
         fireEvent.click(screen.getByText("Choose Monthly"));
 
         await waitFor(() => {
-            expect(window.alert).toHaveBeenCalledWith("Something went wrong while redirecting to the checkout. Please try again or contact admin.");
+            expect(window.alert).toHaveBeenCalledWith("Failed to start Stripe Checkout session. Please try again.");
         });
     });
 

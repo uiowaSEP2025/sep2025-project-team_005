@@ -40,7 +40,7 @@ class CreateSubscriptionSessionView(APIView):
                     'type': subscription_type
                 }
             )
-            return Response({'id': session.id})
+            return Response({'url': session.url})
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
