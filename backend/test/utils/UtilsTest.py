@@ -2,6 +2,7 @@ import uuid
 import pytest
 from unittest.mock import MagicMock
 from pages.utils.s3_utils import get_bucket_name
+from pages.utils import resume_utils
 
 @pytest.fixture
 def file_key():
@@ -142,3 +143,53 @@ def test_get_bucket_name_pdf(monkeypatch):
 
     result = get_bucket_name("application/pdf")
     assert result == "metadata-bucket"
+
+def test_extract_experience_basic():
+    sample_text = """
+    Freelance
+    Guitarist and Composer
+
+    Studio Inc.
+    Session Musician
+
+    Some University
+    Bachelor of Arts in Music
+    """
+    result = resume_utils.extract_experience(sample_text)
+    print("***********")
+    print(result)
+    assert len(result) == 2
+    assert result[0]["title"] == "Guitarist and Composer"
+    assert result[0]["company"] == "Freelance"
+    assert result[1]["title"] == "Session Musician"
+    assert result[1]["company"] == "Studio Inc."
+
+
+def test_parse_resume(monkeypatch):
+    mock_extract_text = MagicMock(return_value="""
+        Freelance
+        Guitarist
+
+        Studio Inc.
+        Session Musician
+    """)
+    monkeypatch.setattr(resume_utils, "extract_text_from_pdf", mock_extract_text)
+
+    mock_nlp = MagicMock()
+    monkeypatch.setattr(resume_utils, "nlp", mock_nlp)
+
+    result = resume_utils.parse_resume("fake_path.pdf")
+
+    # Assertions
+    assert "experience" in result
+    assert len(result["experience"]) == 2
+    assert result["experience"][0]["title"] == "Guitarist"
+    assert result["experience"][0]["company"] == "Freelance"
+
+def test_parse_resume_invalid_pdf(monkeypatch):
+    mock_extract = MagicMock(side_effect=Exception("Bad PDF"))
+
+    monkeypatch.setattr(resume_utils, "extract_text_from_pdf", mock_extract)
+
+    with pytest.raises(Exception, match="Bad PDF"):
+        resume_utils.parse_resume("invalid_path.pdf")

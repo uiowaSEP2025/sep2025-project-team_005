@@ -2,7 +2,6 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.core.validators import MaxLengthValidator
 import uuid
-from pages.models import Like
 from django.contrib.postgres.fields import ArrayField
 
 class Post(models.Model):

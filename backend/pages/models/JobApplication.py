@@ -14,7 +14,6 @@ class JobApplication(models.Model):
     last_name = models.TextField(max_length=50)
     phone = models.CharField(
         max_length=14,
-        unique=True,
         validators=[
             RegexValidator(
                 regex=r'^\+?1?\s?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$',

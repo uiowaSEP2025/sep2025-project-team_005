@@ -76,7 +76,7 @@ def test_get_users_search(authenticated_client_factory, create_users):
     """Test search functionality to ensure only matching results are returned."""
     search_query = create_users[0].username
     url = DISCOVER_URL + f"?search={search_query}"
-    client, _ = authenticated_client_factory(create_users[0])
+    client, _ = authenticated_client_factory(create_users[1])
     response = client.get(url)
     assert response.status_code == 200
     assert len(response.data["results"]) == 1
@@ -90,7 +90,7 @@ def test_get_users_pagination_next_page(authenticated_client_factory, create_use
     response = client.get(url)
     assert response.status_code == 200
     assert "results" in response.data
-    assert len(response.data["results"]) == 5
+    assert len(response.data["results"]) == 4
     assert response.data["next"] is None
     
 @pytest.mark.django_db

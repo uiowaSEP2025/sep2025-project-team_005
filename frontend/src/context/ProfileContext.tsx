@@ -13,6 +13,7 @@ interface UserProfile {
     email: string;
     phone: string;
     role: string;
+    created_at: string;
 }
 
 interface AuthContextType {

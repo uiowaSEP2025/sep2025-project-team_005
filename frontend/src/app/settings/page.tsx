@@ -36,8 +36,6 @@ const sections = {
   account: "Account Info",
   blocked: "View Blocked Users",
   liked: "Liked Posts",
-  security: "Security",
-  privacy: "Privacy Settings",
 };
 
 export default function SettingsPage() {
@@ -313,9 +311,10 @@ export default function SettingsPage() {
                 <>
                     <h2 className={styles.sectionTitle}>Your Account Info</h2>
                     <div className={styles.accountInfo}>
-                    <p><strong>Username:</strong> johndoe</p>
-                    <p><strong>Email:</strong> johndoe@example.com</p>
-                    <p><strong>Joined:</strong> January 1, 2024</p>
+                    <p><strong>Username:</strong> {profile?.username}</p>
+                    <p><strong>Email:</strong> {profile?.email}</p>
+                    <p><strong>Phone Number:</strong> {profile?.phone}</p>
+                    <p><strong>Join Date:</strong> {profile?.created_at}</p>
                     </div>
                 </>
             );
@@ -365,7 +364,7 @@ export default function SettingsPage() {
                         {likedPosts.length > 0 ? (
                             <Box>
                                 {likedPosts.map((post) => (
-                                    <Card key={post.id} sx={{ marginBottom: '1rem', width: '50%', height: '50%', objectFit: 'cover' }}>
+                                    <Card key={post.id} sx={{ marginBottom: '1rem', width: 300, height: '50%', objectFit: 'cover' }}>
                                         <Box sx={{ backgroundColor: 'black', color: 'white', padding: '0.5rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                             <Box display="flex" alignItems="center" gap={1}>
                                                 <CardActions onClick={() => handleProfile(post?.owner.username)} sx={{ cursor: 'pointer' }}>
@@ -385,7 +384,7 @@ export default function SettingsPage() {
                                                     component="img"
                                                     image={post.s3_urls[postImages.find(p => p.postId === post.id)?.imageIndex ?? 0]}
                                                     alt="Image"
-                                                    sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                                    sx={{ width: 300, height: 300, objectFit: 'fill' }}
                                                 />
                                             </CardActionArea>
 
@@ -441,10 +440,13 @@ export default function SettingsPage() {
                                         </CardContent>
                                         <CardActions>
                                             {post.is_liked ? (
-                                                <Button startIcon={<ThumbUp/>} onClick={() => handleLikeToggle(post)}>{post.like_count}</Button>
+                                                <Button onClick={() => handleLikeToggle(post)}><ThumbUp/></Button>
                                             ) : (
-                                                <Button startIcon={<ThumbUpOutlined/>} onClick={() => handleLikeToggle(post)}>{post.like_count}</Button>
+                                                <Button onClick={() => handleLikeToggle(post)}><ThumbUp/></Button>
                                             )}
+                                            <Button variant="text" onClick={() => router.push(`posts/${post.id}/liked-users/`)}>
+                                                {post.like_count}
+                                            </Button>
                                             <Button onClick={() => handleCommentClick(post)}><ChatBubbleOutline/></Button>
                                             <Button variant="contained" onClick={() => handleShareClick(post)}>Share</Button>
                                         </CardActions>
@@ -460,10 +462,6 @@ export default function SettingsPage() {
                     </Box>
                 </>
             )
-        case "security":
-            return <h2 className={styles.sectionTitle}>Security Settings (Coming Soon)</h2>;
-        case "privacy":
-            return <h2 className={styles.sectionTitle}>Privacy Settings (Coming Soon)</h2>;
         default:
             return null;
         }
@@ -473,7 +471,7 @@ export default function SettingsPage() {
         <div className={styles.container}>
             <div className={styles.header}>
                 <h1 className={styles.title}>Account Settings</h1>
-                <p className={styles.description}>Manage your account, preferences, and privacy</p>
+                <p className={styles.description}>Manage your account and preferences</p>
             </div>
 
             <div className={styles.settingsLayout}>
