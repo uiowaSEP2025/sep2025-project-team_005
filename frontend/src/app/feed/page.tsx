@@ -432,8 +432,6 @@ export default function Feed() {
                                                     {post.like_count}
                                                 </Button>
                                             </div>
-                                            <Button onClick={() => handleCommentClick(post)}><ChatBubbleOutline/></Button>
-                                            <Button variant="contained" onClick={() => handleShareClick(post)}>Share</Button>
                                         </CardActions>
                                     </Card>
                                 ) : (
