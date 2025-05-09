@@ -5,26 +5,58 @@ from rest_framework import status
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.pagination import PageNumberPagination
 from pages.serializers.listing_serializers import JobListingSerializer
-from pages.models import User, Business, JobListing
+from pages.models import User, Business, JobListing, Instrument, Genre
 from pages.serializers.user_serializers import UserSerializer
 
 class CreateJobListingView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def post(self, request, ):
+    def post(self, request):
         try:
             user_id = request.data.get("user_id")
             user = User.objects.get(id=user_id)
             business = Business.objects.get(user=user)
-            serializer = JobListingSerializer(data=request.data)
 
-            if serializer.is_valid():
-                serializer.save(business=business)
-                return Response({"message": "Job listing created successfully!"}, status=status.HTTP_201_CREATED)
-            
-            return Response({"error": "Invalid listing data", "details": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-        
+            # Extract scalar fields
+            event_title = request.data.get("event_title")
+            venue = request.data.get("venue")
+            payment_type = request.data.get("payment_type")
+            payment_amount = request.data.get("payment_amount")
+            gig_type = request.data.get("gig_type")
+            event_description = request.data.get("event_description")
+            experience_level = request.data.get("experience_level")
+            start_date = request.data.get("start_date")
+            end_date = request.data.get("end_date")
+            start_time = request.data.get("start_time")
+            end_time = request.data.get("end_time")
+            recurring_pattern = request.data.get("recurring_pattern")
+
+            # Create job listing object
+            job = JobListing.objects.create(
+                business=business,
+                event_title=event_title,
+                venue=venue,
+                payment_type=payment_type,
+                payment_amount=payment_amount,
+                gig_type=gig_type,
+                event_description=event_description,
+                experience_level=experience_level,
+                start_date=start_date,
+                end_date=end_date,
+                start_time=start_time,
+                end_time=end_time,
+                recurring_pattern=recurring_pattern
+            )
+
+            # Handle many-to-many relationships
+            instrument_ids = request.data.get("instruments", [])
+            genre_ids = request.data.get("genres", [])
+            job.instruments.set(Instrument.objects.filter(id__in=instrument_ids))
+            job.genres.set(Genre.objects.filter(id__in=genre_ids))
+
+            return Response({"message": "Job listing created successfully!"}, status=status.HTTP_201_CREATED)
+
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
