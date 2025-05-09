@@ -31,3 +31,8 @@ selenium_user_data/
 
 # Mac metadata file 
 .DS_Store
+
+# Terraform 
+infra/.terraform/
+infra/*.tfstate
+infra/*.tfstate.backup
