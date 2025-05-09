@@ -44,6 +44,7 @@ export default function JobListing() {
     const [altEmail, setAltEmail] = useState("");
     const [phone, setPhone] = useState("");
     const [resumeFile, setResumeFile] = useState<File | null>(null);
+    const [showFullDescription, setShowFullDescription] = useState(false);
 
     useEffect(() => {
             const fetchJobListing = async () => {
@@ -125,6 +126,10 @@ export default function JobListing() {
         }
     };    
 
+    const handleToggleDescription = () => {
+        setShowFullDescription(!showFullDescription);
+    };
+
     if (loading || !jobListing || !profile) { return <div>Loading...</div>; }
 
     return (
@@ -164,10 +169,17 @@ export default function JobListing() {
                     </div>
 
                     <p className={styles.descriptionJob}>
-                    {jobListing.event_description.length > 140
-                        ? jobListing.event_description.slice(0, 140) + "..."
-                        : jobListing.event_description}
-                    </p>
+                            {showFullDescription
+                                ? jobListing.event_description
+                                : jobListing.event_description
+                                    ? jobListing.event_description.slice(0, 140) + "..."
+                                    : ''}
+                        </p>
+                        {jobListing.event_description && jobListing.event_description.length > 140 && (
+                            <button onClick={handleToggleDescription} className={styles.loadMoreBtn}>
+                                {showFullDescription ? 'Show Less' : 'Load More'}
+                            </button>
+                        )}
 
                     <div className={styles.tags}>
                     {jobListing.instruments.map((inst, i) => (

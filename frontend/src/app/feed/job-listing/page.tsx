@@ -45,6 +45,7 @@ export default function JobListingFeed() {
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
+    const [showFullDescription, setShowFullDescription] = useState(false);
 
     const fetchJobListings = async (pageNum = 1) => {
 
@@ -106,6 +107,10 @@ export default function JobListingFeed() {
             fetchJobListings(page + 1);
             setPage((prevPage) => prevPage + 1);
         }
+    };
+
+    const handleToggleDescription = () => {
+        setShowFullDescription(!showFullDescription);
     };
 
     const formatDate = (dateStr: string) => {
@@ -171,10 +176,17 @@ export default function JobListingFeed() {
                         </div>
 
                         <p className={styles.descriptionJob}>
-                        {listing.event_description.length > 140
-                            ? listing.event_description.slice(0, 140) + "..."
-                            : listing.event_description}
+                            {showFullDescription
+                                ? listing.event_description
+                                : listing.event_description
+                                    ? listing.event_description.slice(0, 140) + "..."
+                                    : ''}
                         </p>
+                        {listing.event_description && listing.event_description.length > 140 && (
+                            <button onClick={handleToggleDescription} className={styles.loadMoreBtn}>
+                                {showFullDescription ? 'Show Less' : 'Load More'}
+                            </button>
+                        )}
 
                         <div className={styles.tags}>
                         {listing.instruments.map((inst, i) => (
