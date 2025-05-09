@@ -38,7 +38,7 @@ sudo -u ubuntu bash -lc '
 
 # 6) Build .env for backend
 cat <<EOF > /home/ubuntu/savvynote/.env
-DJANGO_ENV=test
+DJANGO_ENV=production
 DB_NAME=$(aws ssm get-parameter --name "/savvynote/DB_NAME" --with-decryption --query "Parameter.Value" --output text)
 DB_USER=$(aws ssm get-parameter --name "/savvynote/DB_USER" --with-decryption --query "Parameter.Value" --output text)
 DB_PASSWORD=$(aws ssm get-parameter --name "/savvynote/DB_PASSWORD" --with-decryption --query "Parameter.Value" --output text)
@@ -46,6 +46,7 @@ DB_HOST=$(aws ssm get-parameter --name "/savvynote/DB_HOST" --with-decryption --
 DB_PORT=$(aws ssm get-parameter --name "/savvynote/DB_PORT" --with-decryption --query "Parameter.Value" --output text)
 SECRET_KEY=$(aws ssm get-parameter --name "/savvynote/SECRET_KEY" --with-decryption --query "Parameter.Value" --output text)
 DJANGO_SECRET_KEY=$(aws ssm get-parameter --name "/savvynote/SECRET_KEY" --with-decryption --query "Parameter.Value" --output text)
+NEXT_PUBLIC_FRONTEND_API=$(aws ssm get-parameter --name "/savvynote/FRONTEND_API" --with-decryption --query "Parameter.Value" --output text)
 NEXT_PUBLIC_API_URL=$(aws ssm get-parameter --name "/savvynote/NEXT_PUBLIC_API_URL" --with-decryption --query "Parameter.Value" --output text)
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=$(aws ssm get-parameter --name "/savvynote/NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY" --with-decryption --query "Parameter.Value" --output text)
 SELENIUM_USER_DIR=$(aws ssm get-parameter --name "/savvynote/SELENIUM_USER_DIR" --with-decryption --query "Parameter.Value" --output text)

@@ -73,7 +73,6 @@ variable "ssh_location" {
 }
 
 locals {
-  allow_ssh = var.environment != "prod"
   ami_map = {
     us-east-1 = "ami-0a25f237e97fa2b5e"
     us-east-2 = "ami-08529db39844c00c2"
@@ -151,15 +150,12 @@ resource "aws_security_group" "frontend" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  dynamic "ingress" {
-    for_each = local.allow_ssh ? [1] : []
-    content {
-      description = "SSH"
-      from_port   = 22
-      to_port     = 22
-      protocol    = "tcp"
+  ingress {
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
       cidr_blocks = [var.ssh_location]
-    }
   }
   egress {
     from_port   = 0
@@ -185,15 +181,12 @@ resource "aws_security_group" "backend" {
     protocol        = "tcp"
     security_groups = [aws_security_group.frontend.id]
   }
-  dynamic "ingress" {
-    for_each = local.allow_ssh ? [1] : []
-    content {
-      description = "SSH"
-      from_port   = 22
-      to_port     = 22
-      protocol    = "tcp"
+  ingress {
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
       cidr_blocks = [var.ssh_location]
-    }
   }
   egress {
     from_port   = 0
