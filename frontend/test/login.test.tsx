@@ -84,13 +84,4 @@ describe("Login Component", () => {
             expect(screen.getByText("Invalid username or password")).toBeInTheDocument();
         });
     });
-
-    test("clicking 'Sign in with Google' triggers Google login", () => {
-        render(<Login />);
-    
-        fireEvent.click(screen.getByText("Sign in with Google"));
-    
-        // Ensure that the signIn function is called with the correct provider and callback URL
-        expect(signIn).toHaveBeenCalledWith("google", { callbackUrl: "/google-auth" });
-    });
 });

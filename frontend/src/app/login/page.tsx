@@ -76,11 +76,6 @@ export default function Login() {
         </p>
       </form>
 
-      <button onClick={handleGoogleLogin} className={styles.googleButton}>
-        <FcGoogle className={styles.googleIcon} />
-          Sign in with Google
-      </button>
-
       <footer className={styles.footer}>
         &copy; {new Date().getFullYear()} SavvyNote. All rights reserved.
       </footer>

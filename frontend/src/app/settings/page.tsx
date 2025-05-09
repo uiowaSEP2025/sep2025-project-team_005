@@ -447,8 +447,6 @@ export default function SettingsPage() {
                                             <Button variant="text" onClick={() => router.push(`posts/${post.id}/liked-users/`)}>
                                                 {post.like_count}
                                             </Button>
-                                            <Button onClick={() => handleCommentClick(post)}><ChatBubbleOutline/></Button>
-                                            <Button variant="contained" onClick={() => handleShareClick(post)}>Share</Button>
                                         </CardActions>
                                     </Card>
                                 ))}

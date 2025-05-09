@@ -63,6 +63,8 @@ export default function BusinessProfile() {
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [isFollowing, setIsFollowing] = useState<boolean | null>(null);
+    const [showFullDescription, setShowFullDescription] = useState(false);
+    
 
     useEffect(() => {
         const fetchUserId = async () => {
@@ -350,6 +352,10 @@ export default function BusinessProfile() {
         router.push(`messages/${userId}`);
     }
 
+    const handleToggleDescription = () => {
+        setShowFullDescription(!showFullDescription);
+    };
+
     if (isLoading || !businessProfile || !followCount) return <p className="description">Loading...</p>;
 
     return (
@@ -466,10 +472,17 @@ export default function BusinessProfile() {
                         </div>
 
                         <p className={styles.descriptionJob}>
-                        {listing.event_description.length > 140
-                            ? listing.event_description.slice(0, 140) + "..."
-                            : listing.event_description}
+                            {showFullDescription
+                                ? listing.event_description
+                                : listing.event_description
+                                    ? listing.event_description.slice(0, 140) + "..."
+                                    : ''}
                         </p>
+                        {listing.event_description && listing.event_description.length > 140 && (
+                            <button onClick={handleToggleDescription} className={styles.loadMoreBtn}>
+                                {showFullDescription ? 'Show Less' : 'Load More'}
+                            </button>
+                        )}
 
                         <div className={styles.tags}>
                         {listing.instruments.map((inst, i) => (
