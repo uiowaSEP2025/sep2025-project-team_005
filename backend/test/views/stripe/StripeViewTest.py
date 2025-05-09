@@ -34,7 +34,7 @@ def business(test_user):
 @pytest.mark.django_db
 def test_create_subscription_session_monthly(api_client, test_user, mocker):
     mock_create = mocker.patch('stripe.checkout.Session.create')
-    mock_create.return_value.id = 'test_session_id'
+    mock_create.return_value.url = 'test_session_url'
 
     url = CREATE_SUBSCRIPTION_URL.format(test_user.id)
     response = api_client.post(url, {
@@ -43,7 +43,7 @@ def test_create_subscription_session_monthly(api_client, test_user, mocker):
     }, format='json')
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.data['id'] == 'test_session_id'
+    assert response.data['url'] == 'test_session_url'
     mock_create.assert_called_once()
 
 @pytest.mark.django_db
