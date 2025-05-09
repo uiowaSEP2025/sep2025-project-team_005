@@ -6,6 +6,7 @@ boto3
 certifi
 charset-normalizer
 coverage
+daphne
 Django
 django-cors-headers
 django-environ
@@ -13,6 +14,7 @@ django-extensions
 django-storages
 djangorestframework
 djangorestframework_simplejwt
+gunicorn
 h11
 idna
 iniconfig

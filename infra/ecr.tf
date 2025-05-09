@@ -4,9 +4,9 @@ resource "aws_ecr_repository" "savvynote_frontend" {
     scan_on_push = true
   }
   image_tag_mutability = "MUTABLE"
-  lifecycle {
-    prevent_destroy = true
-  }
+  #lifecycle {
+  #  prevent_destroy = true
+  #}
 }
 
 # Backend repo
@@ -16,9 +16,9 @@ resource "aws_ecr_repository" "savvynote_backend" {
     scan_on_push = true
   }
   image_tag_mutability = "MUTABLE"
-  lifecycle {
-    prevent_destroy = true
-  }
+  #lifecycle {
+  #  prevent_destroy = true
+  #}
 }
 
 data "aws_iam_policy_document" "ecr_pull" {

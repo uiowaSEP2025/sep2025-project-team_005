@@ -15,19 +15,28 @@ usermod -aG docker ubuntu
 systemctl enable --now docker
 add-apt-repository ppa:deadsnakes/ppa -y
 apt-get update -y
-apt-get install -y python3.11 python3.11-venv python3.11-distutils
+apt-get install -y python3.11 python3.11-venv python3.11-distutils poppler-utils tesseract-ocr redis-server
+systemctl enable --now redis-server
+curl -sS https://bootstrap.pypa.io/get-pip.py | python3.11 -
+python3.11 -m pip install --upgrade pip
+python3.11 -m pip install nltk spacy
+python3.11 -m nltk.downloader stopwords punkt wordnet averaged_perceptron_tagger
+python3.11 -m spacy download en_core_web_sm
 
 # 3) Clone or update repository
 cd /home/ubuntu
-git clone https://github.com/uiowaSEP2025/sep2025-project-team_005.git savvynote
+if [ -d savvynote ]; then
+  cd savvynote && git pull && cd ..
+else
+  git clone https://github.com/uiowaSEP2025/sep2025-project-team_005.git savvynote
+fi
 chown -R ubuntu:ubuntu .
 
-# 4) Setup Python venv and install dependencies
-python3.11 -m venv backend/venv
-. backend/venv/bin/activate
-pip install --upgrade pip setuptools wheel
-pip install -r /home/ubuntu/savvynote/backend/requirements.txt
-pip install Django==5.2.0 gunicorn
+python3.11 -m venv /home/ubuntu/savvynote/backend/venv
+. /home/ubuntu/savvynote/backend/venv/bin/activate
+python3.11 -m pip install --upgrade pip setuptools wheel packaging
+python3.11 -m pip install -r /home/ubuntu/savvynote/backend/requirements.txt
+python3.11 -m pip install Django==5.2.0 gunicorn
 deactivate
 
 # 5) Docker login via SSM

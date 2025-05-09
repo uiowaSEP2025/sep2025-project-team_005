@@ -16,7 +16,7 @@ resource "aws_iam_role" "ec2_role" {
       Action    = "sts:AssumeRole"
     }]
   })
-  lifecycle { prevent_destroy = true }
+  #lifecycle { prevent_destroy = true }
 }
 
 resource "aws_iam_role_policy_attachment" "ecr_readonly" {

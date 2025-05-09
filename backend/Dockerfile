@@ -1,26 +1,23 @@
-# Use an official Python runtime as a parent image
-FROM python:3.10-slim
+FROM python:3.11-slim
 
-# Set working directory
 WORKDIR /app
 
-# Install system dependencies required for building Python packages
-RUN apt-get update && \
-    apt-get install -y gcc libpq-dev && \
-    rm -rf /var/lib/apt/lists/*
+# Install build deps
+RUN apt-get update \
+ && apt-get install -y gcc libpq-dev \
+ && rm -rf /var/lib/apt/lists/*
 
-# Copy the requirements file into the container
-COPY requirements.txt .
+# Copy & install Python deps (including daphne)
+COPY backend/requirements.txt .
+RUN pip install --upgrade pip setuptools wheel \
+ && pip install --no-cache-dir -r requirements.txt
 
-# Upgrade pip and install Python dependencies
-RUN pip install --upgrade pip && \
-    pip install -r requirements.txt
+# Ensure /usr/local/bin (where pip drops scripts) is on PATH
+ENV PATH="/usr/local/bin:${PATH}"
 
-# Copy the rest of the application code into the container
+# Copy app code
 COPY . .
 
-# Expose port 8000 for the Django server
 EXPOSE 8000
 
-# Start the Django development server
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "savvynote.asgi:application"]
